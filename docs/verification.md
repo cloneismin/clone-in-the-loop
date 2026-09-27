@@ -61,4 +61,4 @@ The [QM proposal](https://github.com/yc-software/qm/pull/1671) is open. It conta
 
 ## Video delivery and remaining acceptance
 
-The complete 90-second video reached the end during local playback. The [Loom share page](https://www.loom.com/share/57d5b73042f847e0a2ac072ff379d7b6) is uploaded, and its public sharing setting was verified. The URL is filled into the draft submission form. Full Loom playback verification and the user's submission receipt remain pending; the form has not been submitted.
+The complete 90-second video reached the end during local playback. The [Loom share page](https://www.loom.com/share/57d5b73042f847e0a2ac072ff379d7b6) also played to the end at 1x: at 16:23:50, the player reported `currentTime: 90.026666`, `duration: 90.026666`, `ended: true`, and `paused: true`, with the closing logo visible. The share modal confirmed public access. The final title is "Clone-in-the-Loop | QM + GBrain Hackathon Demo". At 16:23:37, the submission form showed its saved-draft state with the Loom URL present. The user's acceptance and submission receipt remain pending; the form has not been submitted.

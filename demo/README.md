@@ -1,6 +1,6 @@
 # Demo production kit
 
-[Watch the 90-second demo on Loom](https://www.loom.com/share/57d5b73042f847e0a2ac072ff379d7b6). Local playback is complete; full Loom playback verification is still pending.
+[Watch the 90-second demo on Loom](https://www.loom.com/share/57d5b73042f847e0a2ac072ff379d7b6). Complete local and Loom playback passed, and public sharing is verified. The user's acceptance and submission remain pending.
 
 This directory prepares a 90-second film of Clone-in-the-Loop, the QM extension with GBrain-backed next-prompt prediction. Read the [storyboard](storyboard.md), [narration](narration.txt), and [tool requirements](tooling.md) first.
 
