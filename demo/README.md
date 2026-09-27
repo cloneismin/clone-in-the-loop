@@ -1,5 +1,7 @@
 # Demo production kit
 
+[Watch the 90-second demo on Loom](https://www.loom.com/share/57d5b73042f847e0a2ac072ff379d7b6). Local playback is complete; full Loom playback verification is still pending.
+
 This directory prepares a 90-second film of Clone-in-the-Loop, the QM extension with GBrain-backed next-prompt prediction. Read the [storyboard](storyboard.md), [narration](narration.txt), and [tool requirements](tooling.md) first.
 
 All capture, editing, narration, captions, and submission content must be English. Product footage must come from this repository's implementation during the hackathon. Keep every recording, audio file, rendered cut, and source receipt under ignored `demo/output/` or `data/`.

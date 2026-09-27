@@ -18,7 +18,7 @@ Start a session from **New**. Your Clone predicts the next instruction. Press **
 | **Review**   | The Clone examines the result against the intended outcome and remembered preferences.              |
 | **Improve**  | It requests a correction or chooses the next useful improvement. Stop remains available throughout. |
 
-**Demo video:** recording and Loom upload pending. A verified playback link will be added here. The [90-second storyboard and production kit](demo/README.md) describe the fresh capture and review process.
+**Demo video:** [Watch the 90-second demo on Loom](https://www.loom.com/share/57d5b73042f847e0a2ac072ff379d7b6). The [90-second storyboard and production kit](demo/README.md) describe the fresh capture and review process.
 
 ## What we added to QM
 
@@ -167,14 +167,14 @@ npm run clone:core:smoke
 
 Current verification status:
 
-| Layer                             | Evidence                                                                                                                                                                                                                     |
-| --------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Automated checks                  | 93 tests passed in [Clone CI on main](https://github.com/cloneismin/clone-in-the-loop/actions/runs/36357442131). Additional local checks cover Codex cancellation, documentation contracts, and navigation shortcuts.        |
-| TypeScript, lint, and build       | Core and extension typechecks, extension ESLint, and the production web build passed.                                                                                                                                        |
-| Real execution                    | QM produced a sourced Research response and a Product command-line tool. The generated tool's three unit tests passed independently, and its CSV input produced real output.                                                 |
-| Clone mode and Stop               | Observed six personal iterations and seven synthetic-teammate iterations before the Garry persona update. Stop persisted the paused state without further continuation; saved personal work survived restart.                |
-| Prediction and workspace behavior | Real GBrain-backed predictions and Tab acceptance were observed. Independent delayed-response checks cover workspace navigation and draft preservation; long-text layout was checked with a synthetic browser fixture.       |
-| Final delivery                    | The recorded session reached six real Clone iterations, refined a publication-approval gate, and remained paused after the square Stop control. Final movie playback, Loom upload, and the user's submission remain pending. |
+| Layer                             | Evidence                                                                                                                                                                                                                                                                                 |
+| --------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Automated checks                  | 93 tests passed in [Clone CI on main](https://github.com/cloneismin/clone-in-the-loop/actions/runs/36357989992). Additional local checks cover Codex cancellation, documentation contracts, and navigation shortcuts.                                                                    |
+| TypeScript, lint, and build       | Core and extension typechecks, extension ESLint, and the production web build passed.                                                                                                                                                                                                    |
+| Real execution                    | QM produced a sourced Research response and a Product command-line tool. The generated tool's three unit tests passed independently, and its CSV input produced real output.                                                                                                             |
+| Clone mode and Stop               | Observed six personal iterations and seven synthetic-teammate iterations before the Garry persona update. Stop persisted the paused state without further continuation; saved personal work survived restart.                                                                            |
+| Prediction and workspace behavior | Real GBrain-backed predictions and Tab acceptance were observed. Independent delayed-response checks cover workspace navigation and draft preservation; long-text layout was checked with a synthetic browser fixture.                                                                   |
+| Final delivery                    | Recorded Clone work reached ten iterations, corrected a 50-word draft and its approval checklist, and remained paused after Stop. The 90-second video passed local playback and is publicly available on Loom. Full Loom playback verification and the user's submission remain pending. |
 
 The [verification record](docs/verification.md) separates CI, focused regression checks, observed browser behavior, and remaining acceptance. The [Upstream QM PR](https://github.com/yc-software/qm/pull/1671) is open and contains a text proposal under upstream contribution policy. The implementation is in this fork's `main` branch.
 

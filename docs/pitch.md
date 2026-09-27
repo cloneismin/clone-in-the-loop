@@ -22,7 +22,7 @@ We built Clone-in-the-Loop inside a QM source fork. Official GBrain retrieves re
 
 Press Tab once to accept it. Press Tab again and QM executes while your Clone reviews and directs the next step.
 
-Watch this launch-review task. The Clone asked for missing copy, checked the result, and refined a reusable template with a verification and approval gate. We inspected the generated template, stopped the loop, and checked that it stayed paused.
+Watch this launch-review task. The Clone caught a repeated call to action, then requested tighter wording and specific sources. QM corrected the 50-word post and its review checklist. We inspected the template, stopped the loop, and checked that it stayed paused.
 
 Switch to a team workspace to use shared judgment. Clone Garry is a fictional teammate with invented history; personal records stay outside team retrieval.
 
@@ -53,7 +53,7 @@ The official GBrain PGLite engine stores and retrieves imported human messages a
 
 **What proves the loop is real?**
 
-Recorded QM runs produced reviews, corrections, and actual files. In the launch task, the Clone requested missing copy and strengthened a reusable review template. We inspected that template and separately verified Stop left the session paused with no active run. A Product task also generated a command-line tool whose three tests passed independently.
+Recorded QM runs produced reviews, corrections, and actual files. In the launch task, the Clone caught a repeated call to action, requested tighter wording and specific sources, and strengthened the review checklist. We inspected that template and separately verified Stop left the session paused with no active run. A Product task also generated a command-line tool whose three tests passed independently.
 
 **How private is the memory?**
 
@@ -73,6 +73,7 @@ The working code is in the public QM fork. The open Upstream QM PR contains a sh
 
 ## Links for judges
 
+- [90-second demo on Loom](https://www.loom.com/share/57d5b73042f847e0a2ac072ff379d7b6)
 - [Working source and quickstart](https://github.com/cloneismin/clone-in-the-loop)
 - [Verification record](verification.md)
 - [Upstream QM PR](https://github.com/yc-software/qm/pull/1671)
