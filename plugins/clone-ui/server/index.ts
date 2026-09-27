@@ -69,6 +69,7 @@ async function inbox(workspace: "personal" | "team"): Promise<unknown> {
       workspace,
       cloneId: "min",
       query: "product research marketing launch improve review",
+      mode: "recall",
       limit: 5,
     });
     const result = await qm.turn({

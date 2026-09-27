@@ -6,6 +6,7 @@ import { pathToFileURL } from "node:url";
 import { TEAM_DEMO_MEMORIES } from "./demo.ts";
 import { collectLocalHistory, sanitizeUserText, staleImportedHistoryPages } from "./history.ts";
 import { GBRAIN_DIRECTORY, GBRAIN_REVISION, GBRAIN_VERSION } from "./paths.ts";
+import { recallQueries } from "./recall-query.ts";
 import type {
   CloneId,
   ImportResult,
@@ -208,11 +209,23 @@ async function search(input: MemorySearch): Promise<MemorySearchResponse> {
       resultFromPage(page, 0),
     );
   } else {
-    const hits = await brain.searchKeyword(query, { sourceIds, limit, orFallback: true });
+    const queries = input.mode === "recall" ? recallQueries(query) : [query];
+    const batches = await Promise.all(
+      queries.map((expression) => brain.searchKeyword(expression, { sourceIds, limit, orFallback: true })),
+    );
+    const ranked = new Map<string, BrainHit>();
+    for (const batch of batches) {
+      for (const [rank, hit] of batch.entries()) {
+        if (!sourceIds.includes(hit.source_id))
+          throw new Error("GBrain returned a result outside the requested source scope.");
+        const key = `${hit.source_id}:${hit.slug}`;
+        const score = input.mode === "recall" ? 1 / (60 + rank) : hit.score;
+        ranked.set(key, { ...hit, score: (ranked.get(key)?.score ?? 0) + score });
+      }
+    }
+    const hits = [...ranked.values()].sort((a, b) => b.score - a.score).slice(0, limit);
     results = [];
     for (const hit of hits) {
-      if (!sourceIds.includes(hit.source_id))
-        throw new Error("GBrain returned a result outside the requested source scope.");
       const page = await brain.getPage(hit.slug, { sourceId: hit.source_id });
       if (page) results.push(resultFromPage(page, hit.score));
     }

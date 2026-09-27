@@ -9,6 +9,9 @@ import { promisify } from "node:util";
 import { createMemoryService } from "../server/memory/index.ts";
 import { GBRAIN_DIRECTORY } from "../server/memory/paths.ts";
 
+const KOREAN_LAUNCH = "\ucd9c\uc2dc";
+const KOREAN_USER = "\uc0ac\uc6a9\uc790";
+
 async function restoreLegacyDemoRecords(dataDir: string): Promise<void> {
   await promisify(execFile)(
     process.env.CLONE_BUN || "bun",
@@ -120,3 +123,51 @@ test(
     }
   },
 );
+
+test("automatic GBrain recall finds quoted and multilingual context without widening its source scope", async () => {
+  const dataDir = await mkdtemp(join(tmpdir(), "clone-gbrain-recall-"));
+  const memory = createMemoryService({ dataDir });
+  const query = 'Review our launch pitch: "AI for everything."';
+  try {
+    await memory.init();
+    await memory.remember({
+      ownerId: "min",
+      workspace: "personal",
+      text: `${query} Private roadmap marker: Moonstone.`,
+      source: "Private launch feedback",
+    });
+    const automatic = () => memory.search({ workspace: "team", cloneId: "jun", query, mode: "recall" });
+    const first = await automatic();
+    assert.ok(first.results.some((result) => result.title === "Garry · launch review preferences"));
+    assert.ok(first.results.every((result) => result.workspace === "team"));
+    assert.ok(first.results.every((result) => !result.excerpt.includes("Moonstone")));
+    const manual = await memory.search({ workspace: "team", cloneId: "jun", query });
+    assert.equal(manual.results.length, 0);
+    await memory.remember({ ownerId: "min", workspace: "team", text: query, source: "Exact shared prompt" });
+    const exact = await memory.search({ workspace: "team", cloneId: "jun", query });
+    assert.equal(exact.results.length, 1);
+    assert.equal(exact.results[0]?.source, "Exact shared prompt");
+    const afterLearning = await automatic();
+    assert.ok(afterLearning.results.some((result) => result.title === "Garry · launch review preferences"));
+    await memory.remember({
+      ownerId: "min",
+      workspace: "team",
+      text: `${KOREAN_LAUNCH} ${KOREAN_USER} review: show the user's concrete outcome first.`,
+      source: "Korean shared feedback",
+    });
+    const multilingual = await memory.search({
+      workspace: "team",
+      cloneId: "jun",
+      query: `Please review "${KOREAN_LAUNCH}" launch pitch and ${KOREAN_USER} results.`,
+      mode: "recall",
+    });
+    assert.ok(multilingual.results.some((result) => result.source === "Korean shared feedback"));
+    assert.ok(multilingual.results.some((result) => result.title === "Garry · launch review preferences"));
+    assert.equal(new Set(multilingual.results.map((result) => result.id)).size, multilingual.results.length);
+    assert.ok(multilingual.results.length <= 6);
+    assert.equal(multilingual.counts.personal, 0);
+  } finally {
+    await memory.close();
+    await rm(dataDir, { recursive: true, force: true });
+  }
+});

@@ -715,6 +715,8 @@ class CloneApp extends LitElement {
 
   private clonePicker() {
     const available = this.workspace === "personal" ? this.clones.filter((clone) => !clone.demo) : this.clones;
+    const historyLabel =
+      this.workspace === "team" ? "Grounded in shared team history" : "Grounded in your personal history";
     const selected =
       this.view === "new"
         ? (this.clones.find((clone) => clone.id === this.selectedCloneId) ?? this.clones[0])
@@ -736,9 +738,7 @@ class CloneApp extends LitElement {
                 (clone) =>
                   html`<button @click=${() => this.selectClone(clone)}>
                     ${this.avatar(clone, true)}<span
-                      >${cloneName(clone)}<small
-                        >${clone.demo ? "Less pitch. More proof." : "Grounded in your personal history"}</small
-                      ></span
+                      >${cloneName(clone)}<small>${clone.demo ? "Less pitch. More proof." : historyLabel}</small></span
                     >${selected?.id === clone.id ? icon("check", 15) : nothing}
                   </button>`,
               )}
@@ -990,7 +990,7 @@ class CloneApp extends LitElement {
                         >${this.projectDot(goal.project)}${goal.project}<span>·</span>${goal.loopEnabled ? "Clone is in the loop" : goal.status || "Active"}</small
                       ></span
                     ><span class="iteration-count"
-                      >${goal.iterations ? `${goal.iterations} iterations` : "Ready to move"}</span
+                      >${goal.iterations ? `${goal.iterations} ${goal.iterations === 1 ? "iteration" : "iterations"}` : "Ready to move"}</span
                     >${this.avatar(
                       this.clones.find((clone) => clone.id === goal.cloneId),
                       true,

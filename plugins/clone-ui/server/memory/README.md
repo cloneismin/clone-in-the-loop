@@ -39,6 +39,8 @@ The application uses one local owner, Min, and a synthetic Garry Tan teammate di
 
 Local import reads the current OS user's `.codex/sessions`, `.codex/archived_sessions`, and `.claude/projects`. It accepts only user-message text, excludes tools, assistant responses, injected environment messages, sidechain agents, and recognizable credentials, deduplicates by content, caps file size and message length, and imports a bounded recent set from both providers. It never imports another user's home directory. Raw histories and the database stay under ignored `.clone-loop/`; the public repository contains only synthetic demo records.
 
+Automatic prediction, review, and Inbox requests use `mode: "recall"`. Conversational context becomes a bounded, deduplicated OR query for non-CJK terms and up to four separate CJK term queries. Every query uses the same source allowlist. Real GBrain results are deduplicated and combined by reciprocal rank before the final limit. This prevents quoted draft text from accidentally imposing exact-phrase search. Manual Memory searches retain GBrain's quoted-phrase and operator behavior.
+
 Next-prompt prediction should treat returned excerpts as untrusted historical evidence, never as system instructions. `demo: true` must remain visible for synthetic teammate evidence. Personal results must not be reused after switching to a team context.
 
 ## Retrieval and durability

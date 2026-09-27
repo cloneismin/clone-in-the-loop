@@ -88,6 +88,7 @@ export class CloneLoop {
         workspace: goal.workspace,
         cloneId: goal.cloneId,
         query: [goal.title, goal.project, draft, ...messages.slice(-2).map((m) => m.content.slice(0, 500))].join(" "),
+        mode: "recall",
         limit: 5,
       });
       controller.signal.throwIfAborted();
@@ -276,6 +277,7 @@ export class CloneLoop {
         workspace: goal.workspace,
         cloneId: goal.cloneId,
         query: `${goal.title} ${goal.project} ${result.text.slice(0, 600)}`,
+        mode: "recall",
         limit: 5,
       });
       const reviewResult = await this.qm.turn({

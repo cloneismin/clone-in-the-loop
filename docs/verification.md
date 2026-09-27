@@ -4,9 +4,9 @@ This record separates automated checks from observed product behavior. All times
 
 ## Automated checks
 
-- The latest completed Clone CI workflow passed on [main](https://github.com/cloneismin/clone-in-the-loop/actions/runs/36352420792) and the [implementation branch](https://github.com/cloneismin/clone-in-the-loop/actions/runs/36352419465) at `2a54518fc3f4c024cc31c493e22426f9cd8f5b46`.
-- Those runs passed 80 tests: 62 targeted QM configuration and trusted-host filesystem tests, plus 18 extension tests covering official GBrain PGLite retrieval and persistence, personal/team source isolation, human-history filtering, Markdown structure, execution lifecycle failures, and keyboard shortcuts.
-- The subsequent local checkpoint passed 142 tests: 20 extension tests, 62 QM configuration and trusted-host tests, five documentation contract tests, and 55 Codex harness tests. These include the renamed teammate's stable identity, migration of existing synthetic records without changing private history or shared feedback, and the cancellation regression described below. This total is a local result, not a completed CI result for that checkpoint.
+- The latest completed Clone CI workflow passed on [main](https://github.com/cloneismin/clone-in-the-loop/actions/runs/36353746893) and the [implementation branch](https://github.com/cloneismin/clone-in-the-loop/actions/runs/36353744725) at `3280584cbd2661c1dbb1d161159e349f9d976c30`.
+- Those runs passed 82 tests: 62 targeted QM configuration and trusted-host filesystem tests, plus 20 extension tests covering official GBrain PGLite retrieval and persistence, personal/team source isolation, human-history filtering, Markdown structure, execution lifecycle failures, and keyboard shortcuts.
+- The subsequent local checkpoint passed 146 tests: 24 extension tests, 62 QM configuration and trusted-host tests, five documentation contract tests, and 55 Codex harness tests. These include the renamed teammate's stable identity, migration of existing synthetic records without changing private history or shared feedback, the cancellation regression described below, and conversational recall of quoted and mixed-language context. This total is a local result, not a completed CI result for that checkpoint.
 - Keyboard regressions cover one-Tab acceptance, second-Tab Clone mode activation, edited or cleared acceptance, held keys, and modified Tab.
 - Core and extension TypeScript checks, extension-wide ESLint, scoped Clone Knip, formatting, and the production web build passed. The inherited lint workflow now installs the Clone package before whole-repository Knip. Local whole-repository Knip remains limited by uninstalled upstream desktop and web-ui dependencies; those packages are installed in CI.
 - Independent review reproduced workspace navigation races, cancellation races, a failed-start retry problem, and a filesystem root-alias issue. Fixes were exercised with focused regressions or delayed-response fixtures.
@@ -21,6 +21,10 @@ This record separates automated checks from observed product behavior. All times
 - A fresh Research task returned primary-source links and an actionable checklist through QM.
 - A fresh Product task used QM tools to create `task_triage.py`, `test_task_triage.py`, and `example_tasks.csv` under `data/clone-runtime/computers/59429d5160a8bd076a4c414529b63eba/workspace`. An independent `python3 -m unittest -v test_task_triage.py` run passed all three tests; running the tool on the CSV also produced output. These generated files remain ignored local execution artifacts.
 - During continuous capture ending at 14:57, a fresh Marketing Goal (`75fb728c-3353-4708-8318-dde6b3becb5f`) started Clone mode with the second Tab. It completed seven iterations, reviewed missing evidence, requested and received a 50-word draft, and refined a template and table. After Stop, database readback confirmed `paused`, `idle`, seven iterations, `loopEnabled: false`, and an empty active-run ID. Recording this interaction does not establish final movie playback or delivery.
+
+## Conversational recall
+
+A real GBrain regression reproduced missing teammate evidence when a draft contained quoted text. Official keyword search preserves quoted-phrase semantics and skips its OR fallback for operator queries; an exact learned-message hit can also prevent fallback. Automatic prediction, review, and Inbox recall now use bounded natural-language terms, with a non-CJK OR query and separate CJK literal queries. All requests keep their source allowlist. Real PGLite tests verify teammate evidence before and after storing an exact shared message, private-memory exclusion, deduplication, and mixed-language recall. Manual Memory search retains its original syntax.
 
 ## Cancellation recovery
 

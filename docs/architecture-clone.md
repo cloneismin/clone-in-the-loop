@@ -97,6 +97,8 @@ The Node API communicates with the worker over JSON lines. One worker owns the P
 
 The scope allowlist is applied before retrieval. The result mapper checks every search hit's source again. Team results and counts exclude the private source, including its import count. Garry's personal scope is rejected, and synthetic teammate memory is read-only through the application API.
 
+Predictions, reviews, and Inbox suggestions request conversational recall: bounded non-CJK terms form an OR query, while CJK terms use separate literal queries supported by GBrain's engine. Reciprocal rank combines and deduplicates the scoped results. Quoted text in a draft is context rather than an exact-phrase constraint. Manual Memory searches retain the underlying search semantics.
+
 The display persona is Clone Garry, a fictional Garry Tan demo with invented conversation history and no affiliation or endorsement. Source labels, excerpts, and `demo` flags accompany the evidence. Model prompts treat that evidence as historical data, not authorization to perform actions. Memory evidence retains demo origin labels, while the main Clone controls use the clean display name. Stale evidence clears when the selected context changes.
 
 ### History import
@@ -140,7 +142,7 @@ Expanding this build beyond one trusted local operator requires a real identity 
 
 ## Verification boundary
 
-The Clone CI workflow passed on `main` and the implementation branch with 80 tests at the recorded revision. The later local checkpoint passed 142 focused tests across the extension, QM runtime configuration, filesystem confinement, documentation contracts, and Codex harness. Core and extension TypeScript checks, extension ESLint, scoped Clone Knip, and the production web build passed. GBrain coverage runs the official PGLite engine and checks source isolation, filtering, persistence after reopening, and migration of the synthetic teammate's display name without changing private or shared feedback.
+The Clone CI workflow passed on `main` and the implementation branch with 82 tests at the recorded revision. The later local checkpoint passed 146 focused tests across the extension, QM runtime configuration, filesystem confinement, documentation contracts, and Codex harness. Core and extension TypeScript checks, extension ESLint, scoped Clone Knip, and the production web build passed. GBrain coverage runs the official PGLite engine and checks source isolation, filtering, persistence after reopening, and migration of the synthetic teammate's display name without changing private or shared feedback.
 
 Actual QM execution produced a Research answer with primary-source links and a checklist, then a Product command-line tool whose three generated tests passed under an independent run. The browser showed six personal Clone mode iterations and seven synthetic-teammate iterations before the Garry persona update. Stop persisted a paused state, and saved personal work survived service restart.
 

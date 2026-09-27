@@ -47,6 +47,7 @@ export interface MemorySearch {
   workspace: Workspace;
   cloneId: CloneId;
   query: string;
+  mode?: "search" | "recall";
   limit?: number;
 }
 
