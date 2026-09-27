@@ -764,9 +764,12 @@ class CloneApp extends LitElement {
   private composer(home = false) {
     const suffix = this.prediction?.text ? completionSuffix(this.draft, this.prediction.text) : "";
     const separatePrediction = this.prediction?.text && !suffix && this.prediction.text !== this.draft;
+    const active = this.loopOn || this.working;
+    const stopping = active && (this.pending || this.active?.goal.phase === "stopping");
     let placeholder = "Ask anything";
-    if (suffix) placeholder = "";
-    else if (this.working) placeholder = "Agent is working. Press Stop to add direction…";
+    if (stopping) placeholder = "Stopping…";
+    else if (active) placeholder = "Press Stop to add direction…";
+    else if (suffix) placeholder = "";
     return html`<div class="composer-area ${home ? "home-composer" : ""}">
       ${
         separatePrediction
@@ -788,7 +791,7 @@ class CloneApp extends LitElement {
               aria-describedby="composer-state composer-shortcuts"
               placeholder=${placeholder}
               .value=${this.draft}
-              ?readonly=${this.working}
+              ?readonly=${active}
               rows="1"
               @input=${this.onDraft}
               @keydown=${this.onComposerKey}
@@ -819,14 +822,26 @@ class CloneApp extends LitElement {
             }
           </div>
           <div class="composer-actions">
-            ${!home || this.draft || this.prediction?.text ? html`<button class="loop-toggle ${this.loopOn || this.working ? "enabled" : ""}" title="Your Clone continues directing and reviewing until you stop" @click=${() => this.toggleLoop(this.loopOn || this.working ? false : true)} ?disabled=${this.pending}>${icon(this.loopOn || this.working ? "stop" : "loop", 15)}<span>${this.loopOn || this.working ? "Stop" : "Clone mode"}</span></button>` : nothing}<button
-              class="send-button"
-              aria-label="Send message"
-              @click=${() => this.send()}
-              ?disabled=${!this.draft.trim() || this.pending || this.booting || this.working}
-            >
-              ${this.pending ? html`<span class="button-spinner"></span>` : icon("arrow", 19)}
-            </button>
+            ${!active && (!home || this.draft || this.prediction?.text) ? html`<button class="loop-toggle" title="Your Clone continues directing and reviewing until you stop" @click=${() => this.toggleLoop(true)} ?disabled=${this.pending}>${icon("loop", 15)}<span>Clone mode</span></button>` : nothing}${
+              active
+                ? html`<button
+                    class="send-button stop-button"
+                    aria-label=${stopping ? "Stopping" : "Stop"}
+                    title=${stopping ? "Stopping" : "Stop"}
+                    @click=${() => this.toggleLoop(false)}
+                    ?disabled=${stopping}
+                  >
+                    ${icon("stop", 20)}
+                  </button>`
+                : html`<button
+                    class="send-button"
+                    aria-label="Send message"
+                    @click=${() => this.send()}
+                    ?disabled=${!this.draft.trim() || this.pending || this.booting}
+                  >
+                    ${this.pending ? html`<span class="button-spinner"></span>` : icon("arrow", 19)}
+                  </button>`
+            }
           </div>
         </div>
       </div>
@@ -845,7 +860,7 @@ class CloneApp extends LitElement {
       else if (/predict|plan/.test(this.active?.goal.phase ?? "")) phase = "Choosing the next step";
       return html`${icon("loop", 12)}Clone mode · ${phase}`;
     }
-    if (this.working) return html`${icon("code", 12)}Your agent is working.`;
+    if (this.working) return nothing;
     if (this.acceptedPrediction === this.draft && this.acceptedPrediction)
       return html`${icon("check", 12)}Prediction accepted. Ready when you are.`;
     if (this.predicting) return html`<span class="tiny-spinner"></span>Reading your context…`;

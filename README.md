@@ -169,12 +169,12 @@ Current verification status:
 
 | Layer                             | Evidence                                                                                                                                                                                                               |
 | --------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Automated checks                  | 89 tests passed in [Clone CI on main](https://github.com/cloneismin/clone-in-the-loop/actions/runs/36355270457). Additional local checks cover Codex cancellation, documentation contracts, and navigation shortcuts.  |
+| Automated checks                  | 93 tests passed in [Clone CI on main](https://github.com/cloneismin/clone-in-the-loop/actions/runs/36355772333). Additional local checks cover Codex cancellation, documentation contracts, and navigation shortcuts.  |
 | TypeScript, lint, and build       | Core and extension typechecks, extension ESLint, and the production web build passed.                                                                                                                                  |
 | Real execution                    | QM produced a sourced Research response and a Product command-line tool. The generated tool's three unit tests passed independently, and its CSV input produced real output.                                           |
 | Clone mode and Stop               | Observed six personal iterations and seven synthetic-teammate iterations before the Garry persona update. Stop persisted the paused state without further continuation; saved personal work survived restart.          |
 | Prediction and workspace behavior | Real GBrain-backed predictions and Tab acceptance were observed. Independent delayed-response checks cover workspace navigation and draft preservation; long-text layout was checked with a synthetic browser fixture. |
-| Final delivery                    | A recorded Marketing run exercised second-Tab Clone mode through seven iterations and Stop. Final movie playback, Loom upload, and submission receipt remain pending.                                                  |
+| Final delivery                    | A recorded minimal-interface run completed three real Clone iterations, template inspection, and Stop with no further continuation. Final movie playback, Loom upload, and the user's submission remain pending.       |
 
 The [verification record](docs/verification.md) separates CI, focused regression checks, observed browser behavior, and remaining acceptance. The [upstream QM proposal](https://github.com/yc-software/qm/pull/1671) is open and contains a text proposal under upstream contribution policy. The implementation is in this fork's `main` branch.
 

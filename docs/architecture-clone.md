@@ -142,7 +142,7 @@ Expanding this build beyond one trusted local operator requires a real identity 
 
 ## Verification boundary
 
-The Clone CI workflow passed on `main` and the implementation branch with 89 tests at the recorded revision. The later local checkpoint passed 153 focused tests across the extension, QM runtime configuration, filesystem confinement, documentation contracts, and Codex harness. Core and extension TypeScript checks, extension ESLint, scoped Clone Knip, and the production web build passed. GBrain coverage runs the official PGLite engine and checks source isolation, filtering, persistence after reopening, and migration of the synthetic teammate's display name without changing private or shared feedback.
+The Clone CI workflow passed on `main` and the implementation branch with 93 tests at the recorded revision. The local checkpoint passed 153 focused tests across the extension, QM runtime configuration, filesystem confinement, documentation contracts, and Codex harness. Core and extension TypeScript checks, extension ESLint, scoped Clone Knip, and the production web build passed. GBrain coverage runs the official PGLite engine and checks source isolation, filtering, persistence after reopening, and migration of the synthetic teammate's display name without changing private or shared feedback.
 
 Actual QM execution produced a Research answer with primary-source links and a checklist, then a Product command-line tool whose three generated tests passed under an independent run. The browser showed six personal Clone mode iterations and seven synthetic-teammate iterations before the Garry persona update. Stop persisted a paused state, and saved personal work survived service restart.
 

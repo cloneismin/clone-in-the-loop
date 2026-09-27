@@ -469,6 +469,11 @@ kbd {
   color: #aaaab2;
 }
 
+.stop-button > svg {
+  fill: currentColor;
+  stroke: none;
+}
+
 .prediction-preview {
   background: var(--soft);
   border-color: var(--border);
