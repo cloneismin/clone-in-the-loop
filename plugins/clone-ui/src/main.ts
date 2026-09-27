@@ -68,6 +68,18 @@ function goalColumn(goal: Goal): string {
   return "Ready";
 }
 
+function conversationTurns(messages: Message[]): Message[][] {
+  const turns: Message[][] = [];
+  for (const message of messages) {
+    const previous = turns.at(-1)?.at(-1);
+    const isClone = message.role === "clone" || message.role === "review";
+    const previousIsClone = previous?.role === "clone" || previous?.role === "review";
+    if (isClone && previousIsClone && previous?.cloneId === message.cloneId) turns.at(-1)!.push(message);
+    else turns.push([message]);
+  }
+  return turns;
+}
+
 class CloneApp extends LitElement {
   static properties = {
     state: { state: true },
@@ -902,7 +914,7 @@ class CloneApp extends LitElement {
         <div class="conversation-content">
           ${
             this.active.messages.length
-              ? this.active.messages.map((message) => this.renderMessage(message))
+              ? conversationTurns(this.active.messages).map((messages) => this.renderMessage(messages))
               : html`<div class="conversation-empty">
                   ${icon("sparkle", 26)}
                   <h2>A goal, ready to move.</h2>
@@ -923,7 +935,11 @@ class CloneApp extends LitElement {
     return "QM agent is working on your goal";
   }
 
-  private renderMessage(message: Message) {
+  private renderMessage(messages: Message[]) {
+    const message = messages[0];
+    const sources = [
+      ...new Map(messages.flatMap((entry) => entry.sources ?? []).map((source) => [source.id, source])).values(),
+    ];
     const clone = this.clones.find((item) => item.id === message.cloneId) ?? this.currentClone;
     const isClone = message.role === "clone" || message.role === "review";
     let label = "QM agent";
@@ -945,16 +961,31 @@ class CloneApp extends LitElement {
             >${Number.isNaN(Date.parse(message.createdAt)) ? "" : new Date(message.createdAt).toLocaleTimeString([], { hour: "numeric", minute: "2-digit" })}</time
           >
         </div>
-        <div class="message-content">${renderMarkdown(message.content)}</div>
+        ${messages.map(
+          (entry, index) =>
+            html`<div class="message-section">
+              ${
+                index
+                  ? html`<div class="message-section-heading">
+                      <span>${entry.role === "review" ? "Review" : "Next instruction"}</span>
+                      <time datetime=${entry.createdAt}
+                        >${Number.isNaN(Date.parse(entry.createdAt)) ? "" : new Date(entry.createdAt).toLocaleTimeString([], { hour: "numeric", minute: "2-digit" })}</time
+                      >
+                    </div>`
+                  : nothing
+              }
+              <div class="message-content">${renderMarkdown(entry.content)}</div>
+            </div>`,
+        )}
         ${
-          message.sources?.length
-            ? html`<div class="message-sources">
-                <span>${icon("memory", 12)}Grounded in</span>${message.sources.slice(0, 3).map(
+          sources.length
+            ? html`<div class="message-sources" aria-label="Sources used in this turn">
+                <span>${icon("memory", 12)}Grounded in</span>${sources.map(
                   (source) =>
                     html`<button
                       @click=${() => {
-                        this.selectedSource = source;
-                      }}
+                      this.selectedSource = source;
+                    }}
                       title=${source.title || memorySourceLabel(source.source)}
                     >
                       ${icon("link", 11)}<span class="source-chip-text"
