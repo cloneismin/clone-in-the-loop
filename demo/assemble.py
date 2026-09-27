@@ -1,6 +1,7 @@
 import argparse
 from datetime import datetime
 import json
+import math
 from pathlib import Path
 import re
 from media_tools import ffmpeg, filter_path, font, probe, run, sha256, validate_capture_origin
@@ -73,6 +74,17 @@ def validate(manifest):
                 raise ValueError(f"{segment['id']}: source trim exceeds the captured duration.")
             if not segment.get("evidence") or segment["evidence"].startswith("PENDING"):
                 raise ValueError(f"{segment['id']}: record what the real interaction proves.")
+            cue = segment.get("keyCue")
+            if cue:
+                if cue.get("keys") not in [["Tab"], ["Tab", "Tab"], ["Enter"]]:
+                    raise ValueError("Key cues support only the recorded Tab and Enter actions.")
+                cue_evidence = cue.get("evidence")
+                if speed != 1 or not isinstance(cue_evidence, str) or not cue_evidence.strip() or cue_evidence.lstrip().startswith("PENDING"):
+                    raise ValueError("Key cues need real-time footage and actual action evidence.")
+                cue_start = float(cue.get("at", 0))
+                cue_duration = float(cue.get("duration", 0.8))
+                if not math.isfinite(cue_start) or not math.isfinite(cue_duration) or cue_start < 0 or cue_duration <= 0 or cue_start + cue_duration > duration + 0.001:
+                    raise ValueError(f"{segment['id']}: key cue exceeds the scene.")
         timeline.append({**segment, "outputStart": round(position, 3), "outputEnd": round(position + duration, 3)})
         position += duration
     return captures, timeline, position
@@ -105,6 +117,12 @@ def render(manifest, destination):
             filters += [f"scale={width}:{height}:force_original_aspect_ratio=decrease", f"pad={width}:{height}:(ow-iw)/2:(oh-ih)/2:color=black", "setsar=1"]
             if speed == 20:
                 filters.append(f"drawtext=fontfile='{typeface}':text='20x':fontcolor=white:fontsize=28:box=1:boxcolor=black@0.65:boxborderw=12:x=w-tw-40:y=h-th-35")
+            cue = segment.get("keyCue")
+            if cue:
+                cue_start = float(cue.get("at", 0))
+                cue_end = cue_start + float(cue.get("duration", 0.8))
+                for key_index, key in enumerate(cue["keys"]):
+                    filters.append(f"drawtext=fontfile='{typeface}':text='{key}':fontcolor=white:fontsize=26:box=1:boxcolor=black@0.72:boxborderw=12:x={44 + key_index * 86}:y=h-150:enable='between(t,{cue_start},{cue_end})'")
         filters.append(f"fps={fps}")
         frame_count = round(segment["duration"] * fps)
         if abs(frame_count / fps - segment["duration"]) > 0.001:

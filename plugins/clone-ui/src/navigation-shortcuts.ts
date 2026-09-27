@@ -1,8 +1,8 @@
 export const navigationItems = [
   { view: "new", label: "New", icon: "plus", digit: "1" },
-  { view: "goals", label: "Sessions", icon: "goals", digit: "2" },
-  { view: "inbox", label: "Inbox", icon: "inbox", digit: "3" },
-  { view: "memory", label: "Memory", icon: "memory", digit: "4" },
+  { view: "inbox", label: "Inbox", icon: "inbox", digit: "2" },
+  { view: "goals", label: "Goals", icon: "goals", digit: "3" },
+  { view: "memory", label: "Memories", icon: "memory", digit: "4" },
 ] as const;
 
 type NavigationKey = Pick<

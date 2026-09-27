@@ -26,7 +26,7 @@ Start a session from **New**. Your Clone predicts the next instruction. Press **
 - **Clone mode.** A visible instruction → execution → review → improvement loop, with durable messages and explicit interruption.
 - **Personal and team workspaces.** The active workspace determines which memory sources enter a prediction.
 - **Teammate Clones.** Your pitch has adjectives. Clone Garry has questions. This synthetic Garry Tan demo persona uses fictional shared history to demonstrate teammate review.
-- **Sessions and Inbox.** Persisted work and model-proposed next sessions in one web interface.
+- **Goals and Inbox.** Persisted work and model-proposed next sessions in one web interface.
 - **Inspectable memory.** Source labels, excerpts, and demo markers travel with the predictions and reviews they inform.
 
 This repository is a **QM source fork**, preserving its upstream history and MIT license. The extension lives primarily in `plugins/clone-ui`, with a small runtime addition for explicitly trusted local execution. QM remains the execution foundation; GBrain is part of the actual retrieval path.
@@ -117,11 +117,11 @@ Then open **[http://127.0.0.1:4318](http://127.0.0.1:4318)**.
 | Destination | macOS          | Windows / Linux |
 | ----------- | -------------- | --------------- |
 | New         | `Cmd+Option+1` | `Ctrl+Alt+1`    |
-| Sessions    | `Cmd+Option+2` | `Ctrl+Alt+2`    |
-| Inbox       | `Cmd+Option+3` | `Ctrl+Alt+3`    |
-| Memory      | `Cmd+Option+4` | `Ctrl+Alt+4`    |
+| Inbox       | `Cmd+Option+2` | `Ctrl+Alt+2`    |
+| Goals       | `Cmd+Option+3` | `Ctrl+Alt+3`    |
+| Memories    | `Cmd+Option+4` | `Ctrl+Alt+4`    |
 
-**New** opens a blank composer in the selected project. **Sessions** contains saved conversations and their progress. Press **Tab** to accept a suggestion, then **Tab** again to start Clone mode with that unchanged instruction. The composer also has a **Clone** switch. The composer border glows blue while Clone mode is on; turning the switch off or pressing the square **Stop** control stops the loop. **Enter** sends; **Shift+Enter** adds a line; **Esc** dismisses the suggestion. The profile button opens the shortcut reference.
+**New** opens a blank composer in the selected project. **Goals** contains saved conversations and their progress. Press **Tab** to accept a suggestion, then **Tab** again to start Clone mode with that unchanged instruction. The composer also has a **Clone** switch. The composer border glows blue while Clone mode is on; turning the switch off or pressing the square **Stop** control stops the loop. **Enter** sends; **Shift+Enter** adds a line; **Esc** dismisses the suggestion. The profile button opens the shortcut reference.
 
 ### Configuration
 
@@ -138,14 +138,14 @@ Runtime configuration, signing material, PostgreSQL data, and local working dire
 
 ## Memory and team boundaries
 
-| Selected context     | Available evidence                                                    |
-| -------------------- | --------------------------------------------------------------------- |
-| **Min / Personal**   | Min's imported human messages and private feedback.                   |
-| **Min / Team**       | Explicitly shared team feedback and labeled demo records.             |
-| **Garry / Team**     | The same team-shared scope, including Garry's synthetic demo history. |
-| **Garry / Personal** | Rejected. Garry cannot select Min's private source.                   |
+| Selected context         | Available evidence                                                    |
+| ------------------------ | --------------------------------------------------------------------- |
+| **Min Kim / Personal**   | Min's imported human messages and private feedback.                   |
+| **Min Kim / Team**       | Explicitly shared team feedback and labeled demo records.             |
+| **Garry Tan / Team**     | The same team-shared scope, including Garry's synthetic demo history. |
+| **Garry Tan / Personal** | Rejected. Garry cannot select Min's private source.                   |
 
-Switching to Team does not share imported personal history. A human message sent in a team session becomes shared feedback for that workspace. Clone Garry is a fictional demo persona inspired by Garry Tan. Its history is invented, with no actual Garry Tan conversations, participation, affiliation, or endorsement. Memory evidence retains its demo origin labels.
+Switching to Team does not share imported personal history. A human message sent in a team session becomes shared feedback for that workspace. Clone Garry is a fictional demo teammate with invented history. Memory evidence retains its demo origin labels.
 
 This build is for **one trusted local operator**. It has no production user authentication, multi-user authorization, or OS sandbox isolation. The trusted-host runtime can execute commands with the operator's local permissions. Memory source filtering is real and tested, but it is not a replacement for a production identity boundary. Keep this demo on loopback.
 
@@ -169,7 +169,7 @@ Current verification status:
 
 | Layer                             | Evidence                                                                                                                                                                                                                     |
 | --------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Automated checks                  | 93 tests passed in [Clone CI on main](https://github.com/cloneismin/clone-in-the-loop/actions/runs/36356655094). Additional local checks cover Codex cancellation, documentation contracts, and navigation shortcuts.        |
+| Automated checks                  | 93 tests passed in [Clone CI on main](https://github.com/cloneismin/clone-in-the-loop/actions/runs/36357442131). Additional local checks cover Codex cancellation, documentation contracts, and navigation shortcuts.        |
 | TypeScript, lint, and build       | Core and extension typechecks, extension ESLint, and the production web build passed.                                                                                                                                        |
 | Real execution                    | QM produced a sourced Research response and a Product command-line tool. The generated tool's three unit tests passed independently, and its CSV input produced real output.                                                 |
 | Clone mode and Stop               | Observed six personal iterations and seven synthetic-teammate iterations before the Garry persona update. Stop persisted the paused state without further continuation; saved personal work survived restart.                |
@@ -182,7 +182,7 @@ The [verification record](docs/verification.md) separates CI, focused regression
 
 | Path                                                               | Responsibility                                                                           |
 | ------------------------------------------------------------------ | ---------------------------------------------------------------------------------------- |
-| [`plugins/clone-ui/src`](plugins/clone-ui/src)                     | Lit interface, composer, Sessions, Inbox, workspaces, and memory views.                  |
+| [`plugins/clone-ui/src`](plugins/clone-ui/src)                     | Lit interface, composer, Goals, Inbox, workspaces, and memory views.                     |
 | [`plugins/clone-ui/server`](plugins/clone-ui/server)               | Goal API, PostgreSQL store, QM client, prediction prompts, and loop control.             |
 | [`plugins/clone-ui/server/memory`](plugins/clone-ui/server/memory) | Official GBrain setup, bounded history import, scoped retrieval, and synthetic fixtures. |
 | [`scripts/clone-runtime`](scripts/clone-runtime)                   | Reproducible trusted-local QM startup and smoke check.                                   |

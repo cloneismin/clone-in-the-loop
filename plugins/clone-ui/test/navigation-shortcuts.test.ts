@@ -14,6 +14,17 @@ const chord = {
 };
 
 test("navigation chords map physical number keys to the same four destinations on Mac and Windows", () => {
+  assert.deepEqual(
+    navigationItems.map(({ label, digit }) => [label, digit]),
+    [
+      ["New", "1"],
+      ["Inbox", "2"],
+      ["Goals", "3"],
+      ["Memories", "4"],
+    ],
+  );
+  assert.equal(navigationShortcut({ ...chord, code: "Digit2" }), "inbox");
+  assert.equal(navigationShortcut({ ...chord, code: "Digit3" }), "goals");
   for (const item of navigationItems) {
     assert.equal(navigationShortcut({ ...chord, code: `Digit${item.digit}` }), item.view);
     assert.equal(

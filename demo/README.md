@@ -78,7 +78,9 @@ python3 demo/assemble.py demo/output/manifest.json --output demo/output/final
 python3 -m http.server 4320 --bind 127.0.0.1 --directory demo/output/final
 ```
 
-Open `http://127.0.0.1:4320` and watch the entire film. The renderer preserves source pixels apart from trimming, playback speed, crop/scale, and the visible speed indicator. It adds a black closing title card. It never reconstructs application UI or inserts fake results.
+Open `http://127.0.0.1:4320` and watch the entire film. The renderer preserves source pixels apart from trimming, playback speed, crop/scale, and editorial speed or key indicators. It adds a black closing title card. It never reconstructs application UI or inserts fake results.
+
+A real-time segment may include `keyCue` with `keys` (`["Tab"]`, `["Tab", "Tab"]`, or `["Enter"]`), scene-relative `at`, `duration`, and `evidence` for the actual recorded action. Keep these cues small and consistent at the lower left; never add a key action that did not occur.
 
 Output is H.264, yuv420p, AAC, 30 fps, with fast-start playback. The renderer normalizes audio toward −16 LUFS and −1.5 dBTP, performs a full media decode, and writes `production-report.json` with every source mapping. Full decode is a technical check; the report deliberately leaves human playback review and Loom verification false.
 
@@ -88,7 +90,7 @@ Before accepting the cut, check:
 - Prediction appears before Tab; Tab accepts it; Send is visibly real.
 - The hero loop shows an actual instruction, execution, review, specific correction, and improved result from the continuous source take.
 - Execution acceleration is consistently 20× and labeled. Review text remains readable.
-- Sessions come before Inbox; team switching uses a visible action; Garry's identity is clear, and narration discloses that its history is synthetic.
+- The saved sessions in Goals come before Inbox; team switching uses a visible action; Garry's identity is clear, and narration discloses that its history is synthetic.
 - GBrain evidence is English, truthful, and appropriate for sharing. Private records are not exposed accidentally.
 - The final model label, cursor, interaction cues, crop, timing, and narration agree with the recorded app.
 - Stop is visibly applied, and the closing prediction and Send occur before the black card.

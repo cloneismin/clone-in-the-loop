@@ -2,20 +2,20 @@
 
 Clone-in-the-Loop adds a decision layer to QM. A Clone uses a Goal, its recent conversation, and retrieved human history to propose an instruction. QM executes it. The Clone reviews the result and selects the next correction or improvement.
 
-The product is a local web application with one real owner and one synthetic teammate persona. The interface calls saved conversations **Sessions**; the existing `Goal` type, `/goals` API, and `goals` database table retain their implementation names. The browser interface and orchestration are the extension; the execution and memory engines are QM and official GBrain.
+The product is a local web application with one real owner and one synthetic teammate persona. The interface groups saved conversations under **Goals**, with proposed next work in **Inbox** and inspectable evidence in **Memories**. The existing `Goal` type, `/goals` API, and database identities remain stable. The browser interface and orchestration are the extension; the execution and memory engines are QM and official GBrain.
 
 ## Components
 
-| Component        | Implementation                                | Responsibility                                                                                 |
-| ---------------- | --------------------------------------------- | ---------------------------------------------------------------------------------------------- |
-| Browser          | Lit + Vite in `plugins/clone-ui/src`          | Sessions, workspace selection, prediction acceptance, visible execution/review messages, Stop. |
-| Clone API        | Node.js in `plugins/clone-ui/server/index.ts` | Validates requests, scopes Goals, serves state and memory, starts or stops work.               |
-| Decision loop    | `server/loop.ts` and `server/prompts.ts`      | Predicts, executes, reviews, and selects the next instruction.                                 |
-| Goal store       | `server/store.ts` + PostgreSQL                | Persists Goals, messages, predictions, and loop generations.                                   |
-| QM adapter       | `server/qm.ts` + QM's shared chassis client   | Signs internal requests, starts real core turns, polls runs, and requests cancellation.        |
-| Execution engine | QM core + Codex harness                       | Runs model turns and bounded execution steps.                                                  |
-| Memory adapter   | `server/memory`                               | Imports approved local human history, applies source scope, returns evidence.                  |
-| Memory engine    | Official GBrain `PGLiteEngine`                | Owns schema, migrations, pages, chunks, indexes, and keyword retrieval.                        |
+| Component        | Implementation                                | Responsibility                                                                              |
+| ---------------- | --------------------------------------------- | ------------------------------------------------------------------------------------------- |
+| Browser          | Lit + Vite in `plugins/clone-ui/src`          | Goals, workspace selection, prediction acceptance, visible execution/review messages, Stop. |
+| Clone API        | Node.js in `plugins/clone-ui/server/index.ts` | Validates requests, scopes Goals, serves state and memory, starts or stops work.            |
+| Decision loop    | `server/loop.ts` and `server/prompts.ts`      | Predicts, executes, reviews, and selects the next instruction.                              |
+| Goal store       | `server/store.ts` + PostgreSQL                | Persists Goals, messages, predictions, and loop generations.                                |
+| QM adapter       | `server/qm.ts` + QM's shared chassis client   | Signs internal requests, starts real core turns, polls runs, and requests cancellation.     |
+| Execution engine | QM core + Codex harness                       | Runs model turns and bounded execution steps.                                               |
+| Memory adapter   | `server/memory`                               | Imports approved local human history, applies source scope, returns evidence.               |
+| Memory engine    | Official GBrain `PGLiteEngine`                | Owns schema, migrations, pages, chunks, indexes, and keyword retrieval.                     |
 
 ## One loop iteration
 
@@ -89,17 +89,17 @@ The Node API communicates with the worker over JSON lines. One worker owns the P
 
 ### Scope rules
 
-| GBrain source                | Written by                                                       | Readable in                 |
-| ---------------------------- | ---------------------------------------------------------------- | --------------------------- |
-| Min private history          | Owner's approved Codex/Claude import and personal feedback       | Min / Personal              |
-| Shared team history          | Owner's explicit team-context messages; shared synthetic fixture | Min / Team and Garry / Team |
-| Garry synthetic demo history | Versioned synthetic Garry fixtures                               | Min / Team and Garry / Team |
+| GBrain source                | Written by                                                       | Readable in                         |
+| ---------------------------- | ---------------------------------------------------------------- | ----------------------------------- |
+| Min private history          | Owner's approved Codex/Claude import and personal feedback       | Min Kim / Personal                  |
+| Shared team history          | Owner's explicit team-context messages; shared synthetic fixture | Min Kim / Team and Garry Tan / Team |
+| Garry synthetic demo history | Versioned synthetic Garry fixtures                               | Min Kim / Team and Garry Tan / Team |
 
 The scope allowlist is applied before retrieval. The result mapper checks every search hit's source again. Team results and counts exclude the private source, including its import count. Garry's personal scope is rejected, and synthetic teammate memory is read-only through the application API.
 
-Predictions, reviews, and Inbox suggestions request conversational recall: bounded non-CJK terms form an OR query, while CJK terms use separate literal queries supported by GBrain's engine. Reciprocal rank combines and deduplicates the scoped results. Quoted text in a draft is context rather than an exact-phrase constraint. Manual Memory searches retain the underlying search semantics.
+Predictions, reviews, and Inbox suggestions request conversational recall: bounded non-CJK terms form an OR query, while CJK terms use separate literal queries supported by GBrain's engine. Reciprocal rank combines and deduplicates the scoped results. Quoted text in a draft is context rather than an exact-phrase constraint. Searches in Memories retain the underlying search semantics.
 
-The display persona is Clone Garry, a fictional Garry Tan demo with invented conversation history and no affiliation or endorsement. Source labels, excerpts, and `demo` flags accompany the evidence. Model prompts treat that evidence as historical data, not authorization to perform actions. Memory evidence retains demo origin labels, while the main Clone controls use the clean display name. Stale evidence clears when the selected context changes.
+The display persona is Clone Garry, a fictional Garry Tan demo with invented conversation history. Source labels, excerpts, and `demo` flags accompany the evidence. Model prompts treat that evidence as historical data, not authorization to perform actions. Memory evidence retains demo origin labels, while the main Clone controls use the clean display name. Stale evidence clears when the selected context changes.
 
 ### History import
 
@@ -146,7 +146,7 @@ The Clone CI workflow passed on `main` and the implementation branch with 93 tes
 
 Actual QM execution produced a Research answer with primary-source links and a checklist, then a Product command-line tool whose three generated tests passed under an independent run. The browser showed six personal Clone mode iterations and seven synthetic-teammate iterations before the Garry persona update. Stop persisted a paused state, and saved personal work survived service restart.
 
-Independent review also exercised delayed workspace responses, draft preservation during navigation, keyboard arming, and project selection. Long multiline predictions were checked in an isolated browser fixture. A recorded Marketing run subsequently exercised second-Tab Clone mode through seven iterations and Stop. Native Chrome checks also verified all four navigation shortcuts: Cmd+Option+1 for New, 2 for Sessions, 3 for Inbox, and 4 for Memory. Windows and Linux use Ctrl+Alt with the same digits. Final film playback, Loom delivery, and the submission receipt remain pending. See the [verification record](verification.md) for evidence boundaries.
+Independent review also exercised delayed workspace responses, draft preservation during navigation, keyboard arming, and project selection. Long multiline predictions were checked in an isolated browser fixture. A recorded Marketing run subsequently exercised second-Tab Clone mode through seven iterations and Stop. Earlier native Chrome checks exercised all four navigation destinations. The current labels and shortcut order are New, Inbox, Goals, and Memories on Cmd+Option+1/2/3/4; Windows and Linux use Ctrl+Alt with the same digits. Updated automated tests cover this final ordering. Final film playback, Loom delivery, and the submission receipt remain pending. See the [verification record](verification.md) for evidence boundaries.
 
 ## Upstream and extension boundaries
 
