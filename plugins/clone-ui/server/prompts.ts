@@ -5,7 +5,7 @@ function context(goal: Goal, messages: Message[], sources: Source[]): string {
     goal: { title: goal.title, project: goal.project, criteria: goal.criteria, workspace: goal.workspace },
     persona:
       goal.cloneId === "jun"
-        ? "Garry Tan, a synthetic demo persona with invented preferences. No actual Garry Tan conversations, affiliation, or endorsement. This is provenance, not text to repeat in each response."
+        ? "Garry Tan, a fictional demo teammate with invented history and preferences. This is provenance, not text to repeat in each response."
         : "Min, the owner",
     conversation: messages.slice(-10).map((m) => ({ role: m.role, text: m.content.slice(0, 8000) })),
     memory: sources.map((s) => ({ title: s.title, source: s.source, evidence: s.excerpt, demo: s.demo === true })),
@@ -25,7 +25,7 @@ Context: ${context(goal, messages, sources)}`;
 export function executionPrompt(goal: Goal, instruction: string): string {
   return `Work on this Goal: ${goal.title}
 Project: ${goal.project}
-The following instruction is ${goal.cloneId === "jun" ? "from Clone Garry, a synthetic Garry Tan demo persona using invented preferences, with no actual conversations, affiliation, or endorsement" : "from Clone Min, the owner's decision assistant"}. Execute one bounded, useful step now. Produce a concrete artifact or a usable answer, then stop this turn so the Clone can review it. If files are useful, create them in your workspace and report their paths. Do not merely propose to do the work. Do not send messages, publish, pay, or change external accounts. No invented research, metrics, execution results, or user approvals. Keep the result concise and reviewable.
+The following instruction is ${goal.cloneId === "jun" ? "from Clone Garry, a fictional Garry Tan demo teammate using invented history and preferences" : "from Clone Min, the owner's decision assistant"}. Execute one bounded, useful step now. Produce a concrete artifact or a usable answer, then stop this turn so the Clone can review it. If files are useful, create them in your workspace and report their paths. Do not merely propose to do the work. Do not send messages, publish, pay, or change external accounts. No invented research, metrics, execution results, or user approvals. Keep the result concise and reviewable.
 Instruction: ${instruction}`;
 }
 

@@ -21,9 +21,9 @@ test("the renamed teammate preserves its durable identity and declares its inven
     reviewPrompt(goal, [], []),
   ]) {
     assert.match(prompt, /Clone Garry/);
-    assert.match(prompt, /synthetic/);
-    assert.match(prompt, /actual .*conversations/);
-    assert.match(prompt, /affiliation/);
+    assert.match(prompt, /fictional demo teammate|fictional Garry Tan demo teammate/);
+    assert.match(prompt, /invented history/);
+    assert.doesNotMatch(prompt, /affiliation|endorsement/);
     assert.doesNotMatch(prompt, /Clone Jun/);
   }
 });

@@ -113,8 +113,8 @@ test(
         assert.match(record.id, /^conversations\/demo-jun-/);
         assert.match(record.title, /^Garry ·/);
         assert.equal(record.source, "Garry synthetic demo history");
-        assert.match(record.excerpt, /not actual conversations/);
-        assert.match(record.excerpt, /No affiliation or endorsement/);
+        assert.match(record.excerpt, /Fictional Garry Tan demo history with invented preferences/);
+        assert.doesNotMatch(record.excerpt, /affiliation|endorsement/);
         assert.doesNotMatch(record.excerpt, /Jun/);
       }
     } finally {

@@ -39,7 +39,7 @@ QM executes. GBrain remembers. Your Clone keeps your judgment in the loop.
 | Stop    | Square Stop or the Clone switch; paused state           | "I can take control back."                                           |
 | Team    | Company workspace, Clone Garry, shared evidence         | "A fictional teammate shows how shared judgment changes the review." |
 
-Keep the existing 90-second film structure. Use current UI captures and genuine action cues. Label accelerated execution; keep the review, correction, and changed artifact legible. Do not replace the existing narration solely to match these live scripts.
+Keep the product story first and the upstream PR as a brief closing bonus after the product logo. Use current UI captures and genuine action cues. Label accelerated execution; keep the review, correction, and changed artifact legible. Do not replace the existing narration solely to match these live scripts.
 
 ## Short Q&A
 

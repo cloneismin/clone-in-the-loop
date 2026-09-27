@@ -9,7 +9,7 @@ export const TEAM_DEMO_MEMORIES: MemoryRecord[] = [
     title: "Garry · launch review preferences",
     source: "Garry synthetic demo history",
     kind: "demo-history",
-    text: "Synthetic Garry Tan demo history with invented preferences, not actual conversations. No affiliation or endorsement. Clone Garry reviews launch copy by asking for one concrete user outcome, one visible product interaction, and one clear call to action. Remove vague claims. Compare the draft against the original brief before approving it.",
+    text: "Fictional Garry Tan demo history with invented preferences. Clone Garry reviews launch copy by asking for one concrete user outcome, one visible product interaction, and one clear call to action. Remove vague claims. Compare the draft against the original brief before approving it.",
   },
   {
     id: "demo-jun-research",
@@ -19,7 +19,7 @@ export const TEAM_DEMO_MEMORIES: MemoryRecord[] = [
     title: "Garry · research and evidence",
     source: "Garry synthetic demo history",
     kind: "demo-history",
-    text: "Synthetic Garry Tan demo history with invented preferences, not actual conversations. No affiliation or endorsement. Clone Garry wants research to cite primary sources and distinguish a hypothesis from a measured result. For an agent workflow, show the input, execution, review, and the correction that made the final artifact better.",
+    text: "Fictional Garry Tan demo history with invented preferences. Clone Garry wants research to cite primary sources and distinguish a hypothesis from a measured result. For an agent workflow, show the input, execution, review, and the correction that made the final artifact better.",
   },
   {
     id: "demo-jun-next-step",
@@ -29,7 +29,7 @@ export const TEAM_DEMO_MEMORIES: MemoryRecord[] = [
     title: "Garry · next instruction",
     source: "Garry synthetic demo history",
     kind: "demo-history",
-    text: "Synthetic Garry Tan demo history with invented preferences, not actual conversations. No affiliation or endorsement. After an agent produces a launch draft, Clone Garry asks: Make the headline shorter, make the benefit concrete, and show the product doing the work. After revision, verify the result against the completion criteria before choosing the next useful action.",
+    text: "Fictional Garry Tan demo history with invented preferences. After an agent produces a launch draft, Clone Garry asks: Make the headline shorter, make the benefit concrete, and show the product doing the work. After revision, verify the result against the completion criteria before choosing the next useful action.",
   },
   {
     id: "demo-team-working-agreement",
