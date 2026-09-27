@@ -2,7 +2,7 @@
 
 [Watch the 90-second demo on Loom](https://www.loom.com/share/57d5b73042f847e0a2ac072ff379d7b6). Complete local and Loom playback passed, and public sharing is verified. The user's acceptance and submission remain pending.
 
-This directory prepares a 90-second film of Clone-in-the-Loop, the QM extension with GBrain-backed next-prompt prediction. Read the [storyboard](storyboard.md), [narration](narration.txt), and [tool requirements](tooling.md) first.
+This directory prepares a 93-second revised film of Clone-in-the-Loop, the QM extension with GBrain-backed next-prompt prediction. Read the [storyboard](storyboard.md), [narration](narration.txt), and [tool requirements](tooling.md) first.
 
 All capture, editing, narration, captions, and submission content must be English. Product footage must come from this repository's implementation during the hackathon. Keep every recording, audio file, rendered cut, and source receipt under ignored `demo/output/` or `data/`.
 
@@ -22,7 +22,7 @@ The recorder captures the selected window at 30 fps, including its cursor, witho
 
 In another shell, `touch demo/output/raw/fresh-take.mp4.stop` stops and finalizes that recording. Preserve the MP4, `.capture.json` metadata, and `.audit.json` writer diagnostics. A successful writer exit is necessary but insufficient: decode the complete file and inspect frames before using it.
 
-Capture [the actual open QM proposal](https://github.com/yc-software/qm/pull/1671) first. Its title, number, and Open state occupy the first three seconds. Then capture the new application at `4317` or `4318`, keeping the main instruction, execution, review, correction, and Stop sequence in one source take.
+Capture [the actual open QM proposal](https://github.com/yc-software/qm/pull/1671) first. Its title, number, and Open state occupy the final six seconds as an add-on after the product logo. Then capture the new application at `4317` or `4318`, keeping the main instruction, execution, review, correction, and Stop sequence in the same real session.
 
 [recorder.html](recorder.html) is an alternative visible-button `getDisplayMedia` recorder. Serve it with `python3 -m http.server 4321 --bind 127.0.0.1 --directory demo`, then open it through CUA and use Chrome's real share picker. It requests 30 fps WebM with audio disabled by default. The filming browser returned `InvalidStateError` despite valid activation, so it was not used for the submitted footage. Details are in [tooling.md](tooling.md).
 
@@ -36,7 +36,7 @@ python3 demo/receipt.py demo/output/raw/hero.mp4 \
   --app-url http://127.0.0.1:4317
 ```
 
-For the opening contribution shot, record the exact published URL:
+For the closing contribution shot, record the exact published URL:
 
 ```sh
 python3 demo/receipt.py demo/output/raw/upstream-pr.mp4 \
@@ -45,7 +45,7 @@ python3 demo/receipt.py demo/output/raw/upstream-pr.mp4 \
   --app-url https://github.com/yc-software/qm/pull/ACTUAL_NUMBER
 ```
 
-Only a numeric PR URL under `yc-software/qm` is accepted for `upstream-pr`; arbitrary external pages are rejected. The assembler requires this capture as the first segment, exactly three seconds at normal speed.
+Only a numeric PR URL under `yc-software/qm` is accepted for `upstream-pr`; arbitrary external pages are rejected. Set `upstreamPrPlacement` to `"closing-addon"` for the final approved order. The assembler then requires this capture as the last segment, three to eight seconds at normal speed. Omitting this option preserves the original opening-shot validation.
 
 The receipt stores the video hash, Git revision, working-tree digest, app origin, dimensions, and duration. Git state is collected when the receipt is created; it is not a capture-time attestation. Create the receipt before changing source files, and preserve the recorder's actual start time and sidecar. Copy its capture entry into a new manifest under `demo/output/`. Keep the raw file unchanged.
 
@@ -59,18 +59,9 @@ Replace every pending value and every `start: null` with actual capture evidence
 
 The final narration uses the user's registered personal voice in their existing ElevenLabs account. Paste [narration.txt](narration.txt) into the speech-generation UI through `cua_repl`, with the settings in [audio direction](audio-direction.md). Preserve the exact selected voice label in the ignored audio receipt.
 
-Preserve the fresh download under `demo/output/audio/minchan/source.mp3`. The [alignment helper](align_narration.py) uses an already cached local Whisper model to create candidate source cuts and place 21 lines across [the 90-second timeline](narration-timeline.json):
+Preserve the fresh download and its receipt under ignored `demo/output/audio/`. The revised [93-second timeline](narration-timeline.json) places ten complete passages at measured pauses. The [audio direction](audio-direction.md) documents source-sample continuity, reviewed alignment, and the final speech-first mix. Preserve all speech samples, use no voice time stretching, and adjust the picture rather than cutting words.
 
-```sh
-python3 demo/align_narration.py demo/output/audio/minchan/source.mp3 \
-  --model /ABSOLUTE/PATH/TO/EXISTING/faster-whisper-small-int8 \
-  --voice-label 'ACTUAL_REGISTERED_VOICE_NAME' \
-  --generated-at ACTUAL_ISO_TIME_WITH_TIMEZONE
-```
-
-The selected Python environment must contain `faster-whisper`. No model download is performed. The helper rejects uncertain or overlong lines instead of automatically speeding the voice. Review its transcript, source cuts, and full output with audio. Apply the fresh Garry line as described in [audio direction](audio-direction.md), then set the manifest's `narration` to `{"path":"output/audio/minchan/narration-90s-garry.wav"}`.
-
-A local Samantha timing draft is available under `demo/output/audio/aligned/`: 90.00 seconds, 21 lines, final speech at 88.49 seconds. It is **not permitted for final submission**. Optional music requires an original or licensed file and a manifest `music.path`.
+Earlier line-level alignment and system-voice timing drafts are superseded and must not be submitted. Optional music requires an original or licensed source and a manifest `music.path`; set `music.duckUnderNarration` to `true` to lower it automatically while the voice speaks.
 
 ## 4. Assemble and verify
 
@@ -88,14 +79,14 @@ Output is H.264, yuv420p, AAC, 30 fps, with fast-start playback. The renderer no
 
 Before accepting the cut, check:
 
-- The first three seconds show the actual upstream QM PR and its current status, without implying a merge.
+- The final add-on shows the actual upstream QM PR and its current status, without implying a merge.
 - Prediction appears before Tab; Tab accepts it; Send is visibly real.
-- The hero loop shows an actual instruction, execution, review, specific correction, and improved result from the continuous source take.
+- The hero loop shows an actual instruction, execution, review, specific correction, and improved result from the same real session.
 - Execution acceleration is consistently 20× and labeled. Review text remains readable.
-- The saved sessions in Goals come before Inbox; team switching uses a visible action; Garry's identity is clear, and narration discloses that its history is synthetic.
+- The saved sessions in Goals come before Inbox; team switching uses a visible action; Garry's identity is clear; the README and memory evidence disclose its fictional history.
 - GBrain evidence is English, truthful, and appropriate for sharing. Private records are not exposed accidentally.
 - The final model label, cursor, interaction cues, crop, timing, and narration agree with the recorded app.
-- Stop is visibly applied, and the closing prediction and Send occur before the black card.
+- Stop is visibly applied. The product logo appears before the upstream PR add-on.
 - Entire local playback has been watched with audio; no missing or frozen segments, clipping, or unreadable text.
 
 ## 5. Upload and hand off

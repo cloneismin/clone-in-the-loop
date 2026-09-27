@@ -1,133 +1,127 @@
 {
-  "duration": 90,
+  "duration": 93,
   "language": "en",
-  "voiceType": "ElevenLabs registered owner voice",
+  "voice": "Minchan - Clone Demo 2026-09-08",
   "lines": [
     {
-      "id": "pr",
-      "start": 0.25,
-      "latestEnd": 2.9,
-      "text": "We opened a QM pull request."
+      "id": "intro",
+      "text": "Clone-in-the-Loop is a Q M fork that predicts what you would ask your agent next.",
+      "sourceStart": 0.0,
+      "sourceEnd": 3.8078958333333333,
+      "start": 0.2,
+      "latestEnd": 4.007895833333333,
+      "boundaryMethod": "Complete source paragraph retained at original speed, with silence inserted between paragraphs.",
+      "sourceStartSample": 0,
+      "sourceEndSample": 182779,
+      "source": "/Users/minchan/Desktop/dev/repo/clone-in-the-loop/demo/output/audio/minchan/causal-v3-source-48k.wav"
     },
     {
-      "id": "ambition",
-      "start": 3.6,
-      "latestEnd": 7.8,
-      "text": "Everyone should own their Personal A G I."
+      "id": "history-and-tab",
+      "text": "G Brain retrieves relevant sessions from your Codex and Claude history, plus explicitly shared team history. That context personalizes the suggested prompt. Press Tab once to accept it, then Enter to send it.",
+      "sourceStart": 3.8078958333333333,
+      "sourceEnd": 15.367895833333334,
+      "start": 4.3,
+      "latestEnd": 15.86,
+      "boundaryMethod": "Complete source paragraph retained at original speed, with silence inserted between paragraphs.",
+      "sourceStartSample": 182779,
+      "sourceEndSample": 737659,
+      "source": "/Users/minchan/Desktop/dev/repo/clone-in-the-loop/demo/output/audio/minchan/causal-v3-source-48k.wav"
     },
     {
-      "id": "predict",
-      "start": 8.2,
-      "latestEnd": 11,
-      "text": "Your Clone predicts the next instruction."
+      "id": "departments",
+      "text": "Across Research, Product, and Marketing, this becomes a repeatable workflow.",
+      "sourceStart": 15.367895833333334,
+      "sourceEnd": 19.457270833333332,
+      "start": 17.4,
+      "latestEnd": 21.489375,
+      "boundaryMethod": "Complete source paragraph retained at original speed, with silence inserted between paragraphs.",
+      "sourceStartSample": 737659,
+      "sourceEndSample": 933949,
+      "source": "/Users/minchan/Desktop/dev/repo/clone-in-the-loop/demo/output/audio/minchan/causal-v3-source-48k.wav"
     },
     {
-      "id": "tab",
-      "start": 11.1,
-      "latestEnd": 12.35,
-      "text": "Tab to accept."
+      "id": "clone-loop",
+      "text": "For ongoing work, press Tab twice to enable Clone mode. Your Clone gives the next instruction. Q M executes it. Your Clone reviews the result and asks for what is missing.",
+      "sourceStart": 19.457270833333332,
+      "sourceEnd": 28.470875,
+      "start": 26.3,
+      "latestEnd": 35.313604166666664,
+      "boundaryMethod": "Complete source paragraph retained at original speed, with silence inserted between paragraphs.",
+      "sourceStartSample": 933949,
+      "sourceEndSample": 1366602,
+      "source": "/Users/minchan/Desktop/dev/repo/clone-in-the-loop/demo/output/audio/minchan/causal-v3-source-48k.wav"
     },
     {
-      "id": "send",
-      "start": 12.6,
-      "latestEnd": 13.9,
-      "text": "Enter to send."
+      "id": "review-correction-stop",
+      "text": "Here, it catches a weak call to action and asks for a concrete example. It requests a specific correction, then checks the revised result. This loop continues until you press Stop.",
+      "sourceStart": 0,
+      "sourceEnd": 10.213895833333334,
+      "start": 39.2,
+      "latestEnd": 49.413895833333335,
+      "boundaryMethod": "Complete source paragraph retained at original speed, with silence inserted between paragraphs.",
+      "sourceStartSample": 0,
+      "sourceEndSample": 490267,
+      "source": "/Users/minchan/Desktop/dev/repo/clone-in-the-loop/demo/output/audio/minchan/concrete-review-source-48k.wav"
     },
     {
-      "id": "research",
-      "start": 14.6,
-      "latestEnd": 19.6,
-      "text": "Research becomes a weekly evidence review."
+      "id": "goals-inbox-team",
+      "text": "Goals show where the work stands. The Inbox suggests what to tackle next. Switch to Clone Garry for another perspective on your team's pitch.",
+      "sourceStart": 37.4635625,
+      "sourceEnd": 45.529291666666666,
+      "start": 54.1,
+      "latestEnd": 62.165729166666665,
+      "boundaryMethod": "Complete source paragraph retained at original speed, with silence inserted between paragraphs.",
+      "sourceStartSample": 1798251,
+      "sourceEndSample": 2185406,
+      "source": "/Users/minchan/Desktop/dev/repo/clone-in-the-loop/demo/output/audio/minchan/causal-v3-source-48k.wav"
     },
     {
-      "id": "product",
-      "start": 20.6,
-      "latestEnd": 25.8,
-      "text": "Product work becomes a build, test, and repair loop."
+      "id": "scoped-memory",
+      "text": "Personal and team memory stay separate, and you can inspect the sources behind each suggestion. Your agent executes. Your Clone carries your judgment.",
+      "sourceStart": 45.529291666666666,
+      "sourceEnd": 53.6096875,
+      "start": 67.1,
+      "latestEnd": 75.18039583333334,
+      "boundaryMethod": "Complete source paragraph retained at original speed, with silence inserted between paragraphs.",
+      "sourceStartSample": 2185406,
+      "sourceEndSample": 2573265,
+      "source": "/Users/minchan/Desktop/dev/repo/clone-in-the-loop/demo/output/audio/minchan/causal-v3-source-48k.wav"
     },
     {
-      "id": "marketing",
-      "start": 26.6,
-      "latestEnd": 31.6,
-      "text": "Marketing becomes a repeatable launch workflow."
-    },
-    {
-      "id": "start",
-      "start": 32.6,
-      "latestEnd": 36.8,
-      "text": "Now, let your Clone keep going."
-    },
-    {
-      "id": "execute",
-      "start": 37.6,
-      "latestEnd": 43.5,
-      "text": "QM executes the work."
-    },
-    {
-      "id": "review",
-      "start": 44.2,
-      "latestEnd": 49.8,
-      "text": "Your Clone reviews the work and finds what is missing."
-    },
-    {
-      "id": "correction",
-      "start": 50.4,
-      "latestEnd": 55.8,
-      "text": "It asks for a correction, then checks the improved result."
-    },
-    {
-      "id": "stop",
-      "start": 56.35,
-      "latestEnd": 60.6,
-      "text": "It keeps going until you press Stop."
-    },
-    {
-      "id": "goals",
-      "start": 61.7,
-      "latestEnd": 65.7,
-      "text": "Your sessions stay together."
-    },
-    {
-      "id": "inbox",
-      "start": 66.4,
-      "latestEnd": 70.8,
-      "text": "Your Inbox suggests what to tackle next."
-    },
-    {
-      "id": "team",
-      "start": 71.2,
-      "latestEnd": 74.2,
-      "text": "Bring another perspective into the loop."
-    },
-    {
-      "id": "garry",
-      "start": 74.3,
-      "latestEnd": 76.9,
-      "text": "Garry's Clone uses synthetic demo history."
-    },
-    {
-      "id": "gbrain",
-      "start": 77.2,
-      "latestEnd": 81.1,
-      "text": "GBrain connects your Codex and Claude histories."
-    },
-    {
-      "id": "sources",
-      "start": 81.15,
-      "latestEnd": 82.95,
-      "text": "To predict what comes next."
-    },
-    {
-      "id": "closing",
-      "start": 83.3,
-      "latestEnd": 86.8,
-      "text": "Your agent executes. Your Clone decides."
+      "id": "human-in-the-loop-tagline",
+      "text": "Clone-in-the-Loop just killed Human-in-the-Loop.",
+      "source": "/Users/minchan/Desktop/dev/repo/clone-in-the-loop/demo/output/audio/minchan/hitl-tagline-source-48k.wav",
+      "sourceStartSample": 0,
+      "sourceEndSample": 106580,
+      "sourceStart": 0,
+      "sourceEnd": 2.2204166666666665,
+      "start": 79.2,
+      "latestEnd": 81.42041666666667,
+      "boundaryMethod": "Entire newly generated sentence retained without trimming."
     },
     {
       "id": "logo",
-      "start": 87.6,
-      "latestEnd": 89.6,
-      "text": "Own Your Clone."
+      "text": "Own Your Clone.",
+      "sourceStart": 53.6096875,
+      "sourceEnd": 54.71360416666667,
+      "start": 84.3,
+      "latestEnd": 85.40391666666666,
+      "boundaryMethod": "Complete source paragraph retained at original speed, with silence inserted between paragraphs.",
+      "sourceStartSample": 2573265,
+      "sourceEndSample": 2626253,
+      "source": "/Users/minchan/Desktop/dev/repo/clone-in-the-loop/demo/output/audio/minchan/causal-v3-source-48k.wav"
+    },
+    {
+      "id": "pr-addon",
+      "text": "And we've opened a Q M pull request to bring this workflow upstream.",
+      "sourceStart": 54.71360416666667,
+      "sourceEnd": 58.514291666666665,
+      "start": 87.2,
+      "latestEnd": 91.0006875,
+      "boundaryMethod": "Complete source paragraph retained at original speed, with silence inserted between paragraphs.",
+      "sourceStartSample": 2626253,
+      "sourceEndSample": 2808686,
+      "source": "/Users/minchan/Desktop/dev/repo/clone-in-the-loop/demo/output/audio/minchan/causal-v3-source-48k.wav"
     }
   ]
 }

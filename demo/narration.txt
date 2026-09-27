@@ -1,41 +1,19 @@
-We opened a QM pull request.
+Clone-in-the-Loop is a Q M fork that predicts what you would ask your agent next.
 
-Everyone should own their Personal A G I.
+G Brain retrieves relevant sessions from your Codex and Claude history, plus explicitly shared team history. That context personalizes the suggested prompt. Press Tab once to accept it, then Enter to send it.
 
-Your Clone predicts the next instruction.
+Across Research, Product, and Marketing, this becomes a repeatable workflow.
 
-Tab to accept.
+For ongoing work, press Tab twice to enable Clone mode. Your Clone gives the next instruction. Q M executes it. Your Clone reviews the result and asks for what is missing.
 
-Enter to send.
+Here, it catches a weak call to action and asks for a concrete example. It requests a specific correction, then checks the revised result. This loop continues until you press Stop.
 
-Research becomes a weekly evidence review.
+Goals show where the work stands. The Inbox suggests what to tackle next. Switch to Clone Garry for another perspective on your team's pitch.
 
-Product work becomes a build, test, and repair loop.
+Personal and team memory stay separate, and you can inspect the sources behind each suggestion. Your agent executes. Your Clone carries your judgment.
 
-Marketing becomes a repeatable launch workflow.
-
-Now, let your Clone keep going.
-
-QM executes the work.
-
-Your Clone reviews the work and finds what is missing.
-
-It asks for a correction, then checks the improved result.
-
-It keeps going until you press Stop.
-
-Your sessions stay together.
-
-Your Inbox suggests what to tackle next.
-
-Bring another perspective into the loop.
-
-Garry's Clone uses synthetic demo history.
-
-GBrain connects your Codex and Claude histories.
-
-To predict what comes next.
-
-Your agent executes. Your Clone decides.
+Clone-in-the-Loop just killed Human-in-the-Loop.
 
 Own Your Clone.
+
+And we've opened a Q M pull request to bring this workflow upstream.

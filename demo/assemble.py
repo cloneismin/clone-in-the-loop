@@ -50,10 +50,15 @@ def validate(manifest):
         if digest != item.get("sha256"):
             raise ValueError(f"{key}: source file does not match its recorded SHA-256.")
         captures[key] = {**item, "absolutePath": str(path), "metadata": probe(path)}
-    first = manifest["segments"][0]
-    first_capture = captures.get(first.get("capture"), {})
-    if first_capture.get("kind") != "upstream-pr" or float(first["duration"]) != 3 or float(first.get("speed", 1)) != 1:
-        raise ValueError("The first three seconds must show the actual upstream QM pull request at normal speed.")
+    pr_placement = manifest.get("upstreamPrPlacement", "opening")
+    if pr_placement not in ["opening", "closing-addon"]:
+        raise ValueError("The upstream PR placement must be opening or closing-addon.")
+    pr_segment = manifest["segments"][-1 if pr_placement == "closing-addon" else 0]
+    pr_capture = captures.get(pr_segment.get("capture"), {})
+    pr_duration = float(pr_segment["duration"])
+    valid_pr_duration = math.isfinite(pr_duration) and (3 <= pr_duration <= 8 if pr_placement == "closing-addon" else pr_duration == 3)
+    if pr_capture.get("kind") != "upstream-pr" or not valid_pr_duration or float(pr_segment.get("speed", 1)) != 1:
+        raise ValueError("Show the actual upstream QM pull request at normal speed: three seconds for the opening, or three to eight seconds for a closing add-on.")
     timeline = []
     position = 0.0
     for segment in manifest["segments"]:
@@ -145,13 +150,21 @@ def render(manifest, destination):
         args += ["-i", str(local_media(audio["path"]))]
     else:
         args += ["-f", "lavfi", "-i", "anullsrc=r=48000:cl=stereo"]
-    audio_filter = "[1:a]apad,aresample=48000[narration]"
+    audio_filter = "[1:a]aresample=48000,loudnorm=I=-16:TP=-1.5:LRA=11,apad[narration]"
     if music:
         args += ["-stream_loop", "-1", "-i", str(local_media(music["path"]))]
         music_gain = float(music.get("gain", 0.08))
         if not 0 <= music_gain <= 1:
             raise ValueError("Music gain must be between 0 and 1.")
-        audio_filter += f";[2:a]volume={music_gain}[bed];[narration][bed]amix=inputs=2:duration=first:normalize=0[mixed];[mixed]loudnorm=I=-16:TP=-1.5:LRA=11[out]"
+        duck = music.get("duckUnderNarration", False)
+        if not isinstance(duck, bool):
+            raise ValueError("Music duckUnderNarration must be a boolean.")
+        audio_filter += f";[2:a]volume={music_gain}[bed]"
+        if duck and audio:
+            audio_filter += ";[narration]asplit=2[voice][sidechain];[bed][sidechain]sidechaincompress=threshold=0.025:ratio=8:attack=10:release=300:makeup=1[ducked];[voice][ducked]amix=inputs=2:duration=first:normalize=0[mixed]"
+        else:
+            audio_filter += ";[narration][bed]amix=inputs=2:duration=first:normalize=0[mixed]"
+        audio_filter += ";[mixed]loudnorm=I=-16:TP=-1.5:LRA=11[out]"
     else:
         audio_filter += ";[narration]loudnorm=I=-16:TP=-1.5:LRA=11[out]"
     args += ["-filter_complex", audio_filter, "-map", "0:v:0", "-map", "[out]", "-c:v", "copy", "-c:a", "aac", "-b:a", "192k", "-t", str(duration), "-movflags", "+faststart", str(final)]
