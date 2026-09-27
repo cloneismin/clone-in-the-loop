@@ -71,10 +71,17 @@ function goalColumn(goal: Goal): string {
 function conversationTurns(messages: Message[]): Message[][] {
   const turns: Message[][] = [];
   for (const message of messages) {
-    const previous = turns.at(-1)?.at(-1);
-    const isClone = message.role === "clone" || message.role === "review";
-    const previousIsClone = previous?.role === "clone" || previous?.role === "review";
-    if (isClone && previousIsClone && previous?.cloneId === message.cloneId) turns.at(-1)!.push(message);
+    const previousTurn = turns.at(-1);
+    const previous = previousTurn?.at(-1);
+    const elapsed = Date.parse(message.createdAt) - Date.parse(previous?.createdAt ?? "");
+    const isReviewDirectionPair =
+      previousTurn?.length === 1 &&
+      previous?.role === "review" &&
+      message.role === "clone" &&
+      previous.cloneId === message.cloneId &&
+      elapsed >= 0 &&
+      elapsed <= 5000;
+    if (isReviewDirectionPair) previousTurn!.push(message);
     else turns.push([message]);
   }
   return turns;
@@ -961,22 +968,7 @@ class CloneApp extends LitElement {
             >${Number.isNaN(Date.parse(message.createdAt)) ? "" : new Date(message.createdAt).toLocaleTimeString([], { hour: "numeric", minute: "2-digit" })}</time
           >
         </div>
-        ${messages.map(
-          (entry, index) =>
-            html`<div class="message-section">
-              ${
-                index
-                  ? html`<div class="message-section-heading">
-                      <span>${entry.role === "review" ? "Review" : "Next instruction"}</span>
-                      <time datetime=${entry.createdAt}
-                        >${Number.isNaN(Date.parse(entry.createdAt)) ? "" : new Date(entry.createdAt).toLocaleTimeString([], { hour: "numeric", minute: "2-digit" })}</time
-                      >
-                    </div>`
-                  : nothing
-              }
-              <div class="message-content">${renderMarkdown(entry.content)}</div>
-            </div>`,
-        )}
+        <div class="message-content">${renderMarkdown(messages.map((entry) => entry.content).join("\n\n"))}</div>
         ${
           sources.length
             ? html`<div class="message-sources" aria-label="Sources used in this turn">
@@ -984,8 +976,8 @@ class CloneApp extends LitElement {
                   (source) =>
                     html`<button
                       @click=${() => {
-                      this.selectedSource = source;
-                    }}
+                        this.selectedSource = source;
+                      }}
                       title=${source.title || memorySourceLabel(source.source)}
                     >
                       ${icon("link", 11)}<span class="source-chip-text"

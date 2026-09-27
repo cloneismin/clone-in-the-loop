@@ -107,7 +107,7 @@ def render(manifest, destination):
         args = [binary, "-hide_banner", "-loglevel", "error", "-y"]
         if segment.get("kind") == "title":
             args += ["-f", "lavfi", "-i", f"color=c=black:s={width}x{height}:r={fps}:d={segment['duration']}"]
-            filters = [f"drawtext=fontfile='{typeface}':text='Clone-in-the-Loop':fontcolor=white:fontsize=80:x=(w-text_w)/2:y=(h-text_h)/2"]
+            filters = [f"drawtext=fontfile='{typeface}':text='Clone-in-the-Loop':fontcolor=white:fontsize={round(80 * height / 1080)}:x=(w-text_w)/2:y=(h-text_h)/2"]
         else:
             capture = captures[segment["capture"]]
             speed = segment.get("speed", 1)
@@ -132,7 +132,7 @@ def render(manifest, destination):
         frame_count = round(segment["duration"] * fps)
         if abs(frame_count / fps - segment["duration"]) > 0.001:
             raise ValueError(f"{segment['id']}: duration must align with the output frame rate.")
-        args += ["-vf", ",".join(filters), "-frames:v", str(frame_count), "-an", "-c:v", "libx264", "-preset", "fast", "-crf", "18", "-pix_fmt", "yuv420p", "-threads", "4", str(target)]
+        args += ["-vf", ",".join(filters), "-frames:v", str(frame_count), "-an", "-c:v", "libx264", "-preset", "fast", "-crf", "16", "-pix_fmt", "yuv420p", "-threads", "4", str(target)]
         run(args)
         if abs(probe(target)["duration"] - segment["duration"]) > 0.015:
             raise ValueError(f"{segment['id']}: rendered video duration differs from the planned frame count.")

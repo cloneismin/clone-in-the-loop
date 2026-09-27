@@ -13,7 +13,7 @@
       "boundaryMethod": "Complete source paragraph retained at original speed, with silence inserted between paragraphs.",
       "sourceStartSample": 0,
       "sourceEndSample": 182779,
-      "source": "/Users/minchan/Desktop/dev/repo/clone-in-the-loop/demo/output/audio/minchan/causal-v3-source-48k.wav"
+      "source": "output/audio/minchan/causal-v3-source-48k.wav"
     },
     {
       "id": "history-and-tab",
@@ -25,7 +25,7 @@
       "boundaryMethod": "Complete source paragraph retained at original speed, with silence inserted between paragraphs.",
       "sourceStartSample": 182779,
       "sourceEndSample": 737659,
-      "source": "/Users/minchan/Desktop/dev/repo/clone-in-the-loop/demo/output/audio/minchan/causal-v3-source-48k.wav"
+      "source": "output/audio/minchan/causal-v3-source-48k.wav"
     },
     {
       "id": "departments",
@@ -37,7 +37,7 @@
       "boundaryMethod": "Complete source paragraph retained at original speed, with silence inserted between paragraphs.",
       "sourceStartSample": 737659,
       "sourceEndSample": 933949,
-      "source": "/Users/minchan/Desktop/dev/repo/clone-in-the-loop/demo/output/audio/minchan/causal-v3-source-48k.wav"
+      "source": "output/audio/minchan/causal-v3-source-48k.wav"
     },
     {
       "id": "clone-loop",
@@ -49,7 +49,7 @@
       "boundaryMethod": "Complete source paragraph retained at original speed, with silence inserted between paragraphs.",
       "sourceStartSample": 933949,
       "sourceEndSample": 1366602,
-      "source": "/Users/minchan/Desktop/dev/repo/clone-in-the-loop/demo/output/audio/minchan/causal-v3-source-48k.wav"
+      "source": "output/audio/minchan/causal-v3-source-48k.wav"
     },
     {
       "id": "review-correction-stop",
@@ -61,7 +61,7 @@
       "boundaryMethod": "Complete source paragraph retained at original speed, with silence inserted between paragraphs.",
       "sourceStartSample": 0,
       "sourceEndSample": 490267,
-      "source": "/Users/minchan/Desktop/dev/repo/clone-in-the-loop/demo/output/audio/minchan/concrete-review-source-48k.wav"
+      "source": "output/audio/minchan/concrete-review-source-48k.wav"
     },
     {
       "id": "goals-inbox-team",
@@ -73,7 +73,7 @@
       "boundaryMethod": "Complete source paragraph retained at original speed, with silence inserted between paragraphs.",
       "sourceStartSample": 1798251,
       "sourceEndSample": 2185406,
-      "source": "/Users/minchan/Desktop/dev/repo/clone-in-the-loop/demo/output/audio/minchan/causal-v3-source-48k.wav"
+      "source": "output/audio/minchan/causal-v3-source-48k.wav"
     },
     {
       "id": "scoped-memory",
@@ -85,12 +85,12 @@
       "boundaryMethod": "Complete source paragraph retained at original speed, with silence inserted between paragraphs.",
       "sourceStartSample": 2185406,
       "sourceEndSample": 2573265,
-      "source": "/Users/minchan/Desktop/dev/repo/clone-in-the-loop/demo/output/audio/minchan/causal-v3-source-48k.wav"
+      "source": "output/audio/minchan/causal-v3-source-48k.wav"
     },
     {
       "id": "human-in-the-loop-tagline",
       "text": "Clone-in-the-Loop just killed Human-in-the-Loop.",
-      "source": "/Users/minchan/Desktop/dev/repo/clone-in-the-loop/demo/output/audio/minchan/hitl-tagline-source-48k.wav",
+      "source": "output/audio/minchan/hitl-tagline-source-48k.wav",
       "sourceStartSample": 0,
       "sourceEndSample": 106580,
       "sourceStart": 0,
@@ -109,7 +109,7 @@
       "boundaryMethod": "Complete source paragraph retained at original speed, with silence inserted between paragraphs.",
       "sourceStartSample": 2573265,
       "sourceEndSample": 2626253,
-      "source": "/Users/minchan/Desktop/dev/repo/clone-in-the-loop/demo/output/audio/minchan/causal-v3-source-48k.wav"
+      "source": "output/audio/minchan/causal-v3-source-48k.wav"
     },
     {
       "id": "pr-addon",
@@ -121,7 +121,7 @@
       "boundaryMethod": "Complete source paragraph retained at original speed, with silence inserted between paragraphs.",
       "sourceStartSample": 2626253,
       "sourceEndSample": 2808686,
-      "source": "/Users/minchan/Desktop/dev/repo/clone-in-the-loop/demo/output/audio/minchan/causal-v3-source-48k.wav"
+      "source": "output/audio/minchan/causal-v3-source-48k.wav"
     }
   ]
 }
