@@ -176,7 +176,7 @@ Current verification status:
 | Prediction and workspace behavior | Real GBrain-backed predictions and Tab acceptance were observed. Independent delayed-response checks cover workspace navigation and draft preservation; long-text layout was checked with a synthetic browser fixture. |
 | Final delivery                    | A recorded minimal-interface run completed three real Clone iterations, template inspection, and Stop with no further continuation. Final movie playback, Loom upload, and the user's submission remain pending.       |
 
-The [verification record](docs/verification.md) separates CI, focused regression checks, observed browser behavior, and remaining acceptance. The [upstream QM proposal](https://github.com/yc-software/qm/pull/1671) is open and contains a text proposal under upstream contribution policy. The implementation is in this fork's `main` branch.
+The [verification record](docs/verification.md) separates CI, focused regression checks, observed browser behavior, and remaining acceptance. The [Upstream QM PR](https://github.com/yc-software/qm/pull/1671) is open and contains a text proposal under upstream contribution policy. The implementation is in this fork's `main` branch.
 
 ## Repository guide
 

@@ -519,6 +519,28 @@ kbd {
   gap: 10px;
 }
 
+.message-avatar {
+  flex: 0 0 28px;
+  padding-top: 0;
+  line-height: 0;
+}
+
+.message-clone .message-avatar,
+.message-review .message-avatar {
+  padding-top: 11px;
+}
+
+.message-header {
+  align-items: center;
+  min-height: 28px;
+}
+
+.message-header strong,
+.message-header .message-model,
+.message-header time {
+  line-height: 20px;
+}
+
 .message-header strong {
   color: var(--foreground);
   font-size: 13px;
@@ -636,6 +658,38 @@ kbd {
 .message-sources button {
   background: var(--soft);
   border-color: var(--border);
+}
+
+.message-header .message-model,
+.message-header time {
+  font-size: 12px;
+}
+
+.message-role,
+.message-sources > span,
+.message-sources button,
+.source-label {
+  line-height: 16px;
+}
+
+:is(
+    .workspace-button,
+    .workspace-icon,
+    .profile,
+    .teammate,
+    .clone-picker,
+    .model-label,
+    .loop-toggle,
+    .send-button,
+    .message-role,
+    .source-label,
+    .message-sources > span,
+    .message-sources button,
+    .popover > button
+  )
+  > svg {
+  display: block;
+  flex-shrink: 0;
 }
 
 .goal-composer {
