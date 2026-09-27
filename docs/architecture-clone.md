@@ -54,7 +54,7 @@ sequenceDiagram
 
 Prediction and review are model turns routed through QM, not handwritten demo responses. Execution also routes through QM. It gets a bounded instruction and returns a concrete result before another iteration begins.
 
-The review response records whether the current step is complete. In the selected hackathon interaction, completing a step does not automatically disable Clone mode: the Clone chooses the next useful improvement toward the same Goal. The operator ends Clone mode with Stop.
+The review response records whether the current step is complete. In the selected hackathon interaction, completing a step does not automatically disable Clone mode: the Clone chooses the next useful improvement toward the same Goal. The operator ends Clone mode with the composer switch or Stop; both use the same cancellation path. A blue composer glow reflects enabled Clone mode, while a manual single execution keeps the neutral border.
 
 ## Durable state and interruption
 

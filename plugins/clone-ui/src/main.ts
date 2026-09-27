@@ -766,6 +766,12 @@ class CloneApp extends LitElement {
     const separatePrediction = this.prediction?.text && !suffix && this.prediction.text !== this.draft;
     const active = this.loopOn || this.working;
     const stopping = active && (this.pending || this.active?.goal.phase === "stopping");
+    const hasInstruction = !!this.active || !!this.draft.trim() || !!this.prediction?.text;
+    const toggleDisabled =
+      this.pending || this.booting || stopping || (!this.loopOn && (this.working || !hasInstruction));
+    let toggleTitle = this.loopOn ? "Turn off Clone mode" : "Turn on Clone mode";
+    if (!this.loopOn && this.working) toggleTitle = "Stop the current run to enable Clone mode";
+    else if (!hasInstruction) toggleTitle = "Add direction to enable Clone mode";
     let placeholder = "Ask anything";
     if (stopping) placeholder = "Stopping…";
     else if (active) placeholder = "Press Stop to add direction…";
@@ -822,7 +828,17 @@ class CloneApp extends LitElement {
             }
           </div>
           <div class="composer-actions">
-            ${!active && (!home || this.draft || this.prediction?.text) ? html`<button class="loop-toggle" title="Your Clone continues directing and reviewing until you stop" @click=${() => this.toggleLoop(true)} ?disabled=${this.pending}>${icon("loop", 15)}<span>Clone mode</span></button>` : nothing}${
+            <button
+              class="loop-toggle"
+              role="switch"
+              aria-label="Clone mode"
+              aria-checked=${String(this.loopOn)}
+              title=${toggleTitle}
+              @click=${() => this.toggleLoop(!this.loopOn)}
+              ?disabled=${toggleDisabled}
+            >
+              <span>Clone mode</span><span class="loop-switch-track" aria-hidden="true"></span></button
+            >${
               active
                 ? html`<button
                     class="send-button stop-button"

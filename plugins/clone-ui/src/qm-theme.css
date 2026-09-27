@@ -315,12 +315,19 @@ select {
     0 8px 24px rgb(0 0 0 / 0.06);
 }
 
-.composer:focus-within,
-.composer.loop-active {
+.composer:focus-within {
   border-color: #c5c5cc;
   box-shadow:
     0 2px 5px rgb(0 0 0 / 0.05),
     0 8px 24px rgb(0 0 0 / 0.06);
+}
+
+.composer.loop-active {
+  border-color: #60a5fa;
+  box-shadow:
+    0 0 0 1px rgb(59 130 246 / 0.22),
+    0 0 16px rgb(59 130 246 / 0.14),
+    0 2px 5px rgb(0 0 0 / 0.05);
 }
 
 .composer-writing {
@@ -415,9 +422,47 @@ select {
   color: var(--foreground);
 }
 
-.loop-toggle.enabled {
-  background: #f1f0ff;
-  color: var(--brand-accent);
+.loop-toggle {
+  min-height: 28px;
+  gap: 6px;
+}
+
+.loop-toggle[aria-checked="true"] {
+  background: #eff6ff;
+  color: #2563eb;
+}
+
+.loop-switch-track {
+  display: block;
+  flex: 0 0 28px;
+  width: 28px;
+  height: 16px;
+  padding: 2px;
+  border-radius: 999px;
+  background: #b8bdc5;
+}
+
+.loop-switch-track::after {
+  content: "";
+  display: block;
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: white;
+  box-shadow: 0 1px 2px rgb(0 0 0 / 0.12);
+}
+
+.loop-toggle[aria-checked="true"] .loop-switch-track {
+  background: #3b82f6;
+}
+
+.loop-toggle[aria-checked="true"] .loop-switch-track::after {
+  transform: translateX(12px);
+}
+
+.loop-toggle:disabled {
+  cursor: default;
+  opacity: 0.55;
 }
 
 .composer-hints {
