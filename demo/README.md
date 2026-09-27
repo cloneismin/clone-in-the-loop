@@ -1,6 +1,6 @@
 # Demo production kit
 
-[Watch the 93-second demo on Loom](https://www.loom.com/share/f989c778d4f14d05acfe0a20d9bdfbc3). This is the revised cut with complete narration, the Goals board, and the QM PR as a closing add-on. See the [verification record](../docs/verification.md) for playback and sharing checks. The user's acceptance and submission remain pending.
+[Watch the 93-second demo on Loom](https://www.loom.com/share/f989c778d4f14d05acfe0a20d9bdfbc3). This is the revised cut with complete narration, the Goals board, and the QM PR as a closing add-on. Complete 1× Loom playback, public sharing, and the saved form draft are verified in the [verification record](../docs/verification.md). The user's acceptance and submission remain pending.
 
 This directory prepares a 93-second revised film of Clone-in-the-Loop, the QM extension with GBrain-backed next-prompt prediction. Read the [storyboard](storyboard.md), [narration](narration.txt), and [tool requirements](tooling.md) first.
 
