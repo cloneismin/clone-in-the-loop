@@ -1,0 +1,27 @@
+{
+  "name": "clone-in-the-loop-web",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "vite --host 127.0.0.1 --port 4317",
+    "build": "vite build",
+    "serve": "node server/index.ts",
+    "test": "node --test test/*.test.ts",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "dompurify": "^3.4.12",
+    "lit": "^3.3.1",
+    "lucide": "^0.544.0",
+    "marked": "^18.0.5",
+    "pg": "^8.13.1",
+    "zod": "^4.4.3"
+  },
+  "devDependencies": {
+    "@types/node": "^24.0.0",
+    "@types/pg": "^8.11.10",
+    "typescript": "^5.8.2",
+    "vite": "^7.1.6"
+  }
+}

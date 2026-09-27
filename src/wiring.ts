@@ -214,6 +214,7 @@ import { createMemoryFileArtifactStore, type FileArtifactStore } from "./files/f
 import { createPostgresFileArtifactStore } from "./files/postgres-file-artifact-store.ts";
 import { createAwsSandbox, type StoredMicrovm } from "./sandbox/aws-sandbox.ts";
 import { createLocalSandbox } from "./sandbox/local-sandbox.ts";
+import { createTrustedHostSandbox } from "./sandbox/host-sandbox.ts";
 import { createSpritesSandbox } from "./sandbox/sprites-sandbox.ts";
 import { createSmolmachinesSandbox, type StoredSmolmachinesSandbox } from "./sandbox/smolmachines-sandbox.ts";
 import { createAgent37Sandbox } from "./sandbox/agent37-sandbox.ts";
@@ -842,10 +843,12 @@ export function buildApp(
       scopeLabel: (e.scopeLabel ?? "unknown") as ScopeId,
     });
   const buildLocal = (): Sandbox =>
-    createLocalSandbox(workspace, {
-      ...config.localSandbox,
-      onError: sandboxOnError,
-    });
+    config.trustedHostSandboxDir
+      ? createTrustedHostSandbox(workspace, config.trustedHostSandboxDir, config.codexProcessEnv.PATH)
+      : createLocalSandbox(workspace, {
+          ...config.localSandbox,
+          onError: sandboxOnError,
+        });
   const buildSprites = (): Sandbox => {
     const { snapshotS3Bucket, ...sprites } = config.spritesSandbox;
     return createSpritesSandbox(workspace, {

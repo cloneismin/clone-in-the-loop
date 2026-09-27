@@ -2,6 +2,8 @@
 
 ## Agreed product
 
+The organizer's clarified rules require using GBrain, no prebuilt project, and building during hackathon hours. The submitted product extensions are newly implemented during this hackathon on the permitted QM and GBrain foundations. Prior product source is not included in the new extension. Preserve real upstream ancestry, new commit timestamps, and truthful attribution.
+
 A minimal web application extending QM with a personal decision loop. GBrain retrieves relevant human chat history; a person's Clone predicts their next instruction, reviews the agent's result, and chooses the next useful action. QM executes the work. The operator can interrupt at any time.
 
 The hackathon submission retains the QM upstream history. All application source, setup scripts, tests, and the demo specification live in this repository. Private histories, credentials, runtime databases, and review recordings remain ignored local data.

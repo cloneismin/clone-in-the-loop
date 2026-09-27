@@ -1,237 +1,187 @@
-# qm
+# Clone-in-the-Loop
 
-A multiplayer agent harness for work. In Slack and on the web.
+**Your agent does the work. Your Clone decides what comes next.**
 
-## Setup
+An AI-native founder should not have to write every follow-up, catch every missing detail, and keep restarting the same workflow. Clone-in-the-Loop extends [QM](https://github.com/yc-software/qm) with a personal decision loop, grounded in conversation history stored in [GBrain](https://github.com/garrytan/gbrain).
 
-Tell your coding agent of choice `Let's deploy https://github.com/yc-software/qm`. From here, it should follow the deployment guide in this repo.
+Start with a Goal. Your Clone predicts the next instruction. Press **Tab** to accept it, or enable **Clone mode** to let it execute, review, and improve the work until you press **Stop**. Switch to a team workspace to explore a teammate's shared judgment, with every synthetic demo record labeled.
 
-You can also try out a 3rd-party hosted version of QM [here](https://www.agent37.com/qm).
+[Quickstart](#quickstart) · [How it works](#how-it-works) · [Architecture](docs/architecture-clone.md) · [Demo script](docs/pitch.md) · [Build plan](docs/clone-in-the-loop-plan.md) · [Upstream QM](README.qm.md)
 
-If you're an infra provider interested in offering a hosted version of QM, feel free to reach out.
+## See the loop
 
-## What is QM?
+| Step         | What happens                                                                                        |
+| ------------ | --------------------------------------------------------------------------------------------------- |
+| **Remember** | GBrain retrieves relevant, source-scoped evidence from human chat history.                          |
+| **Predict**  | A Clone proposes the next instruction using the Goal, conversation, and retrieved evidence.         |
+| **Execute**  | QM runs the instruction through its Codex harness and records the execution.                        |
+| **Review**   | The Clone examines the result against the Goal and remembered preferences.                          |
+| **Improve**  | It requests a correction or chooses the next useful improvement. Stop remains available throughout. |
 
-Most agents are designed like personal assistants. You can make one work for a whole
-company, but it quickly gets complex. QM is designed for startups. Employees each get
-their own isolated workspace, and can also collaborate with the agent in channels, group messages, and projects.
+**Demo video:** recording and Loom upload pending. A verified playback link will be added here. The [90-second storyboard and production kit](demo/README.md) describe the fresh capture and review process.
 
-Each person and each room has its own scoped memory, files, keychain view, permissions,
-crons, web apps, and durable sandbox.
+**Product screenshots:** browser acceptance and review captures pending.
 
-It's built with open source in mind. Pick your own harness and model and switch between
-them. Pi, OpenCode, Codex, and Claude Code all drive the same core, so a deployment
-isn't tied to any single vendor.
+## What we added to QM
 
-## Features
+- **Next-prompt prediction.** Inline suggestions grounded in GBrain evidence, with Tab acceptance and draft-revision tracking.
+- **Continuous Clone mode.** A visible instruction → execution → review → improvement loop, with durable messages and explicit interruption.
+- **Personal and team workspaces.** The active workspace determines which memory sources enter a prediction.
+- **Teammate Clones.** Clone Jun demonstrates a teammate's review style using clearly labeled synthetic, shared history.
+- **Goals and Inbox.** Persisted work and model-proposed next Goals in one web interface.
+- **Inspectable memory.** Source labels, excerpts, and demo markers travel with the predictions and reviews they inform.
 
-- **Personal and shared scopes.** People customize the agent to be _theirs_, and still
-  work with it collaboratively in Slack channels and projects.
-- **Slack and web.** The same identity and configuration carries between Slack and the
-  web app.
-- **Admin control.** Set org-level configuration, security and sharing postures. Choose which
-  harnesses and models are available.
-- **Web apps.** Spin up custom internal apps and publish them to the right people.
-- **Shared skills.** Skills are scope-owned and shareable by grant, with admin-gated
-  promotion to the whole org and skill packs imported from git repositories.
-- **Background work.** Crons, watches, and inbound webhooks work while you're away.
+This repository is a **QM source fork**, preserving its upstream history and MIT license. The extension lives primarily in `plugins/clone-ui`, with a small runtime addition for explicitly trusted local execution. QM remains the execution foundation; GBrain is part of the actual retrieval path.
 
-## What you can do with it
-
-- Search internal notes, email, documents, databases, and the web together
-- Build internal apps, publish them to the right people, and keep their data current
-- Learn your writing voice from past sends, then triage your inbox on a schedule —
-  labels and reply drafts included
-- Work in an existing repository: run tests, open PRs, monitor CI, check system logs
-- Track a project in a shared channel and post updates and follow-ups
-
-## Architecture
+## How it works
 
 ```mermaid
 flowchart LR
-  DB[("Postgres<br/>sessions · memory · queue")]
-
-  subgraph CORE["Headless core"]
-    API["API · identity · policy · scheduler"]
-    LOOP["Agent loop<br/>(Pi, OpenCode, Claude Code)"]
-    API <--> LOOP
-  end
-
-  SBX["Per-scope sandbox<br/>files · tools · logged-in services"]
-
-  DB <--> API
-  LOOP <--> SBX
+  User["You: intent, Tab, Stop"] <--> UI["Clone web UI"]
+  UI <--> Loop["Clone decision loop"]
+  Loop -->|"source-scoped recall"| Brain["GBrain PGLite"]
+  Histories["Authorized human chat history"] --> Brain
+  Shared["Shared feedback + labeled demo history"] --> Brain
+  Brain -->|"evidence + provenance"| Loop
+  Loop -->|"prediction, execution, review"| QM["QM core + Codex harness"]
+  QM -->|"result + run identity"| Loop
+  QM <--> PG[("PostgreSQL")]
+  Loop <--> PG
+  QM --> Workspace["Trusted local working directory"]
 ```
 
-For durability, set `DATABASE_URL` and `SESSION_STORE=postgres` — without it, sessions
-live in process memory and vanish on restart. To exercise a branch against a real model and real Postgres, run
-`npm run dev-instance:web` for web/admin or `npm run dev-instance:slack` for Slack.
-Use `npm run dev-instance:both` when testing both surfaces together. Bare
-`npm run dev-instance` defaults to web for new instances and preserves the surface
-on reload. Switch an existing instance with an explicit surface command.
+**QM** supplies the authenticated internal core-client boundary, turn and run APIs, Codex harness, execution lifecycle, and PostgreSQL persistence. Predictions and reviews are separate read-only model turns. Execution turns perform one bounded step, then return to the Clone for review.
 
-## Architecture
+**GBrain** supplies its official PGLite engine, schema, page and chunk storage, indexing, and source-aware keyword retrieval. Personal Codex and Claude user messages can be imported locally. The default is keyword retrieval, including GBrain's CJK handling and OR fallback; no embedding API key is required. This submission does not claim hosted GBrain federation or semantic vector retrieval.
 
-Every turn runs through a central core, which can use a variety of models and harnesses
-to generate the response. A Postgres persistence layer holds user data, session history,
-and other durable state. The agent has a small, fixed tool surface; one of those tools is
-`execute`, which runs commands in the scope's own isolated sandbox — its durable computer,
-where installed tools stay installed. The web UI and admin panel share one service; the portal and optional built-in
-auth broker share another. These modules communicate with core over its HTTP API.
-See [combined services](docs/combined-services.md) for configuration and migration;
-Slack is an optional in-process plugin that core starts
-and supervises through a direct service client.
+The [architecture guide](docs/architecture-clone.md) documents the boundaries, state transitions, and failure behavior.
 
-The core runs TypeScript directly on Node and uses Fastify for HTTP. The Slack plugin
-uses Bolt; the web UI builds with Vite and renders with Lit.
+## Quickstart
 
-The core itself is generic. Everything specific to one company — org config, custom tools
-and skills, sandbox image, infrastructure — lives in a **deployment directory** that the
-[`qm` CLI](./cli/README.md) validates and deploys. Every substrate (harness, session
-store, sandbox, memory) sits behind an interface. Memory can also be routed by scope to
-[external providers](./docs/memory-providers.md) while retaining the built-in notebook.
+### Prerequisites
 
-## Security and secrets
+- Node.js **24.15+** and npm **11+**.
+- Bun **1.3.10+** on `PATH`, or `CLONE_BUN` set to its executable.
+- PostgreSQL **16+** with its contrib extensions. `initdb` and `pg_ctl` must be on `PATH`, or set `CLONE_PG_BIN` to the PostgreSQL bin directory.
+- A working Codex login and access to the configured model. Model calls use your account.
 
-QM's approach follows local coding agents like OpenCode, Codex, and Claude Code: the
-agent acts as the person it's working for, with their credentials and permissions, and
-everything it does is audited. An org picks one security posture, which narrower scopes
-can only tighten:
+### Install
 
-- **Strict** — every harness tool call pauses for human approval, except the two
-  no-effect turn enders.
-- **Auto** (default) — blocks private-network access and uses a content screener when
-  the deployment configures one. Model screening is off by default; deployments can
-  use an external proxy or explicitly opt into the built-in model classifier.
-- **Dangerous** — no posture-based content screening or tool approval gates.
-
-Deployments can set `securityScreen.allPostures: true` to require external-content
-screening under every posture, including Dangerous and Strict, without changing tool
-approvals or private-network policy. Flagged content still requires release approval.
-
-The predeclared command policy — approval rules and hard denials for things like
-recursive deletes or destructive SQL — applies in every posture, Dangerous included.
-
-Sharing posture is independent:
-
-- **Isolated** (default) — resources stay in their scope unless explicitly shared.
-- **Open** — on a live authenticated internal human turn, the speaker's opted-in personal
-  files, artifacts, skills, and memory may be read in an opted-in shared room.
-
-[`SECURITY.md`](./SECURITY.md) has the threat model, the operator assumptions, and the
-known limitations.
-
-## Deploy it for your org
-
-Create an organization-owned deployment repository that depends on `@yc-software/qm`:
-
-```bash
-npm exec --yes --package=@yc-software/qm@latest -- \
-  qm init . --org <slug> --target <fly-or-aws>
-npm install
+```sh
+git clone https://github.com/cloneismin/clone-in-the-loop.git
+cd clone-in-the-loop
+npm ci
+npm run clone:setup
+npx codex login
 ```
 
-Initialization materializes a deployment skill for an agent and walks through
-infrastructure, web sign-in, connector credentials, optional Slack access, deployment,
-and live verification — no source checkout required. Each deployment runs in the
-operator's own cloud account; initialization does not generate or enable deployment CI,
-and this repository has no production deployment workflow. See
-[`deployment.md`](./deployment.md) for the details.
+Setup installs the web plugin and the official GBrain revision pinned by this project. It does not import your history automatically.
 
-## Contributing
+### Add personal memory, optionally
 
-We take contributions as _human-written_ text, not code — see
-[`CONTRIBUTING.md`](./CONTRIBUTING.md). Describe the change you'd like informally in a
-`.txt` or `.md` file in [`adrs/`](./adrs/), and if we're aligned we'll handle the
-implementation. Report vulnerabilities privately — see [`SECURITY.md`](./SECURITY.md),
-not a public issue.
+Before starting the web application, explicitly import your recent human chat history:
 
-## Customize your instance
-
-Choose how you want to customize QM:
-
-- **Config, tools, skills, and services:** use the deployment repository above. It
-  pins `@yc-software/qm` and uses that release's runtime images; no source copy is needed.
-- **Changes to QM itself:** keep your own source fork, public or private. You may
-  modify any part of core, including the runtime, plugins, CLI, docs, and CI.
-  Contributing those changes upstream is optional.
-
-### Create a source fork
-
-For a private source fork, create a standalone private repository, outside GitHub's
-fork network. Seed only `main` and explicitly set it as the default branch:
-
-```bash
-gh repo create <org>/qm-private --private
-git clone --single-branch --branch main --no-tags git@github.com:yc-software/qm qm-private
-git -C qm-private remote rename origin upstream
-git -C qm-private remote add origin git@github.com:<org>/qm-private
-git -C qm-private push -u origin main
-gh repo edit <org>/qm-private --default-branch main
+```sh
+npm run clone:import
 ```
 
-Do not seed with `git push --mirror`: it copies unrelated upstream branches and tags,
-leaves default-branch selection implicit, and can delete destination-only refs on later
-pushes. The `upstream` remote supplies source updates without copying those refs to your
-repository. For a public source fork, GitHub's Fork button is also an option. A GitHub
-fork of a public repository cannot be private; keep private work outside that network.
+The importer reads bounded recent user messages from your local Codex and Claude histories. It excludes assistant/tool messages, injected environment records, and recognizable credentials. Personal history remains in ignored local data. An empty personal corpus also works, with less evidence for personalized predictions.
 
-Review inherited workflows before enabling Actions or adding credentials. Choose the CI
-checks you want, and disable or adapt upstream release and publishing workflows for your
-own package and image registries. Copying the source does not configure production
-deployment CI.
+GBrain uses a single database owner. Stop `clone:dev` or `clone:start` before running another import; start the application again afterward.
 
-### Customize and run your source
+### Start the application
 
-Keep deployment configuration, tools, skills, plugin images, and infrastructure in
-`deploy/layers/<org>/` in a private source fork, or in a separate private deployment
-repository when your source is public. Never commit secrets. See
-[`deploy/layers/README.md`](./deploy/layers/README.md) for initialization and layout.
-Keep deployment data separate from core code, but change core wherever your desired
-behavior requires it.
+Terminal 1 starts the local PostgreSQL cluster and QM core:
 
-From the source checkout, install dependencies with `npm ci` and use the in-tree CLI.
-After completing the provider setup in [`deployment.md`](./deployment.md), build and
-deploy your modified services explicitly:
-
-```bash
-node cli/bin/qm.ts check --config <deployment-dir>/qm.config.jsonc
-node cli/bin/qm.ts plan --config <deployment-dir>/qm.config.jsonc --build-from .
-node cli/bin/qm.ts up --config <deployment-dir>/qm.config.jsonc --build-from .
-node cli/bin/qm.ts check --config <deployment-dir>/qm.config.jsonc --live
+```sh
+npm run clone:core
 ```
 
-Use this checkout's CLI when changing the CLI itself. Without `--build-from`, the
-normal deployment path selects published images, so editing source alone does not
-change the deployed runtime. If you publish custom images instead, configure their
-immutable references through `imageOverrides`. Follow the provider guide for sandbox
-image builds; service builds do not replace that step.
+Terminal 2 starts the Clone API and Vite development server:
 
-### Keep it current
+```sh
+npm run clone:dev
+```
 
-For a source fork, `update-qm` merges upstream changes while preserving intentional
-local behavior. Land sync PRs with their merge ancestry intact, never squash or rebase
-them. Conflicts are expected maintenance work, not a requirement to discard
-customizations. Use `upstream-pr` only when you want to contribute a generic change;
-it prepares a clean upstream branch without private deployment data or history.
+Open **[http://127.0.0.1:4317](http://127.0.0.1:4317)**. The Clone API runs on port `4318`, QM on `8088`, and the local PostgreSQL cluster on `55432`.
 
-For a package deployment, upgrade the exact `@yc-software/qm` dependency and lockfile,
-review contract changes and generated assets, then validate and deploy. There is no
-upstream source history to merge.
+For a built web application, keep QM running and replace the development server with:
 
-## Going deeper
+```sh
+npm run clone:build
+npm run clone:start
+```
 
-- [`docs/getting-started.md`](./docs/getting-started.md) — first run, end to end
-- [`cli/README.md`](./cli/README.md) — the `qm` CLI and the deployment directory contract
-- [`docs/deploy-directory.md`](./docs/deploy-directory.md) — the deployment directory in full
-- [`docs/principal-links.md`](./docs/principal-links.md) — one person, several sign-ins: linking principals
-- [`docs/porter.md`](./docs/porter.md) — running qm on Porter
-- [`docs/superserve.md`](./docs/superserve.md) — using Superserve for agent sandboxes
-- [`.env.example`](./.env.example) — every knob, documented in place
-- [`docs/swarms.md`](./docs/swarms.md) — durable agent pools, scoped messages, and blank Modal workers
-- [`docs/model-gateway.md`](./docs/model-gateway.md) — discover and route models through a gateway
-- [`plugins/`](./plugins) — the surfaces (Slack, web UI, admin, portal)
+Then open **[http://127.0.0.1:4318](http://127.0.0.1:4318)**.
 
-## License
+### Configuration
 
-Except where otherwise noted, QM is available under the [MIT License](./LICENSE).
+| Variable          | Purpose                                                                              |
+| ----------------- | ------------------------------------------------------------------------------------ |
+| `CODEX_MODEL`     | QM's Codex model; defaults to `gpt-6-sol`. Choose a model available to your account. |
+| `CLONE_BUN`       | Bun executable when it is outside `PATH`.                                            |
+| `CLONE_PG_BIN`    | Directory containing PostgreSQL executables.                                         |
+| `CLONE_CORE_PORT` | QM port; defaults to `8088`.                                                         |
+| `CLONE_PG_PORT`   | Managed PostgreSQL port; defaults to `55432`.                                        |
+| `DATABASE_URL`    | Use an existing PostgreSQL database instead of creating the local cluster.           |
+
+Runtime configuration, signing material, PostgreSQL data, and local working directories live under ignored `data/clone-runtime/`. GBrain and its private memory database live under ignored `.clone-loop/`. Do not commit either directory.
+
+## Memory and team boundaries
+
+| Selected context   | Available evidence                                                  |
+| ------------------ | ------------------------------------------------------------------- |
+| **Min / Personal** | Min's imported human messages and private feedback.                 |
+| **Min / Team**     | Explicitly shared team feedback and labeled demo records.           |
+| **Jun / Team**     | The same team-shared scope, including Jun's synthetic demo history. |
+| **Jun / Personal** | Rejected. Jun cannot select Min's private source.                   |
+
+Switching to Team does not share imported personal history. A human message sent in a team Goal becomes shared feedback for that workspace. The teammate persona is synthetic; this is not a claim of a real teammate's participation.
+
+This build is for **one trusted local operator**. It has no production user authentication, multi-user authorization, or OS sandbox isolation. The trusted-host runtime can execute commands with the operator's local permissions. Memory source filtering is real and tested, but it is not a replacement for a production identity boundary. Keep this demo on loopback.
+
+## Verification
+
+Run the extension checks:
+
+```sh
+npm run clone:typecheck
+npm run clone:test
+npm run clone:build
+```
+
+With QM running, exercise a real Codex turn through the core:
+
+```sh
+npm run clone:core:smoke
+```
+
+Current verification status:
+
+| Layer                                                        | Evidence                                                                                                  |
+| ------------------------------------------------------------ | --------------------------------------------------------------------------------------------------------- |
+| QM runtime changes                                           | 61 targeted runtime tests passed during implementation.                                                   |
+| GBrain adapter                                               | 4 tests passed, including real PGLite retrieval, private/team isolation, and persistence after reopening. |
+| Memory code quality                                          | Strict TypeScript and ESLint checks passed.                                                               |
+| Frontend build and browser acceptance                        | Pending final integration verification.                                                                   |
+| Continuous loop, Stop, and workspace behavior in the browser | Pending end-to-end acceptance.                                                                            |
+| Final demo and Loom playback                                 | Pending recording and upload.                                                                             |
+
+A passing unit test is not treated as proof of the complete product interaction. The final acceptance checklist is in the [build plan](docs/clone-in-the-loop-plan.md).
+
+## Repository guide
+
+| Path                                                               | Responsibility                                                                           |
+| ------------------------------------------------------------------ | ---------------------------------------------------------------------------------------- |
+| [`plugins/clone-ui/src`](plugins/clone-ui/src)                     | Lit interface, composer, Goals, Inbox, workspaces, and memory views.                     |
+| [`plugins/clone-ui/server`](plugins/clone-ui/server)               | Goal API, PostgreSQL store, QM client, prediction prompts, and loop control.             |
+| [`plugins/clone-ui/server/memory`](plugins/clone-ui/server/memory) | Official GBrain setup, bounded history import, scoped retrieval, and synthetic fixtures. |
+| [`scripts/clone-runtime`](scripts/clone-runtime)                   | Reproducible trusted-local QM startup and smoke check.                                   |
+| [`src`](src)                                                       | Upstream QM core, with narrowly scoped runtime extensions.                               |
+| [`docs/architecture-clone.md`](docs/architecture-clone.md)         | Design decisions, data flow, persistence, and known limitations.                         |
+| [`docs/pitch.md`](docs/pitch.md)                                   | 30-second and 60-second presentation scripts.                                            |
+| [`README.qm.md`](README.qm.md)                                     | Preserved upstream QM documentation.                                                     |
+
+## Credits and license
+
+Built for the QM and GBrain hackathon, extending [QM by YC Software](https://github.com/yc-software/qm) and integrating [GBrain by Garry Tan](https://github.com/garrytan/gbrain). Both projects are MIT licensed. Upstream history and attribution are preserved. See [LICENSE](LICENSE).

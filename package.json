@@ -10,6 +10,15 @@
     "npm": ">=11.10.0"
   },
   "scripts": {
+    "clone:setup": "node scripts/clone-setup.mjs",
+    "clone:import": "node scripts/clone-import.mjs",
+    "clone:core": "node scripts/clone-runtime/start.mjs",
+    "clone:core:smoke": "node scripts/clone-runtime/smoke.mjs",
+    "clone:dev": "node scripts/clone-dev.mjs",
+    "clone:build": "npm --prefix plugins/clone-ui run build",
+    "clone:start": "node plugins/clone-ui/server/index.ts",
+    "clone:test": "npm --prefix plugins/clone-ui test",
+    "clone:typecheck": "npm --prefix plugins/clone-ui run typecheck",
     "build:connector-sdk": "npm ci --prefix deploy/connector-sdk --ignore-scripts --no-audit --no-fund && node deploy/connector-sdk/build.mjs",
     "prestart": "npm run build:connector-sdk",
     "predev": "npm run build:connector-sdk",

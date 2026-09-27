@@ -66,6 +66,7 @@ export interface Config {
   harness: "mock" | "pi" | "opencode" | "codex" | "claude";
   securityPosture: SecurityPosture;
   sandboxResourcesEnabled: boolean;
+  trustedHostSandboxDir?: string;
   sharingPosture: SharingPosture;
   sandboxScopeDefaults?: SandboxScopeDefaults;
   sandboxBackend: "aws" | "local" | "sprites" | "smolmachines" | "e2b" | "modal" | "porter" | "agent37" | "superserve";
@@ -1131,6 +1132,15 @@ function modelProviderEnvStrict(env: NodeJS.ProcessEnv): ModelProvider | undefin
 }
 
 export function loadConfig(env: NodeJS.ProcessEnv = process.env): Config {
+  const trustedHostSandboxDir = env.QM_TRUSTED_HOST_SANDBOX_DIR?.trim();
+  if (
+    trustedHostSandboxDir &&
+    (env.NODE_ENV === "production" || (env.SANDBOX_BACKEND && env.SANDBOX_BACKEND !== "local"))
+  ) {
+    throw new Error(
+      "QM_TRUSTED_HOST_SANDBOX_DIR is only supported for a trusted local development instance with SANDBOX_BACKEND=local",
+    );
+  }
   if (env.BACKGROUND_DEPLOYMENT_ID !== undefined) {
     if (!env.BACKGROUND_DEPLOYMENT_ID.trim() || env.BACKGROUND_DEPLOYMENT_ID.length > 256)
       throw new Error("BACKGROUND_DEPLOYMENT_ID must be nonempty and at most 256 characters");
@@ -1464,6 +1474,7 @@ export function loadConfig(env: NodeJS.ProcessEnv = process.env): Config {
     sandboxBackend,
     sandboxScopeDefaults,
     sandboxResourcesEnabled: boolEnvStrict("SANDBOX_RESOURCES_ENABLED", env.SANDBOX_RESOURCES_ENABLED) ?? false,
+    ...(trustedHostSandboxDir ? { trustedHostSandboxDir: resolve(trustedHostSandboxDir) } : {}),
     deployProvider,
     ...(env.EGRESS_SERVICE_HOSTS
       ? {
