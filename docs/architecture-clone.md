@@ -89,15 +89,15 @@ The Node API communicates with the worker over JSON lines. One worker owns the P
 
 ### Scope rules
 
-| GBrain source         | Written by                                                       | Readable in               |
-| --------------------- | ---------------------------------------------------------------- | ------------------------- |
-| `clone-personal-min`  | Owner's approved Codex/Claude import and personal feedback       | Min / Personal            |
-| `clone-team-shared`   | Owner's explicit team-context messages; shared synthetic fixture | Min / Team and Jun / Team |
-| `clone-team-jun-demo` | Versioned synthetic Jun fixtures                                 | Min / Team and Jun / Team |
+| GBrain source                | Written by                                                       | Readable in                 |
+| ---------------------------- | ---------------------------------------------------------------- | --------------------------- |
+| Min private history          | Owner's approved Codex/Claude import and personal feedback       | Min / Personal              |
+| Shared team history          | Owner's explicit team-context messages; shared synthetic fixture | Min / Team and Garry / Team |
+| Garry synthetic demo history | Versioned synthetic Garry fixtures                               | Min / Team and Garry / Team |
 
-The scope allowlist is applied before retrieval. The result mapper checks every search hit's source again. Team results and counts exclude the private source, including its import count. Jun's personal scope is rejected, and synthetic teammate memory is read-only through the application API.
+The scope allowlist is applied before retrieval. The result mapper checks every search hit's source again. Team results and counts exclude the private source, including its import count. Garry's personal scope is rejected, and synthetic teammate memory is read-only through the application API.
 
-Source labels, excerpts, and `demo` flags accompany the evidence. Model prompts treat that evidence as historical data, not authorization to perform actions. The UI must retain synthetic-data labels and clear stale evidence when the selected context changes.
+The display persona is Clone Garry, a fictional Garry Tan demo with invented conversation history and no affiliation or endorsement. Source labels, excerpts, and `demo` flags accompany the evidence. Model prompts treat that evidence as historical data, not authorization to perform actions. Memory evidence retains demo origin labels, while the main Clone controls use the clean display name. Stale evidence clears when the selected context changes.
 
 ### History import
 
@@ -140,11 +140,11 @@ Expanding this build beyond one trusted local operator requires a real identity 
 
 ## Verification boundary
 
-The Clone CI workflow passed on `main` and the implementation branch: 62 targeted QM runtime tests and 15 extension tests. Three subsequent keyboard tests passed locally. Core and extension TypeScript checks, extension ESLint, and the production web build passed. GBrain coverage runs the official PGLite engine and checks source isolation, filtering, and persistence after reopening.
+The Clone CI workflow passed on `main` and the implementation branch with 80 tests at the recorded revision. The later local checkpoint passed 142 focused tests across the extension, QM runtime configuration, filesystem confinement, documentation contracts, and Codex harness. Core and extension TypeScript checks, extension ESLint, scoped Clone Knip, and the production web build passed. GBrain coverage runs the official PGLite engine and checks source isolation, filtering, persistence after reopening, and migration of the synthetic teammate's display name without changing private or shared feedback.
 
-Actual QM execution produced a Research answer with primary-source links and a checklist, then a Product command-line tool whose three generated tests passed under an independent run. The browser showed six personal Clone mode iterations and seven synthetic-Jun team iterations. Stop persisted a paused state, and saved personal work survived service restart.
+Actual QM execution produced a Research answer with primary-source links and a checklist, then a Product command-line tool whose three generated tests passed under an independent run. The browser showed six personal Clone mode iterations and seven synthetic-teammate iterations before the Garry persona update. Stop persisted a paused state, and saved personal work survived service restart.
 
-Independent review also exercised delayed workspace responses, draft preservation during navigation, keyboard arming, and project selection. Long multiline predictions were checked in an isolated browser fixture. These checks do not replace final keyboard acceptance in the recorded build. Final film playback, Loom delivery, and the submission receipt remain pending. See the [verification record](verification.md) for evidence boundaries.
+Independent review also exercised delayed workspace responses, draft preservation during navigation, keyboard arming, and project selection. Long multiline predictions were checked in an isolated browser fixture. A recorded Marketing run subsequently exercised second-Tab Clone mode through seven iterations and Stop. Final film playback, Loom delivery, and the submission receipt remain pending. See the [verification record](verification.md) for evidence boundaries.
 
 ## Upstream and extension boundaries
 

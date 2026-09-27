@@ -387,7 +387,7 @@ clone-app {
   box-shadow: inset 0 0 0 1px #00000006;
   overflow: hidden;
 }
-.avatar.jun {
+.avatar.teammate-avatar {
   --avatar-color: #a9b894;
 }
 .avatar.small {
@@ -1151,6 +1151,8 @@ clone-app {
 .message-sources {
   display: flex;
   flex-wrap: wrap;
+  min-width: 0;
+  max-width: 100%;
   align-items: center;
   gap: 5px;
   margin-top: 13px;
@@ -1172,11 +1174,21 @@ clone-app {
   color: #96a0b8;
   border-radius: 4px;
   padding: 3px 5px;
-  max-width: 230px;
-  white-space: nowrap;
+  min-width: 0;
+  max-width: min(230px, 100%);
+  font-size: 7px;
+}
+.message-sources button > svg,
+.source-label > svg {
+  flex: 0 0 auto;
+}
+.source-chip-text {
+  display: block;
+  flex: 1;
+  min-width: 0;
   overflow: hidden;
   text-overflow: ellipsis;
-  font-size: 7px;
+  white-space: nowrap;
 }
 .message-sources button:hover {
   background: #e8edf9;
@@ -1539,10 +1551,19 @@ clone-app {
   color: #bac5d8;
 }
 .memory-card-top > svg {
+  flex: 0 0 auto;
   margin-left: auto;
+}
+.memory-card-top > .source-label {
+  flex: 1;
+}
+.memory-card-top > .tiny-tag {
+  flex: 0 0 auto;
 }
 .source-label {
   display: inline-flex;
+  min-width: 0;
+  max-width: 100%;
   align-items: center;
   gap: 5px;
   font-size: 8px;

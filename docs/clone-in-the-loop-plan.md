@@ -13,7 +13,7 @@ The hackathon submission retains the QM upstream history. All application source
 - Web application, using QM as the execution and collaboration foundation.
 - Main demonstration: the owner's Clone continues instructions and reviews until the user stops it.
 - Clone mode continues into further improvements after a completed task. Stop cancels the active operation and prevents another iteration.
-- GBrain memory starts with owner-approved local Codex and Claude user messages. Team memory uses explicitly labelled synthetic teammate conversations.
+- GBrain memory starts with owner-approved local Codex and Claude user messages. Team memory uses fictional Garry Tan conversations for Clone Garry. The presentation and README disclose the synthetic persona and no affiliation; memory evidence retains demo origin labels.
 - Personal and team workspaces, Tab completion, Clone mode, and teammate Clone selection are required.
 - Local working application plus reproducible GitHub source and a Loom video. Public production deployment is outside this submission.
 
@@ -47,7 +47,7 @@ All times are September 27, 2026, America/Los_Angeles. Confirmed event deadline:
 - Tab inserts the displayed prediction without silently sending; stale responses never replace a newer draft.
 - Clone mode performs an observable instruction, execution, review, and correction/improvement sequence; Stop prevents subsequent execution.
 - Workspace switching and application restart preserve persisted messages and Goal state.
-- Synthetic team records are identified as demo data. Model identity and memory provenance are truthful.
+- Team memory evidence is identified as demo data. The README and presentation explain Clone Garry is fictional, with no actual Garry Tan conversations or affiliation. Model identity and memory provenance are truthful.
 - The final video shows the actual application, plays through locally and on Loom, and the submission form contains the verified Loom URL.
 
 ## Demo direction
@@ -61,7 +61,7 @@ Approximately 90 seconds, following the referenced Demo Video task: blinking cur
 - Repository: https://github.com/cloneismin/clone-in-the-loop
 - Side quests: GBrain and QM
 - Loom URL: pending actual recording and upload
-- Organizer note: “We extended QM with a Clone that predicts the next instruction, reviews execution, and continues until stopped. Official GBrain retrieves source-scoped personal and shared chat history for prediction and review. Team memory is clearly labeled synthetic demo data.”
+- Organizer note: “We extended QM with a Clone that predicts the next instruction, reviews execution, and continues until stopped. Official GBrain retrieves source-scoped personal and shared chat history for prediction and review. Clone Garry is a fictional Garry Tan demo persona with invented history, no actual Garry conversations, and no affiliation.”
 
 ## Status
 

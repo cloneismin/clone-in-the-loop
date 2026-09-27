@@ -38,7 +38,7 @@ export class QM {
     await this.request("/v1/directory", {
       members: [
         { principalId: "min@clone.local", displayName: "Min", type: "internal" },
-        { principalId: "jun@clone.local", displayName: "Jun (demo)", type: "internal" },
+        { principalId: "jun@clone.local", displayName: "Garry Tan", type: "internal" },
       ],
       groupMembers: [
         { groupId: "clone-team", principalId: "min@clone.local" },
@@ -85,7 +85,7 @@ export class QM {
                 threadRef: options.threadId,
                 channelRef: "clone-team",
                 channelName: "Clone Team",
-                audience: [actor, { externalId: "jun@clone.local", displayName: "Jun (demo)" }],
+                audience: [actor, { externalId: "jun@clone.local", displayName: "Garry Tan" }],
               }
             : { kind: "dm", threadRef: options.threadId, audience: [actor] },
         text: options.text,

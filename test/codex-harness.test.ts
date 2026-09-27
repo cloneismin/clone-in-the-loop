@@ -1554,7 +1554,7 @@ for (const mode of ["turnFailed", "startRejected"] as const) {
   });
 }
 
-function stopReportsFailedCodexBinary(dir: string, stream = false, final = true): string {
+function stopReportsFailedCodexBinary(dir: string, stream = false, final = true, acknowledgeInterrupt = true): string {
   const path = join(dir, "stop-failed-codex");
   writeFileSync(
     path,
@@ -1582,7 +1582,7 @@ rl.on("line", (line) => {
     return writeFileSync(${JSON.stringify(join(dir, "started"))}, "1");
   }
   if (msg.method === "turn/interrupt") {
-    send({ id: msg.id, result: {} });
+    if (${acknowledgeInterrupt}) send({ id: msg.id, result: {} });
     if (${stream}) {
       send({ method: "item/agentMessage/delta", params: { threadId: "thread-sf", itemId: "answer", delta: " LATE" } });
       send({ method: "item/completed", params: { threadId: "thread-sf", item: { id: "answer", type: "agentMessage", phase: "final_answer", text: "BAD LATE COMPLETION" } } });
@@ -1637,6 +1637,50 @@ test("a user stop whose interrupted turn reports status=failed is a clean stop, 
     ["abort"],
     "the stop stays pending for the terminal drain",
   );
+});
+
+test("Codex releases a stopped turn when completion arrives without an interrupt acknowledgement", async (t) => {
+  const dir = mkdtempSync(join(tmpdir(), "qm-codex-stop-no-ack-"));
+  const signals = createMemoryRunSignalStore();
+  const harness = createCodexHarness({
+    binaryPath: stopReportsFailedCodexBinary(dir, true, true, false),
+    env: testHarnessEnv(dir),
+    turnWallClockMs: 0,
+    signals,
+  });
+  t.after(async () => {
+    await harness.turns.close?.();
+    rmSync(dir, { recursive: true, force: true });
+  });
+  const received = Promise.withResolvers<void>();
+  const scope = "personal:test" as ScopeId;
+  const running = harness.turns.runTurn({
+    session: { id: "stop-no-ack" } as Session,
+    runId: "stop-no-ack-run",
+    input: "check",
+    systemPrompt: "be concise",
+    history: [],
+    tools: {} as HarnessTurnInput["tools"],
+    scopeLabel: scope,
+    orgScopeId: scope,
+    emit: async (entry) => ({ ...entry, sessionId: "stop-no-ack", seq: 1, createdAt: Date.now() }) as SessionEntry,
+    recordModelCall: () => {},
+    onDelta: (text) => {
+      if (text === "Partial answer") received.resolve();
+    },
+  });
+  await received.promise;
+  await signals.send("stop-no-ack-run", { kind: "abort" });
+  let timer: NodeJS.Timeout | undefined;
+  const result = await Promise.race([
+    running,
+    new Promise<never>((_, reject) => {
+      timer = setTimeout(() => reject(new Error("stopped turn retained its worker slot")), 8_000);
+    }),
+  ]).finally(() => clearTimeout(timer));
+  assert.equal(result.stopped, true);
+  assert.equal(result.stoppedByUser, true);
+  assert.equal(result.reply, "Partial answer");
 });
 
 test("Codex records one llm row per turn carrying real timings and usage, even when the turn fails", async (t) => {

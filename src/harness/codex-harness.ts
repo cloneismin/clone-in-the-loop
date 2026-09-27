@@ -163,6 +163,7 @@ type StartingRuntime = {
   waiters: number;
 };
 const CODEX_START_TIMEOUT_MS = 30_000;
+const CODEX_INTERRUPT_TIMEOUT_MS = 5_000;
 
 const CODEX_NON_RETRYABLE_PATTERN =
   /\b(?:401|402|403)\b|unauthoriz|forbidden|invalid[_ -]?api[_ -]?key|incorrect api key|authentication (?:error|failed)|missing bearer|missing (?:api key|credentials)|not logged in|codex login|insufficient[_ -]?quota|exceeded your current quota|billing|credit(?: balance| limit)|out of credits|credits_depleted|must be verified|model[_ -]?not[_ -]?found|does not exist or you do not have access|unsupported[_ -]?model/i;
@@ -618,7 +619,13 @@ export function createCodexHarness(opts: CodexHarnessOptions = {}): Harness {
             setImmediate(() => {
               const requestingTurnId = String(p.turnId ?? "");
               if (threadId !== state.threadId && requestingTurnId) {
-                void server.request("turn/interrupt", { threadId, turnId: requestingTurnId }).catch(() => undefined);
+                void server
+                  .request(
+                    "turn/interrupt",
+                    { threadId, turnId: requestingTurnId },
+                    AbortSignal.timeout(CODEX_INTERRUPT_TIMEOUT_MS),
+                  )
+                  .catch(() => undefined);
               }
               void state.interrupt?.();
             });
@@ -1161,6 +1168,7 @@ export function createCodexHarness(opts: CodexHarnessOptions = {}): Harness {
     };
     let turnId = "";
     let stoppedByUser = false;
+    let interruptRequest: Promise<void> | undefined;
     const interrupt = async (stopped: boolean) => {
       if (stopped && !state.stopped) {
         state.stoppedReply = textFromTurn({
@@ -1171,7 +1179,13 @@ export function createCodexHarness(opts: CodexHarnessOptions = {}): Harness {
       }
       state.stopped ||= stopped;
       toolAbort.abort();
-      if (turnId) await rt.server.request("turn/interrupt", { threadId, turnId }).catch(() => undefined);
+      if (turnId) {
+        interruptRequest ??= rt.server
+          .request("turn/interrupt", { threadId, turnId }, AbortSignal.timeout(CODEX_INTERRUPT_TIMEOUT_MS))
+          .then(() => undefined)
+          .catch(() => undefined);
+        await interruptRequest;
+      }
     };
     state.interrupt = () => interrupt(false);
     let stoppedReplySaved: Promise<void> | undefined;

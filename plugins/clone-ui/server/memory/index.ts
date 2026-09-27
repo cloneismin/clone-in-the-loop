@@ -7,16 +7,6 @@ import { fileURLToPath } from "node:url";
 import { GBRAIN_DIRECTORY } from "./paths.ts";
 import type { ImportResult, MemoryResult, MemorySearchResponse, MemoryService, MemoryStatus } from "./types.ts";
 
-export type {
-  MemoryService,
-  MemorySearch,
-  MemorySearchResponse,
-  MemoryStatus,
-  MemoryCounts,
-  MemoryResult,
-  RememberInput,
-} from "./types.ts";
-
 interface Pending {
   resolve(value: unknown): void;
   reject(error: Error): void;

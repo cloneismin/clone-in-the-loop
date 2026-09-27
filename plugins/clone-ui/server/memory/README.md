@@ -29,13 +29,13 @@ await memory.close();
 
 ## Data boundaries
 
-| Context          | GBrain sources                             | Contents                                                        |
-| ---------------- | ------------------------------------------ | --------------------------------------------------------------- |
-| Min, personal    | `clone-personal-min`                       | Authorized local human messages and private feedback            |
-| Min or Jun, team | `clone-team-shared`, `clone-team-jun-demo` | Explicitly shared feedback and labeled synthetic demo records   |
-| Jun, personal    | Denied                                     | Min's personal history cannot be selected by the teammate clone |
+| Context            | GBrain sources                                    | Contents                                                        |
+| ------------------ | ------------------------------------------------- | --------------------------------------------------------------- |
+| Min, personal      | Min private history                               | Authorized local human messages and private feedback            |
+| Min or Garry, team | Shared team history, Garry synthetic demo history | Explicitly shared feedback and labeled synthetic demo records   |
+| Garry, personal    | Denied                                            | Min's personal history cannot be selected by the teammate clone |
 
-The application uses one local owner, Min, and one synthetic teammate, Jun. This is a local demonstration of source isolation, not a production authentication or multiplayer permission system. Network callers must be authenticated before expanding deployment beyond the local machine.
+The application uses one local owner, Min, and a synthetic Garry Tan teammate displayed as Clone Garry. Its preferences are invented demo data, with no actual Garry Tan conversations, affiliation, or endorsement. Startup updates the three synthetic fixture pages in place without changing private history or shared feedback. This is a local demonstration of source isolation, not a production authentication or multiplayer permission system. Network callers must be authenticated before expanding deployment beyond the local machine.
 
 Local import reads the current OS user's `.codex/sessions`, `.codex/archived_sessions`, and `.claude/projects`. It accepts only user-message text, excludes tools, assistant responses, injected environment messages, sidechain agents, and recognizable credentials, deduplicates by content, caps file size and message length, and imports a bounded recent set from both providers. It never imports another user's home directory. Raw histories and the database stay under ignored `.clone-loop/`; the public repository contains only synthetic demo records.
 
@@ -53,4 +53,4 @@ A single Bun worker owns the PGLite database lock. The Node web server communica
 node --test plugins/clone-ui/test/memory*.test.ts
 ```
 
-The integration test boots real GBrain, writes private and shared feedback, verifies that Jun cannot recall Min's private text, verifies synthetic evidence labels, closes the engine, and confirms the private memory remains searchable after reopening it. The fixture tests cover human-message filtering, credential rejection, bounded import, provider balance, and deduplication.
+The integration test boots real GBrain, writes private and shared feedback, verifies that Clone Garry cannot recall Min's private text, verifies synthetic evidence labels, closes the engine, and confirms the private memory remains searchable after reopening it. The fixture tests cover human-message filtering, credential rejection, bounded import, provider balance, and deduplication.

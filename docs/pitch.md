@@ -1,6 +1,6 @@
 # Presentation script
 
-Use the live application for the demonstration. The teammate is synthetic and labeled; personal and team memory stay separate.
+Use the live application for the demonstration. Clone Garry is a fictional Garry Tan persona with invented conversations and no affiliation or endorsement. Explain this in the presentation; personal and team memory stay separate.
 
 ## 30 seconds
 
@@ -24,7 +24,7 @@ Now QM executes. Your Clone reviews the result, finds what is missing, and sends
 
 This is real execution: QM researched primary sources and built a command-line tool whose tests we ran independently.
 
-In Company workspace, Clone Jun brings a teammate's shared context into the same workflow. Jun is a labeled demo persona; personal memory stays separate.
+Meet Clone Garry. Your pitch has adjectives. He has questions. This is a fictional demo persona with invented history, not actual Garry conversations or an affiliation. Personal memory stays separate.
 
 QM executes. GBrain remembers. Your Clone keeps your judgment in the loop.
 
@@ -34,4 +34,4 @@ We extended a QM source fork with next-prompt prediction, Clone mode, scoped GBr
 
 ## Demo cues
 
-Pause after the first sentence. Show a prediction and press Tab once while explaining memory. Press Tab a second time to enable Clone mode. Show a visible review and next instruction, then a concrete execution result. Switch workspace once, keep the demo teammate label visible, and end on Stop.
+Pause after the first sentence. Show a prediction and press Tab once while explaining memory. Press Tab a second time to enable Clone mode. Show a visible review and next instruction, then a concrete execution result. Switch workspace once, introduce Clone Garry as the fictional demo teammate, and end on Stop.

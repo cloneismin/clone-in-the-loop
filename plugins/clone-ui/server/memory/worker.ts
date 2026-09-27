@@ -176,11 +176,16 @@ async function initialize(): Promise<MemoryStatus> {
     for (const [id, name] of [
       [SOURCES.personal, "Min private history"],
       [SOURCES.shared, "Shared team history"],
-      [SOURCES.junDemo, "Jun synthetic demo history"],
+      [SOURCES.junDemo, "Garry synthetic demo history"],
     ]) {
       const rows = await brain.executeRaw<{ id: string }>("SELECT id FROM sources WHERE id = $1", [id]);
       if (!rows.length) await sourceModule.addSource(brain, { id: id!, name: name! });
     }
+    await brain.executeRaw("UPDATE sources SET name = $1 WHERE id = $2 AND name = $3", [
+      "Garry synthetic demo history",
+      SOURCES.junDemo,
+      "Jun synthetic demo history",
+    ]);
     engine = brain;
     for (const record of TEAM_DEMO_MEMORIES) await save(record);
     return status();

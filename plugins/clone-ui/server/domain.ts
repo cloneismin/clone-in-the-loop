@@ -32,7 +32,7 @@ export type Message = {
 
 export const CLONES = [
   { id: "min", name: "Clone Min", color: "#7863e6", demo: false },
-  { id: "jun", name: "Clone Jun", color: "#1d9b82", demo: true },
+  { id: "jun", name: "Garry Tan", color: "#1d9b82", demo: true },
 ] as const;
 
 export function assertCloneScope(workspace: Workspace, cloneId: CloneId): void {

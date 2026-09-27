@@ -25,7 +25,7 @@ Start with a Goal. Your Clone predicts the next instruction. Press **Tab once** 
 - **Next-prompt prediction.** Inline suggestions grounded in GBrain evidence, with one-Tab acceptance, two-Tab Clone mode activation, and draft-revision tracking.
 - **Clone mode.** A visible instruction → execution → review → improvement loop, with durable messages and explicit interruption.
 - **Personal and team workspaces.** The active workspace determines which memory sources enter a prediction.
-- **Teammate Clones.** Clone Jun demonstrates a teammate's review style using clearly labeled synthetic, shared history.
+- **Teammate Clones.** Your pitch has adjectives. Clone Garry has questions. This synthetic Garry Tan demo persona uses fictional shared history to demonstrate teammate review.
 - **Goals and Inbox.** Persisted work and model-proposed next Goals in one web interface.
 - **Inspectable memory.** Source labels, excerpts, and demo markers travel with the predictions and reviews they inform.
 
@@ -127,14 +127,14 @@ Runtime configuration, signing material, PostgreSQL data, and local working dire
 
 ## Memory and team boundaries
 
-| Selected context   | Available evidence                                                  |
-| ------------------ | ------------------------------------------------------------------- |
-| **Min / Personal** | Min's imported human messages and private feedback.                 |
-| **Min / Team**     | Explicitly shared team feedback and labeled demo records.           |
-| **Jun / Team**     | The same team-shared scope, including Jun's synthetic demo history. |
-| **Jun / Personal** | Rejected. Jun cannot select Min's private source.                   |
+| Selected context     | Available evidence                                                    |
+| -------------------- | --------------------------------------------------------------------- |
+| **Min / Personal**   | Min's imported human messages and private feedback.                   |
+| **Min / Team**       | Explicitly shared team feedback and labeled demo records.             |
+| **Garry / Team**     | The same team-shared scope, including Garry's synthetic demo history. |
+| **Garry / Personal** | Rejected. Garry cannot select Min's private source.                   |
 
-Switching to Team does not share imported personal history. A human message sent in a team Goal becomes shared feedback for that workspace. The teammate persona is synthetic; this is not a claim of a real teammate's participation.
+Switching to Team does not share imported personal history. A human message sent in a team Goal becomes shared feedback for that workspace. Clone Garry is a fictional demo persona inspired by Garry Tan. Its history is invented, with no actual Garry Tan conversations, participation, affiliation, or endorsement. Memory evidence retains its demo origin labels.
 
 This build is for **one trusted local operator**. It has no production user authentication, multi-user authorization, or OS sandbox isolation. The trusted-host runtime can execute commands with the operator's local permissions. Memory source filtering is real and tested, but it is not a replacement for a production identity boundary. Keep this demo on loopback.
 
@@ -156,14 +156,14 @@ npm run clone:core:smoke
 
 Current verification status:
 
-| Layer                             | Evidence                                                                                                                                                                                                                |
-| --------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Automated checks                  | 77 tests passed in [Clone CI on main](https://github.com/cloneismin/clone-in-the-loop/actions/runs/36351789397): 62 QM runtime tests and 15 extension tests. Three additional keyboard regression tests passed locally. |
-| TypeScript, lint, and build       | Core and extension typechecks, extension ESLint, and the production web build passed.                                                                                                                                   |
-| Real execution                    | QM produced a sourced Research response and a Product command-line tool. The generated tool's three unit tests passed independently, and its CSV input produced real output.                                            |
-| Clone mode and Stop               | Observed six personal iterations and seven synthetic-Jun team iterations. Stop persisted the paused state without further continuation; saved personal work survived restart.                                           |
-| Prediction and workspace behavior | Real GBrain-backed predictions and Tab acceptance were observed. Independent delayed-response checks cover stale predictions and workspace navigation; long-text layout was checked with a synthetic browser fixture.   |
-| Final delivery                    | Final keyboard acceptance in the recorded build, complete movie playback, Loom upload, and submission receipt remain pending.                                                                                           |
+| Layer                             | Evidence                                                                                                                                                                                                                    |
+| --------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Automated checks                  | 80 tests passed in [Clone CI on main](https://github.com/cloneismin/clone-in-the-loop/actions/runs/36352420792). The later local checkpoint passed 142 targeted runtime, extension, documentation, and Codex harness tests. |
+| TypeScript, lint, and build       | Core and extension typechecks, extension ESLint, and the production web build passed.                                                                                                                                       |
+| Real execution                    | QM produced a sourced Research response and a Product command-line tool. The generated tool's three unit tests passed independently, and its CSV input produced real output.                                                |
+| Clone mode and Stop               | Observed six personal iterations and seven synthetic-teammate iterations before the Garry persona update. Stop persisted the paused state without further continuation; saved personal work survived restart.               |
+| Prediction and workspace behavior | Real GBrain-backed predictions and Tab acceptance were observed. Independent delayed-response checks cover workspace navigation and draft preservation; long-text layout was checked with a synthetic browser fixture.      |
+| Final delivery                    | A recorded Marketing run exercised second-Tab Clone mode through seven iterations and Stop. Final movie playback, Loom upload, and submission receipt remain pending.                                                       |
 
 The [verification record](docs/verification.md) separates CI, focused regression checks, observed browser behavior, and remaining acceptance. The [upstream QM proposal](https://github.com/yc-software/qm/pull/1671) is open and contains a text proposal under upstream contribution policy. The implementation is in this fork's `main` branch.
 

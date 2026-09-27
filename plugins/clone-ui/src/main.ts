@@ -50,7 +50,7 @@ function personName(clone: Clone | undefined): string {
 }
 
 function cloneName(clone: Clone | undefined): string {
-  return clone ? `Clone ${personName(clone)}` : "Your Clone";
+  return clone ? `Clone ${personName(clone).split(/\s+/)[0]}` : "Your Clone";
 }
 
 class CloneApp extends LitElement {
@@ -148,7 +148,7 @@ class CloneApp extends LitElement {
     }
     if ((event.metaKey || event.ctrlKey) && event.key.toLowerCase() === "k") {
       event.preventDefault();
-      void this.navigate("new");
+      void this.startNewGoal();
     }
   };
 
@@ -237,6 +237,14 @@ class CloneApp extends LitElement {
     }
     if (view === "memory") await this.loadMemory();
     if (view === "inbox") await this.loadInbox();
+  }
+
+  private startNewGoal() {
+    const project = (this.view === "goals" && this.filterProject) || this.selectedProject;
+    this.saveDraft();
+    this.active = null;
+    this.draft = "";
+    return this.navigate("new", project);
   }
 
   private async switchWorkspace(workspace: Workspace) {
@@ -559,7 +567,7 @@ class CloneApp extends LitElement {
 
   private avatar(clone: Clone | undefined, small = false) {
     return html`<span
-      class="avatar ${small ? "small" : ""} ${clone?.demo ? "jun" : ""}"
+      class="avatar ${small ? "small" : ""} ${clone?.demo ? "teammate-avatar" : ""}"
       style=${clone?.color ? `--avatar-color:${clone.color}` : ""}
       >${clone?.avatar ? html`<img src=${clone.avatar} alt="" />` : personName(clone).charAt(0)}</span
     >`;
@@ -593,7 +601,7 @@ class CloneApp extends LitElement {
         ${this.workspaceMenu ? html`<div class="popover workspace-options"><span class="menu-label">WORKSPACES</span>${(["personal", "team"] as Workspace[]).map((workspace) => html`<button @click=${() => this.switchWorkspace(workspace)}>${icon(workspace === "team" ? "team" : "user")}<span>${workspace === "team" ? "Company workspace" : "Personal workspace"}</span>${workspace === this.workspace ? icon("check", 15) : nothing}</button>`)}</div>` : nothing}
       </div>
       <nav class="main-nav">
-        <button class="nav-item new-goal ${this.view === "new" ? "active" : ""}" @click=${() => this.navigate("new")}>
+        <button class="nav-item new-goal ${this.view === "new" ? "active" : ""}" @click=${() => this.startNewGoal()}>
           ${icon("plus")}<span>New goal</span><kbd>⌘ K</kbd>
         </button>
         <button
@@ -615,7 +623,7 @@ class CloneApp extends LitElement {
       </nav>
       ${
         this.workspace === "team"
-          ? html`<div class="sidebar-section-label">Your team<span class="tiny-tag">DEMO</span></div>
+          ? html`<div class="sidebar-section-label">Your team</div>
               <div class="teammates">
                 ${this.clones.map(
                   (clone) =>
@@ -627,7 +635,7 @@ class CloneApp extends LitElement {
                       }}
                     >
                       ${this.avatar(clone, true)}<span
-                        >${personName(clone)}<small>${clone.demo ? "Demo teammate" : "You"}</small></span
+                        >${personName(clone)}<small>${clone.demo ? "Teammate" : "You"}</small></span
                       ><span class="online-dot"></span>
                     </button>`,
                 )}
@@ -720,7 +728,7 @@ class CloneApp extends LitElement {
         aria-expanded=${this.cloneMenu}
         aria-label="Choose whose Clone guides the work"
       >
-        ${this.avatar(selected, true)}<span>${cloneName(selected)}</span>${selected?.demo ? html`<span class="tiny-tag">DEMO</span>` : nothing}${icon("chevron", 13)}</button
+        ${this.avatar(selected, true)}<span>${cloneName(selected)}</span>${icon("chevron", 13)}</button
       >${
         this.cloneMenu
           ? html`<div class="popover clone-options">
@@ -729,7 +737,7 @@ class CloneApp extends LitElement {
                   html`<button @click=${() => this.selectClone(clone)}>
                     ${this.avatar(clone, true)}<span
                       >${cloneName(clone)}<small
-                        >${clone.demo ? "Synthetic demo persona and shared history" : "Grounded in your personal history"}</small
+                        >${clone.demo ? "Less pitch. More proof." : "Grounded in your personal history"}</small
                       ></span
                     >${selected?.id === clone.id ? icon("check", 15) : nothing}
                   </button>`,
@@ -753,7 +761,7 @@ class CloneApp extends LitElement {
     if (suffix) placeholder = "";
     else if (this.working) placeholder = "Agent is working. Press Stop to add direction…";
     return html`<div class="composer-area ${home ? "home-composer" : ""}">
-      ${this.loopOn ? html`<div class="loop-banner"><span class="live-pulse"></span><strong>${cloneName(this.currentClone)} is in the loop</strong><span>It keeps going until you stop.</span><button @click=${() => this.toggleLoop(false)} ?disabled=${this.pending}>${icon("stop", 12)}Stop</button></div>` : nothing}
+      ${this.loopOn ? html`<div class="loop-banner"><span class="live-pulse"></span><strong>Clone mode active</strong><span>${cloneName(this.currentClone)} keeps directing and reviewing until you stop.</span><button @click=${() => this.toggleLoop(false)} ?disabled=${this.pending}>${icon("stop", 12)}Stop</button></div>` : nothing}
       ${
         separatePrediction
           ? html`<button class="prediction-preview" @click=${() => this.acceptPrediction()}>
@@ -771,6 +779,7 @@ class CloneApp extends LitElement {
             <textarea
               class="composer-input"
               aria-label="Message your agent"
+              aria-describedby="composer-state composer-shortcuts"
               placeholder=${placeholder}
               .value=${this.draft}
               ?readonly=${this.working}
@@ -797,7 +806,7 @@ class CloneApp extends LitElement {
                         this.schedulePrediction();
                       }}
                     >
-                      ${projects.map((project) => html`<option value=${project}>${project}</option>`)}</select
+                      ${projects.map((project) => html`<option value=${project} ?selected=${project === this.selectedProject}>${project}</option>`)}</select
                     >${icon("chevron", 12)}</label
                   >`
                 : html`<span class="model-label">${icon("code", 13)}${this.modelLabel}</span>`
@@ -815,11 +824,18 @@ class CloneApp extends LitElement {
           </div>
         </div>
       </div>
-      <div class="composer-hints"><span>${this.predictionHint(home)}</span><span>${this.shortcutHint(home)}</span></div>
+      <div class="composer-hints">
+        <span id="composer-state" role="status" aria-live="polite" aria-atomic="true">${this.predictionHint(home)}</span
+        ><span id="composer-shortcuts">${this.shortcutHint()}</span>
+      </div>
     </div>`;
   }
 
   private predictionHint(home: boolean) {
+    if (this.loopOn) return html`${icon("loop", 12)}Your Clone is directing the next step.`;
+    if (this.working) return html`${icon("code", 12)}Your agent is working.`;
+    if (this.acceptedPrediction === this.draft && this.acceptedPrediction)
+      return html`${icon("check", 12)}Prediction accepted. Ready when you are.`;
     if (this.predicting) return html`<span class="tiny-spinner"></span>Reading your context…`;
     if (!this.prediction?.text)
       return html`${icon("sparkle", 12)}${home ? "Your agent executes. Your Clone carries your judgment." : "Your Clone learns from your context."}`;
@@ -838,11 +854,13 @@ class CloneApp extends LitElement {
     }`;
   }
 
-  private shortcutHint(home: boolean) {
+  private shortcutHint() {
+    if (this.loopOn || this.working) return html`Use Stop to take over`;
     if (this.acceptedPrediction === this.draft && this.acceptedPrediction)
-      return html`<kbd>Tab</kbd> again to enable Clone mode`;
-    if (!home || this.prediction?.text)
-      return html`<kbd>Tab</kbd> once: accept <span class="hint-divider">·</span> <kbd>Tab</kbd> twice: Clone mode`;
+      return html`<kbd>Tab</kbd> again: Clone mode <span class="hint-divider">·</span> <kbd>↵</kbd> send`;
+    if (this.prediction?.text)
+      return html`<kbd>Tab</kbd> once: accept <span class="hint-divider">·</span> <kbd>Tab</kbd> twice: Clone mode
+        <span class="hint-divider">·</span> <kbd>Esc</kbd> dismiss`;
     return html`<kbd>↵</kbd> send <span class="hint-divider">·</span> <kbd>Shift ↵</kbd> new line`;
   }
 
@@ -915,9 +933,7 @@ class CloneApp extends LitElement {
       </div>
       <div class="message-main">
         <div class="message-header">
-          <strong>${label}</strong
-          >${badge}${isClone && clone?.demo ? html`<span class="tiny-tag">DEMO PERSONA</span>` : nothing}<time
-            datetime=${message.createdAt}
+          <strong>${label}</strong>${badge}<time datetime=${message.createdAt}
             >${Number.isNaN(Date.parse(message.createdAt)) ? "" : new Date(message.createdAt).toLocaleTimeString([], { hour: "numeric", minute: "2-digit" })}</time
           >
         </div>
@@ -931,9 +947,11 @@ class CloneApp extends LitElement {
                       @click=${() => {
                         this.selectedSource = source;
                       }}
-                      title=${source.title}
+                      title=${source.title || source.source || "Conversation memory"}
                     >
-                      ${icon("link", 11)}${source.title || source.source}
+                      ${icon("link", 11)}<span class="source-chip-text"
+                        >${source.title || source.source || "Conversation memory"}</span
+                      >
                     </button>`,
                 )}
               </div>`
@@ -952,15 +970,7 @@ class CloneApp extends LitElement {
           <h1>${this.filterProject || "Your goals"}</h1>
           <p>A shared place for direction, execution, and review.</p>
         </div>
-        <button
-          class="primary-button"
-          @click=${() => {
-            this.selectedProject = this.filterProject || "Business";
-            void this.navigate("new");
-          }}
-        >
-          ${icon("plus", 16)}New goal
-        </button>
+        <button class="primary-button" @click=${() => this.startNewGoal()}>${icon("plus", 16)}New goal</button>
       </div>
       <div class="collection-tabs">
         <span class="selected">All goals <b>${goals.length}</b></span
@@ -992,7 +1002,7 @@ class CloneApp extends LitElement {
               ${icon("goals", 34)}
               <h2>Big things start with a little direction.</h2>
               <p>Create a goal and let your Clone help carry it forward.</p>
-              <button class="text-button" @click=${() => this.navigate("new")}>
+              <button class="text-button" @click=${() => this.startNewGoal()}>
                 Create your first goal ${icon("right", 15)}
               </button>
             </div>`
@@ -1026,7 +1036,6 @@ class CloneApp extends LitElement {
           ><span>Retrieval status</span>
         </div>
       </div>
-      ${this.workspace === "team" ? html`<div class="demo-notice">${icon("team", 16)}<span>Jun is a synthetic demo teammate. Their shared history is explicitly marked as demo data.</span></div>` : nothing}
       <div class="memory-search">
         ${icon("search", 19)}<input
           aria-label="Search memory"
@@ -1055,7 +1064,10 @@ class CloneApp extends LitElement {
                     }}
                   >
                     <span class="memory-card-top"
-                      ><span class="source-label">${icon("book", 13)}${source.source || "Conversation"}</span
+                      ><span class="source-label" title=${source.source || "Conversation"}
+                        >${icon("book", 13)}<span class="source-chip-text"
+                          >${source.source || "Conversation"}</span
+                        ></span
                       >${source.demo ? html`<span class="tiny-tag">DEMO DATA</span>` : nothing}${icon("external", 13)}</span
                     >
                     <h3>${source.title || "Conversation memory"}</h3>
@@ -1137,7 +1149,7 @@ class CloneApp extends LitElement {
           </button>
         </div>
         <div class="source-panel-body">
-          <span class="source-label">${source.source}</span
+          <span class="source-label" title=${source.source}><span class="source-chip-text">${source.source}</span></span
           >${source.demo ? html`<span class="demo-source-label">Synthetic demo data</span>` : nothing}
           <h2>${source.title || "Conversation memory"}</h2>
           <div class="source-excerpt">${renderMarkdown(source.excerpt)}</div>
