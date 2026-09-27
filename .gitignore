@@ -22,3 +22,6 @@ __pycache__/
 docs/master.html
 
 .context/
+.clone-loop/
+plugins/clone-ui/dist/
+plugins/clone-ui/output/
