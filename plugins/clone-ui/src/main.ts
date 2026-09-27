@@ -809,7 +809,17 @@ class CloneApp extends LitElement {
         </div>
         <div class="composer-controls">
           <div class="composer-left">
-            ${this.clonePicker()}${
+            ${this.clonePicker()}<button
+              class="loop-toggle"
+              role="switch"
+              aria-label="Clone mode"
+              aria-checked=${String(this.loopOn)}
+              title=${toggleTitle}
+              @click=${() => this.toggleLoop(!this.loopOn)}
+              ?disabled=${toggleDisabled}
+            >
+              <span class="loop-switch-track" aria-hidden="true"></span></button
+            >${
               home
                 ? html`<label class="project-select"
                     >${this.projectDot(this.selectedProject)}<select
@@ -824,21 +834,11 @@ class CloneApp extends LitElement {
                       ${projects.map((project) => html`<option value=${project} ?selected=${project === this.selectedProject}>${project}</option>`)}</select
                     >${icon("chevron", 12)}</label
                   >`
-                : html`<span class="model-label">${icon("code", 13)}${this.modelLabel}</span>`
+                : nothing
             }
           </div>
           <div class="composer-actions">
-            <button
-              class="loop-toggle"
-              role="switch"
-              aria-label="Clone mode"
-              aria-checked=${String(this.loopOn)}
-              title=${toggleTitle}
-              @click=${() => this.toggleLoop(!this.loopOn)}
-              ?disabled=${toggleDisabled}
-            >
-              <span>Clone mode</span><span class="loop-switch-track" aria-hidden="true"></span></button
-            >${
+            <span class="model-label">${icon("code", 13)}${this.modelLabel}</span>${
               active
                 ? html`<button
                     class="send-button stop-button"

@@ -406,6 +406,11 @@ select {
   gap: 7px;
 }
 
+.composer-actions .model-label {
+  display: inline-flex;
+  white-space: nowrap;
+}
+
 .clone-picker,
 .project-select select,
 .model-label,
@@ -424,7 +429,8 @@ select {
 
 .loop-toggle {
   min-height: 28px;
-  gap: 6px;
+  padding: 4px;
+  flex-shrink: 0;
 }
 
 .loop-toggle[aria-checked="true"] {
