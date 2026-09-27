@@ -83,6 +83,8 @@ export async function api<T>(path: string, body?: unknown): Promise<T> {
   const data = await response.json().catch(() => null);
   if (!response.ok) {
     const message = typeof data?.error === "string" ? data.error : data?.error?.message;
+    if (response.status === 409 && data?.code === "PREDICTION_CANCELED")
+      throw new DOMException(message || "Prediction canceled.", "AbortError");
     throw new Error(message || data?.message || `Request failed (${response.status})`);
   }
   return data as T;

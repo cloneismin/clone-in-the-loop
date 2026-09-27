@@ -842,35 +842,6 @@ clone-app {
   color: #7684c1;
   background: #f0f2fb;
 }
-.loop-banner {
-  display: flex;
-  align-items: center;
-  gap: 7px;
-  border: 1px solid #e3e7f5;
-  border-bottom: 0;
-  background: #f4f6fd;
-  border-radius: 9px 9px 0 0;
-  padding: 10px 14px 18px;
-  margin: 0 7px -9px;
-  color: #7887ba;
-  font-size: 8px;
-}
-.loop-banner strong {
-  font-size: 9px;
-  font-weight: 550;
-  color: #6274ac;
-}
-.loop-banner > span:nth-of-type(2) {
-  flex: 1;
-}
-.loop-banner button {
-  display: flex;
-  align-items: center;
-  gap: 4px;
-  margin-left: auto;
-  color: #637bb8;
-  font-size: 8px;
-}
 .live-pulse {
   display: inline-block;
   width: 5px;
@@ -947,7 +918,7 @@ clone-app {
   color: #40475b;
   margin: 8px 0 0;
 }
-.goal-id {
+.session-iterations {
   font-size: 8px;
   color: #b8bdcc;
   white-space: nowrap;
@@ -1208,33 +1179,6 @@ clone-app {
   width: min(896px, 100%);
   margin: 0 auto;
   padding: 8px 40px 22px;
-}
-.loop-progress {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  gap: 8px;
-  width: min(816px, calc(100% - 80px));
-  margin: 0 auto 3px;
-  padding: 9px 3px 5px;
-  font-size: 7px;
-  color: #a0abc1;
-}
-.loop-progress > div {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-}
-.loop-progress > span {
-  display: flex;
-  align-items: center;
-  gap: 5px;
-  color: #aeb7ca;
-}
-.loop-progress strong {
-  font-size: 7px;
-  font-weight: 500;
-  color: #9daac2;
 }
 .conversation-empty {
   text-align: center;
@@ -1911,9 +1855,6 @@ clone-app {
   .goal-composer {
     max-width: 980px;
   }
-  .loop-progress {
-    max-width: 900px;
-  }
 }
 
 @media (max-width: 1050px) {
@@ -2090,19 +2031,7 @@ clone-app {
   .goal-heading h1 {
     font-size: 18px;
   }
-  .goal-id {
-    display: none;
-  }
   .model-label {
-    display: none;
-  }
-  .loop-progress {
-    width: calc(100% - 54px);
-  }
-  .loop-progress > span {
-    display: none;
-  }
-  .loop-banner > span:nth-of-type(2) {
     display: none;
   }
   .message {
@@ -2239,16 +2168,9 @@ clone-app {
 }
 .goal-meta,
 .goal-list-copy small,
-.loop-banner,
-.loop-banner strong,
 .activity-row {
   font-size: 11px;
   color: #7585a2;
-}
-.loop-progress,
-.loop-progress strong {
-  font-size: 10px;
-  color: #7c8eab;
 }
 .source-provenance p,
 .demo-notice,

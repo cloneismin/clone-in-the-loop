@@ -11,6 +11,7 @@ import { Store } from "./store.ts";
 import { QM } from "./qm.ts";
 import { CloneLoop } from "./loop.ts";
 import { createMemoryService } from "./memory/index.ts";
+import { requestError } from "./errors.ts";
 
 const root = resolve(dirname(fileURLToPath(import.meta.url)), "../../..");
 const runtimeEnv = resolve(process.env.CLONE_RUNTIME_DIR || resolve(root, "data/clone-runtime"), "runtime.env");
@@ -234,8 +235,8 @@ async function handle(req: IncomingMessage, res: ServerResponse): Promise<void> 
 const server = createServer((req, res) => {
   void handle(req, res).catch((error: unknown) => {
     if (res.writableEnded) return;
-    const message = error instanceof Error ? error.message : "Request failed.";
-    json(res, message === "Goal not found." ? 404 : 400, { error: message });
+    const failure = requestError(error);
+    json(res, failure.status, failure.body);
   });
 });
 server.listen(port, "127.0.0.1", () => process.stdout.write(`Clone-in-the-Loop ready at http://127.0.0.1:${port}\n`));

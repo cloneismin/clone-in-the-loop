@@ -50,6 +50,11 @@ function personName(clone: Clone | undefined): string {
   return (clone?.name ?? "Min").replace(/^Clone\s+/i, "");
 }
 
+function memorySourceLabel(source: string | undefined): string {
+  if (/^Clone conversation [0-9a-f]{8}(?:-[0-9a-f]{4}){3}-[0-9a-f]{12}$/i.test(source ?? "")) return "Session history";
+  return source || "Conversation";
+}
+
 function cloneName(clone: Clone | undefined): string {
   return clone ? `Clone ${personName(clone).split(/\s+/)[0]}` : "Your Clone";
 }
@@ -359,10 +364,13 @@ class CloneApp extends LitElement {
         revision,
         ...(home ? { workspace: this.workspace, cloneId: this.selectedCloneId, project: this.selectedProject } : {}),
       });
-      if (revision === this.revision && this.active?.goal.id === id && this.draft === draft)
+      if (revision === this.revision && this.active?.goal.id === id && this.draft === draft) {
         this.prediction = prediction;
+        if (this.error.startsWith("Prediction unavailable:")) this.error = "";
+      }
     } catch (error) {
-      if (revision === this.revision) this.error = `Prediction unavailable: ${messageError(error)}`;
+      if (revision === this.revision && !(error instanceof Error && error.name === "AbortError"))
+        this.error = `Prediction unavailable: ${messageError(error)}`;
     } finally {
       if (revision === this.revision) this.predicting = false;
     }
@@ -704,14 +712,10 @@ class CloneApp extends LitElement {
     return html`<div class="home-page">
       <div class="home-main">
         <h1>${this.workspace === "team" ? "What should the team work on?" : "What can I help with?"}</h1>
-        <p class="home-description">
-          ${this.workspace === "team" ? "Shared memory. The right Clone's judgment." : "Your Clone brings your context to the next step."}
-        </p>
         ${this.composer(true)}
         <div class="starter-grid">
           ${starterGoals.map((goal) => html`<button class="starter-card" @click=${() => this.startPrompt(goal.text, goal.project)}>${icon(projectIcons[goal.project] ?? "goals", 17)}<strong>${goal.title}</strong><span class="starter-project">${goal.project}</span><span class="starter-arrow">${icon("right", 15)}</span></button>`)}
         </div>
-        <div class="home-footnote">${icon("memory", 14)}Context from GBrain. Execution by QM.</div>
       </div>
     </div>`;
   }
@@ -764,7 +768,6 @@ class CloneApp extends LitElement {
     if (suffix) placeholder = "";
     else if (this.working) placeholder = "Agent is working. Press Stop to add direction…";
     return html`<div class="composer-area ${home ? "home-composer" : ""}">
-      ${this.loopOn ? html`<div class="loop-banner"><span class="live-pulse"></span><strong>Clone mode active</strong><span>${cloneName(this.currentClone)} keeps directing and reviewing until you stop.</span><button @click=${() => this.toggleLoop(false)} ?disabled=${this.pending}>${icon("stop", 12)}Stop</button></div>` : nothing}
       ${
         separatePrediction
           ? html`<button class="prediction-preview" @click=${() => this.acceptPrediction()}>
@@ -828,20 +831,25 @@ class CloneApp extends LitElement {
         </div>
       </div>
       <div class="composer-hints">
-        <span id="composer-state" role="status" aria-live="polite" aria-atomic="true">${this.predictionHint(home)}</span
+        <span id="composer-state" role="status" aria-live="polite" aria-atomic="true">${this.predictionHint()}</span
         ><span id="composer-shortcuts">${this.shortcutHint()}</span>
       </div>
     </div>`;
   }
 
-  private predictionHint(home: boolean) {
-    if (this.loopOn) return html`${icon("loop", 12)}Your Clone is directing the next step.`;
+  private predictionHint() {
+    if (this.loopOn) {
+      let phase = "Working";
+      if (this.active?.goal.phase === "stopping") phase = "Stopping";
+      else if (/review/.test(this.active?.goal.phase ?? "")) phase = "Reviewing";
+      else if (/predict|plan/.test(this.active?.goal.phase ?? "")) phase = "Choosing the next step";
+      return html`${icon("loop", 12)}Clone mode · ${phase}`;
+    }
     if (this.working) return html`${icon("code", 12)}Your agent is working.`;
     if (this.acceptedPrediction === this.draft && this.acceptedPrediction)
       return html`${icon("check", 12)}Prediction accepted. Ready when you are.`;
     if (this.predicting) return html`<span class="tiny-spinner"></span>Reading your context…`;
-    if (!this.prediction?.text)
-      return html`${icon("sparkle", 12)}${home ? "Your agent executes. Your Clone carries your judgment." : "Your Clone learns from your context."}`;
+    if (!this.prediction?.text) return nothing;
     return html`${icon("sparkle", 12)}Your Clone has a next
     move${
       this.prediction.sources?.length
@@ -858,7 +866,7 @@ class CloneApp extends LitElement {
   }
 
   private shortcutHint() {
-    if (this.loopOn || this.working) return html`Use Stop to take over`;
+    if (this.loopOn || this.working) return nothing;
     if (this.acceptedPrediction === this.draft && this.acceptedPrediction)
       return html`<kbd>Tab</kbd> again: Clone mode <span class="hint-divider">·</span> <kbd>↵</kbd> send`;
     if (this.prediction?.text)
@@ -878,7 +886,7 @@ class CloneApp extends LitElement {
           </div>
           <h1>${goal.title}</h1>
         </div>
-        <span class="goal-id">${goal.id.length > 14 ? goal.id.slice(0, 8) : goal.id}</span>
+        ${goal.iterations ? html`<span class="session-iterations">${goal.iterations} ${goal.iterations === 1 ? "iteration" : "iterations"}</span>` : nothing}
       </div>
       ${goal.error ? html`<div class="error-banner goal-error" role="alert"><span>${goal.error}</span></div>` : nothing}
       <div class="conversation-scroll">
@@ -895,18 +903,6 @@ class CloneApp extends LitElement {
           <div class="conversation-end"></div>
         </div>
       </div>
-      ${
-        this.loopOn || goal.iterations
-          ? html`<div class="loop-progress">
-              <div>
-                <span class="${this.loopOn ? "live-pulse" : "quiet-dot"}"></span
-                ><span>${this.loopOn ? "Clone mode active" : "Clone mode paused"}</span>
-              </div>
-              <span>Direct ${icon("right", 11)} Execute ${icon("right", 11)} Review ${icon("right", 11)} Improve</span
-              ><strong>${goal.iterations ?? 0} ${goal.iterations === 1 ? "iteration" : "iterations"}</strong>
-            </div>`
-          : nothing
-      }
       <div class="goal-composer">${this.composer()}</div>
     </div>`;
   }
@@ -950,10 +946,10 @@ class CloneApp extends LitElement {
                       @click=${() => {
                         this.selectedSource = source;
                       }}
-                      title=${source.title || source.source || "Conversation memory"}
+                      title=${source.title || memorySourceLabel(source.source)}
                     >
                       ${icon("link", 11)}<span class="source-chip-text"
-                        >${source.title || source.source || "Conversation memory"}</span
+                        >${source.title || memorySourceLabel(source.source)}</span
                       >
                     </button>`,
                 )}
@@ -969,9 +965,7 @@ class CloneApp extends LitElement {
     return html`<div class="collection-page">
       <div class="collection-heading">
         <div>
-          <div class="eyebrow">INTENT INTO PROGRESS</div>
           <h1>${this.filterProject || "Sessions"}</h1>
-          <p>A shared place for direction, execution, and review.</p>
         </div>
         <button class="primary-button" @click=${() => this.startNewGoal()}>${icon("plus", 16)}New</button>
       </div>
@@ -1018,9 +1012,7 @@ class CloneApp extends LitElement {
     return html`<div class="collection-page memory-page">
       <div class="collection-heading">
         <div>
-          <div class="eyebrow">CONTEXT THAT COMPOUNDS</div>
-          <h1>A memory. A point of view.</h1>
-          <p>The conversations behind your Clone's next move.</p>
+          <h1>Memory</h1>
         </div>
         <span class="provider-label">Powered by <strong>GBrain</strong>${icon("memory", 20)}</span>
       </div>
@@ -1067,9 +1059,9 @@ class CloneApp extends LitElement {
                     }}
                   >
                     <span class="memory-card-top"
-                      ><span class="source-label" title=${source.source || "Conversation"}
+                      ><span class="source-label" title=${memorySourceLabel(source.source)}
                         >${icon("book", 13)}<span class="source-chip-text"
-                          >${source.source || "Conversation"}</span
+                          >${memorySourceLabel(source.source)}</span
                         ></span
                       >${source.demo ? html`<span class="tiny-tag">DEMO DATA</span>` : nothing}${icon("external", 13)}</span
                     >
@@ -1094,9 +1086,8 @@ class CloneApp extends LitElement {
     return html`<div class="collection-page">
       <div class="collection-heading">
         <div>
-          <div class="eyebrow">A LITTLE AHEAD OF YOU</div>
-          <h1>Your next moves.</h1>
-          <p>Useful sessions suggested from your context and recent work.</p>
+          <h1>Inbox</h1>
+          <p>Suggested next sessions.</p>
         </div>
         <span class="provider-label">${icon("sparkle", 18)}From your Clone</span>
       </div>
@@ -1152,7 +1143,8 @@ class CloneApp extends LitElement {
           </button>
         </div>
         <div class="source-panel-body">
-          <span class="source-label" title=${source.source}><span class="source-chip-text">${source.source}</span></span
+          <span class="source-label" title=${memorySourceLabel(source.source)}
+            ><span class="source-chip-text">${memorySourceLabel(source.source)}</span></span
           >${source.demo ? html`<span class="demo-source-label">Synthetic demo data</span>` : nothing}
           <h2>${source.title || "Conversation memory"}</h2>
           <div class="source-excerpt">${renderMarkdown(source.excerpt)}</div>

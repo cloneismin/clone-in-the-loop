@@ -5,6 +5,7 @@ import { Store } from "./store.ts";
 import { QM } from "./qm.ts";
 import { executionPrompt, predictionPrompt, reviewPrompt, parseReview } from "./prompts.ts";
 import type { MemoryService } from "./memory/types.ts";
+import { PredictionCanceledError } from "./errors.ts";
 
 export class CloneLoop {
   store: Store;
@@ -103,6 +104,7 @@ export class CloneLoop {
           await this.store.trackRun(id, "prediction");
         },
       });
+      controller.signal.throwIfAborted();
       const text = parsePrediction(result.text, draft);
       if (persist)
         await this.store.prediction(id, {
@@ -115,6 +117,9 @@ export class CloneLoop {
           runId: result.runId,
         });
       return { text, revision, sources: memory.results };
+    } catch (error) {
+      if (controller.signal.aborted) throw new PredictionCanceledError();
+      throw error;
     } finally {
       if (runId) await this.store.untrackRun(runId);
       if (this.predictions.get(id) === controller) this.predictions.delete(id);

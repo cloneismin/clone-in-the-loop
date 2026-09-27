@@ -229,7 +229,7 @@ select {
 }
 
 .home-main h1 {
-  margin: 0 0 8px;
+  margin: 0 0 24px;
   text-align: center;
   font-family: var(--app-font);
   font-size: 26px;
@@ -469,19 +469,6 @@ kbd {
   color: #aaaab2;
 }
 
-.loop-banner {
-  margin: 0 12px -10px;
-  padding-bottom: 18px;
-  background: #f7f7fc;
-  border-color: var(--border);
-  color: var(--muted-foreground);
-}
-
-.loop-banner strong,
-.loop-banner button {
-  color: var(--brand-accent);
-}
-
 .prediction-preview {
   background: var(--soft);
   border-color: var(--border);
@@ -512,7 +499,7 @@ kbd {
 }
 
 .goal-meta,
-.goal-id {
+.session-iterations {
   color: var(--muted-foreground);
   font-size: 11px;
 }
@@ -636,10 +623,7 @@ kbd {
 .message-model,
 .message-header time,
 .activity-row,
-.activity-model,
-.loop-progress,
-.loop-progress > span,
-.loop-progress strong {
+.activity-model {
   color: var(--muted-foreground);
   font-size: 11px;
 }
@@ -653,10 +637,6 @@ kbd {
   width: min(var(--content-w), calc(100% - 32px));
   max-width: var(--content-w);
   padding: 8px 0 18px;
-}
-
-.loop-progress {
-  width: min(calc(var(--content-w) - 10px), calc(100% - 42px));
 }
 
 .popover,

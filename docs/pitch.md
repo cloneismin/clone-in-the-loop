@@ -8,7 +8,7 @@ Agents can do the work. You still decide what comes next.
 
 Clone-in-the-Loop extends QM with your judgment. GBrain recalls relevant conversations. Your Clone predicts your next instruction, reviews the result, and keeps improving it.
 
-Press Tab once to accept. Press Tab twice to enable Clone mode. Stop whenever you want.
+Press Tab once to accept the suggested prompt. Press Tab twice to enable Clone mode. Stop whenever you want.
 
 QM executes. GBrain remembers. Your Clone closes the loop.
 
@@ -24,7 +24,7 @@ Now QM executes. Your Clone reviews the result, finds what is missing, and sends
 
 This is real execution: QM researched primary sources and built a command-line tool whose tests we ran independently.
 
-Meet Clone Garry. Your pitch has adjectives. He has questions. This is a fictional demo persona with invented history, not actual Garry conversations or an affiliation. Personal memory stays separate.
+Meet Clone Garry. Your pitch has adjectives. He has questions. Clone Garry is a fictional demo teammate with invented history. Personal memory stays separate.
 
 QM executes. GBrain remembers. Your Clone keeps your judgment in the loop.
 

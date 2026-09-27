@@ -6,6 +6,7 @@ import { QM, type TurnOptions } from "../server/qm.ts";
 import type { Goal, Message } from "../server/domain.ts";
 import type { Store } from "../server/store.ts";
 import type { MemoryService } from "../server/memory/types.ts";
+import { PredictionCanceledError, requestError } from "../server/errors.ts";
 
 function deferred<T>() {
   let resolve!: (value: T) => void;
@@ -81,6 +82,49 @@ function fixture() {
   const loop = new CloneLoop(store, qm, {} as MemoryService);
   return { loop, store, turns, messages, abortedRuns, goal: () => goal };
 }
+
+test("a superseded prediction cannot persist a late provider result or clear the replacement", async () => {
+  const f = fixture();
+  f.loop.memory = { search: async () => ({ results: [] }) } as unknown as MemoryService;
+  const saved: unknown[] = [];
+  f.store.prediction = async (_id, value) => {
+    saved.push(value);
+  };
+  const first = f.loop.predict("lifecycle-goal", "", 1).catch((error: unknown) => error);
+  await until(() => f.turns.length === 1);
+  const second = f.loop.predict("lifecycle-goal", "", 2);
+  await until(() => f.turns.length === 2);
+  assert.equal(f.turns[0]!.options.signal.aborted, true);
+  f.turns[0]!.result.resolve({ text: '{"instruction":"Stale instruction"}', runId: "old", model: "test" });
+  const canceled = await first;
+  assert.ok(canceled instanceof PredictionCanceledError);
+  assert.deepEqual(requestError(canceled), {
+    status: 409,
+    body: { error: "Prediction canceled.", code: "PREDICTION_CANCELED" },
+  });
+  assert.equal(saved.length, 0);
+  assert.equal(f.loop.predictions.get("lifecycle-goal")?.signal, f.turns[1]!.options.signal);
+  f.turns[1]!.result.resolve({ text: '{"instruction":"Current instruction"}', runId: "new", model: "test" });
+  assert.equal((await second).text, "Current instruction");
+  assert.equal(saved.length, 1);
+  assert.equal(f.loop.predictions.size, 0);
+});
+
+test("provider timeouts and unrecognized abort errors remain visible request failures", async () => {
+  const f = fixture();
+  f.loop.memory = { search: async () => ({ results: [] }) } as unknown as MemoryService;
+  const timeout = new DOMException("Prediction timed out.", "TimeoutError");
+  f.loop.qm.turn = async () => {
+    throw timeout;
+  };
+  await assert.rejects(f.loop.predict("lifecycle-goal", "", 1), (error) => error === timeout);
+  assert.deepEqual(requestError(timeout), { status: 400, body: { error: "Prediction timed out." } });
+  assert.deepEqual(requestError(new DOMException("This operation was aborted", "AbortError")), {
+    status: 400,
+    body: { error: "This operation was aborted" },
+  });
+  assert.deepEqual(requestError(new Error("Goal not found.")), { status: 404, body: { error: "Goal not found." } });
+});
 
 test("a failed initial persistence write permits retry after the database recovers", async () => {
   const f = fixture();
