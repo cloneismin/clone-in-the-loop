@@ -6,7 +6,7 @@ An AI-native founder should not have to write every follow-up, catch every missi
 
 Start a session from **New**. Your Clone predicts the next instruction. Press **Tab once** to accept the prediction. Press **Tab twice** to enable **Clone mode**, which executes, reviews, and improves the work until you press **Stop**. Switch to a team workspace to explore a teammate's shared judgment, with every synthetic demo record labeled.
 
-[Quickstart](#quickstart) · [How it works](#how-it-works) · [Architecture](docs/architecture-clone.md) · [Verification](docs/verification.md) · [Demo script](docs/pitch.md) · [Build plan](docs/clone-in-the-loop-plan.md) · [Upstream QM](README.qm.md)
+[Quickstart](#quickstart) · [How it works](#how-it-works) · [Architecture](docs/architecture-clone.md) · [Verification](docs/verification.md) · [Feedback audit](docs/feedback-audit.md) · [Demo script](docs/pitch.md) · [Build plan](docs/clone-in-the-loop-plan.md) · [Upstream QM](README.qm.md)
 
 ## See the loop
 

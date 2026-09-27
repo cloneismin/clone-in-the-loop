@@ -59,6 +59,15 @@ function cloneName(clone: Clone | undefined): string {
   return clone ? `Clone ${personName(clone).split(/\s+/)[0]}` : "Your Clone";
 }
 
+function goalColumn(goal: Goal): string {
+  if (goal.status === "completed") return "Completed";
+  if (goal.status === "error" || goal.phase === "error") return "Needs attention";
+  if (goal.loopEnabled || ["predicting", "executing", "reviewing", "improving", "stopping"].includes(goal.phase))
+    return "In progress";
+  if (goal.status === "paused") return "Paused";
+  return "Ready";
+}
+
 class CloneApp extends LitElement {
   static properties = {
     state: { state: true },
@@ -962,6 +971,9 @@ class CloneApp extends LitElement {
 
   private goalsPage() {
     const goals = this.workspaceGoals.filter((goal) => !this.filterProject || goal.project === this.filterProject);
+    const columns = ["Ready", "In progress", "Paused"];
+    for (const label of ["Needs attention", "Completed"])
+      if (goals.some((goal) => goalColumn(goal) === label)) columns.push(label);
     return html`<div class="collection-page">
       <div class="collection-heading">
         <div>
@@ -975,25 +987,36 @@ class CloneApp extends LitElement {
       </div>
       ${
         goals.length
-          ? html`<div class="goals-list">
-              ${goals.map(
-                (goal) =>
-                  html`<button class="goal-row" @click=${() => this.openGoal(goal.id)}>
-                    <span class="goal-list-icon ${goal.loopEnabled ? "is-live" : ""}"
-                      >${icon(goal.loopEnabled ? "loop" : "goals", 20)}</span
-                    ><span class="goal-list-copy"
-                      ><strong>${goal.title}</strong
-                      ><small
-                        >${this.projectDot(goal.project)}${goal.project}<span>·</span>${goal.loopEnabled ? "Clone is in the loop" : goal.status || "Active"}</small
-                      ></span
-                    ><span class="iteration-count"
-                      >${goal.iterations ? `${goal.iterations} ${goal.iterations === 1 ? "iteration" : "iterations"}` : "Ready to move"}</span
-                    >${this.avatar(
-                      this.clones.find((clone) => clone.id === goal.cloneId),
-                      true,
-                    )}${icon("right", 17)}
-                  </button>`,
-              )}
+          ? html`<div class="goals-board" aria-label="Goals by status">
+              ${columns.map((label) => {
+                const items = goals.filter((goal) => goalColumn(goal) === label);
+                return html`<section class="goal-column" aria-label=${label}>
+                  <div class="goal-column-heading">
+                    <h2>${label}</h2>
+                    <span>${items.length}</span>
+                  </div>
+                  <div class="goal-column-cards">
+                    ${
+                      items.length
+                        ? items.map(
+                            (goal) =>
+                              html`<button class="goal-board-card" @click=${() => this.openGoal(goal.id)}>
+                                <strong>${goal.title}</strong>
+                                <span class="goal-card-project">${this.projectDot(goal.project)}${goal.project}</span>
+                                <span class="goal-card-footer">
+                                  <span>${goal.iterations} ${goal.iterations === 1 ? "iteration" : "iterations"}</span>
+                                  ${this.avatar(
+                                    this.clones.find((clone) => clone.id === goal.cloneId),
+                                    true,
+                                  )}
+                                </span>
+                              </button>`,
+                          )
+                        : html`<span class="goal-column-empty">No goals</span>`
+                    }
+                  </div>
+                </section>`;
+              })}
             </div>`
           : html`<div class="empty-state">
               ${icon("goals", 34)}

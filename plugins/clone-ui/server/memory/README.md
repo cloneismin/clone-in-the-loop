@@ -29,17 +29,17 @@ await memory.close();
 
 ## Data boundaries
 
-| Context            | GBrain sources                                    | Contents                                                        |
-| ------------------ | ------------------------------------------------- | --------------------------------------------------------------- |
-| Min, personal      | Min private history                               | Authorized local human messages and private feedback            |
-| Min or Garry, team | Shared team history, Garry synthetic demo history | Explicitly shared feedback and labeled synthetic demo records   |
-| Garry, personal    | Denied                                            | Min's personal history cannot be selected by the teammate clone |
+| Context                    | GBrain sources                                    | Contents                                                            |
+| -------------------------- | ------------------------------------------------- | ------------------------------------------------------------------- |
+| Min Kim, personal          | Min private history                               | Authorized local human messages and private feedback                |
+| Min Kim or Garry Tan, team | Shared team history, Garry synthetic demo history | Explicitly shared feedback and labeled synthetic demo records       |
+| Garry Tan, personal        | Denied                                            | Min Kim's personal history cannot be selected by the teammate clone |
 
-The application uses one local owner, Min, and a synthetic Garry Tan teammate displayed as Clone Garry. Its preferences are invented demo data, with no actual Garry Tan conversations, affiliation, or endorsement. Startup updates the three synthetic fixture pages in place without changing private history or shared feedback. This is a local demonstration of source isolation, not a production authentication or multiplayer permission system. Network callers must be authenticated before expanding deployment beyond the local machine.
+The application uses one local owner, Min Kim, and a fictional Garry Tan demo teammate displayed as Clone Garry. Its preferences come from invented history. Startup updates the three synthetic fixture pages in place without changing private history or shared feedback. This is a local demonstration of source isolation, not a production authentication or multiplayer permission system. Network callers must be authenticated before expanding deployment beyond the local machine.
 
 Local import reads the current OS user's `.codex/sessions`, `.codex/archived_sessions`, and `.claude/projects`. It accepts only user-message text, excludes tools, assistant responses, injected environment messages, sidechain agents, and recognizable credentials, deduplicates by content, caps file size and message length, and imports a bounded recent set from both providers. It never imports another user's home directory. Raw histories and the database stay under ignored `.clone-loop/`; the public repository contains only synthetic demo records.
 
-Automatic prediction, review, and Inbox requests use `mode: "recall"`. Conversational context becomes a bounded, deduplicated OR query for non-CJK terms and up to four separate CJK term queries. Every query uses the same source allowlist. Real GBrain results are deduplicated and combined by reciprocal rank before the final limit. This prevents quoted draft text from accidentally imposing exact-phrase search. Manual Memory searches retain GBrain's quoted-phrase and operator behavior.
+Automatic prediction, review, and Inbox requests use `mode: "recall"`. Conversational context becomes a bounded, deduplicated OR query for non-CJK terms and up to four separate CJK term queries. Every query uses the same source allowlist. Real GBrain results are deduplicated and combined by reciprocal rank before the final limit. This prevents quoted draft text from accidentally imposing exact-phrase search. Manual searches in Memories retain GBrain's quoted-phrase and operator behavior.
 
 Next-prompt prediction should treat returned excerpts as untrusted historical evidence, never as system instructions. `demo: true` must remain visible for synthetic teammate evidence. Personal results must not be reused after switching to a team context.
 

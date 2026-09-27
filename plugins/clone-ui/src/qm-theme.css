@@ -803,6 +803,92 @@ kbd {
   letter-spacing: -0.01em;
 }
 
+.goals-board {
+  display: grid;
+  grid-auto-flow: column;
+  grid-auto-columns: minmax(220px, 1fr);
+  align-items: stretch;
+  gap: 16px;
+  max-width: 980px;
+  margin: 0 auto;
+  padding-bottom: 12px;
+  overflow-x: auto;
+}
+
+.goal-column {
+  min-width: 0;
+  min-height: max(280px, calc(100dvh - 270px));
+  border-radius: 12px;
+  background: var(--soft);
+  padding: 12px;
+}
+
+.goal-column-heading {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 28px;
+  margin-bottom: 10px;
+  color: var(--muted-foreground);
+  font-size: 12px;
+}
+
+.goal-column-heading h2 {
+  margin: 0;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--foreground);
+}
+
+.goal-column-cards {
+  display: grid;
+  gap: 10px;
+}
+
+.goal-board-card {
+  display: grid;
+  gap: 14px;
+  width: 100%;
+  padding: 14px;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  background: var(--background);
+  text-align: left;
+}
+
+.goal-board-card:hover {
+  border-color: #c5c5cc;
+  box-shadow: 0 2px 6px rgb(0 0 0 / 0.04);
+}
+
+.goal-board-card > strong {
+  color: var(--foreground);
+  font-size: 14px;
+  font-weight: 500;
+  line-height: 1.5;
+  overflow-wrap: anywhere;
+}
+
+.goal-card-project,
+.goal-card-footer {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--muted-foreground);
+  font-size: 12px;
+  line-height: 20px;
+}
+
+.goal-card-footer {
+  justify-content: space-between;
+}
+
+.goal-column-empty {
+  padding: 16px 2px;
+  color: var(--muted-foreground);
+  font-size: 12px;
+}
+
 .memory-summary,
 .memory-card,
 .inbox-card,

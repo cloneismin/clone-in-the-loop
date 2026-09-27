@@ -55,6 +55,8 @@ The Send circle now becomes a single square Stop control during manual execution
 
 The persistent Clone mode switch exposes its checked state through `role="switch"` and `aria-checked`. Independent checks of the actual composer template exercised 32 loop/manual/pending phase combinations, plus empty, ready, and booting home states: the switch uses the existing start/stop handler, manual execution cannot enable a concurrent loop, enabled Clone mode alone adds the blue glow, and active work retains exactly one square Stop control. Native browser checks toggled the recorded session on and off, verified the blue border and glow while enabled, then read back a paused state at six iterations with Clone mode off and a neutral composer. Switch, track, and Stop centers aligned in that check.
 
+At 16:26, native Goals-board checks read Ready 13, In progress 0, and Paused 5, opened the paused ten-iteration Goal from its card, and returned to the board. Equal column heights were then verified. An independent check of the actual template covered eleven status cases, workspace/project filtering, and card navigation. The board uses persisted state without introducing drag-and-drop or new status mutations. The existing Loom film predates this late interface correction.
+
 ## Upstream status
 
 The [QM proposal](https://github.com/yc-software/qm/pull/1671) is open. It contains a short text proposal under QM's contribution policy. The executable implementation is in [this fork's main branch](https://github.com/cloneismin/clone-in-the-loop/tree/main). An open proposal does not establish upstream review, merge, or acceptance.
