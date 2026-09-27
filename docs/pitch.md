@@ -73,7 +73,7 @@ The working code is in the public QM fork. The open Upstream QM PR contains a sh
 
 ## Links for judges
 
-- [90-second demo on Loom](https://www.loom.com/share/57d5b73042f847e0a2ac072ff379d7b6)
+- [93-second demo on Loom](https://www.loom.com/share/f989c778d4f14d05acfe0a20d9bdfbc3)
 - [Working source and quickstart](https://github.com/cloneismin/clone-in-the-loop)
 - [Verification record](verification.md)
 - [Upstream QM PR](https://github.com/yc-software/qm/pull/1671)

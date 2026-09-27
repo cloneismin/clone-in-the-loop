@@ -52,7 +52,7 @@ All times are September 27, 2026, America/Los_Angeles. Confirmed event deadline:
 
 ## Demo direction
 
-Approximately 90 seconds, following the referenced Demo Video task: blinking cursor and ambition; Tab prediction; Research, Product, and Marketing workflow examples; Clone mode with review and correction; Goals followed by Inbox; team workspace and teammate Clone; GBrain memory evidence; closing prediction and send. Use full-app framing by default, selective composer zoom, visible key cues, deliberate navigation, and a consistent speed indicator for accelerated execution.
+The final cut is 93 seconds, following the referenced Demo Video task: blinking cursor and ambition; Tab prediction; Research, Product, and Marketing workflow examples; Clone mode with review and correction; Goals followed by Inbox; team workspace and teammate Clone; GBrain memory evidence; closing prediction and inspected result; the title line and upstream QM PR follow as a closing add-on. Use full-app framing by default, selective composer zoom, visible key cues, deliberate navigation, and a consistent speed indicator for accelerated execution.
 
 ## Submission
 
@@ -60,7 +60,7 @@ Approximately 90 seconds, following the referenced Demo Video task: blinking cur
 - Description currently saved in the form: Clone-in-the-Loop just killed Human-in-the-Loop
 - Repository: https://github.com/cloneismin/clone-in-the-loop
 - Side quests: GBrain and QM
-- Demo video: [90-second Loom demo](https://www.loom.com/share/57d5b73042f847e0a2ac072ff379d7b6)
+- Demo video: [93-second Loom demo](https://www.loom.com/share/f989c778d4f14d05acfe0a20d9bdfbc3)
 - Organizer note (current form text):
 
 > Built as a QM fork, Clone-in-the-Loop predicts what you would ask your agent next. GBrain retrieves relevant agent sessions from your Codex and Claude history, plus explicitly shared team history, to personalize that next-prompt prediction.
@@ -73,4 +73,4 @@ Approximately 90 seconds, following the referenced Demo Video task: blinking cur
 
 ## Status
 
-Interview and implementation are complete. The fork preserves QM upstream `a5a36675041a85e30b9ff3632f678ba36837aabf`. Real QM execution, GBrain-backed prediction, personal and synthetic-teammate Clone mode, durable Stop, and restart persistence have been exercised. CI and focused regression checks passed as recorded in [verification](verification.md). The upstream PR is an open text proposal; implementation lives in the fork. Native Chrome checks exercised the final New, Inbox, Goals, and Memories shortcut order; automated tests also cover the Windows and Linux mappings. Complete local and Loom playback passed, and public sharing is verified. The Loom URL is saved in the draft form. The user's acceptance and submission remain pending.
+Interview and implementation are complete. The fork preserves QM upstream `a5a36675041a85e30b9ff3632f678ba36837aabf`. Real QM execution, GBrain-backed prediction, personal and synthetic-teammate Clone mode, durable Stop, and restart persistence have been exercised. CI and focused regression checks passed as recorded in [verification](verification.md). The upstream PR is an open text proposal; implementation lives in the fork. Native Chrome checks exercised the final New, Inbox, Goals, and Memories shortcut order; automated tests also cover the Windows and Linux mappings. The revised 93-second Loom film is linked above. Final playback and draft-field readback are recorded in the verification record. The user's acceptance and submission remain pending.
