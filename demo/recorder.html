@@ -1,0 +1,386 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Clone Demo Recorder</title>
+    <style>
+      :root {
+        color-scheme: dark;
+        font-family: Inter, ui-sans-serif, system-ui, sans-serif;
+        background: #101116;
+        color: #f4f4f7;
+      }
+      body {
+        margin: 0;
+      }
+      main {
+        max-width: 940px;
+        margin: 32px auto;
+        padding: 0 24px 40px;
+      }
+      h1 {
+        font-size: 28px;
+        letter-spacing: -0.8px;
+        margin: 0 0 10px;
+      }
+      p {
+        color: #b7b7c6;
+        line-height: 1.6;
+      }
+      .panel {
+        border: 1px solid #34353e;
+        background: #191a22;
+        border-radius: 16px;
+        padding: 22px;
+        margin: 20px 0;
+      }
+      .fields {
+        display: grid;
+        grid-template-columns: 1fr 2fr;
+        gap: 16px;
+      }
+      label {
+        display: block;
+        font-size: 14px;
+        color: #d6d6e2;
+      }
+      input[type="text"],
+      input[type="url"] {
+        width: 100%;
+        box-sizing: border-box;
+        margin-top: 8px;
+        padding: 12px;
+        border: 1px solid #484955;
+        border-radius: 8px;
+        background: #111218;
+        color: white;
+        font: inherit;
+      }
+      .audio {
+        margin-top: 18px;
+        display: flex;
+        gap: 10px;
+        align-items: center;
+      }
+      .controls {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 12px;
+        margin-top: 20px;
+      }
+      button {
+        cursor: pointer;
+        padding: 13px 20px;
+        border-radius: 10px;
+        border: 1px solid #555664;
+        background: #2b2d37;
+        color: white;
+        font: 600 14px system-ui;
+      }
+      button:disabled {
+        opacity: 0.4;
+        cursor: not-allowed;
+      }
+      #start {
+        background: #7462df;
+        border-color: #9687ec;
+      }
+      #stop {
+        background: #a9334e;
+        border-color: #d6637d;
+      }
+      .status {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 20px;
+      }
+      #status {
+        font-weight: 600;
+      }
+      #elapsed {
+        font:
+          600 32px ui-monospace,
+          monospace;
+      }
+      .recording #status::before {
+        content: "";
+        display: inline-block;
+        background: #ff657d;
+        width: 10px;
+        height: 10px;
+        border-radius: 50%;
+        margin-right: 9px;
+      }
+      video {
+        width: 100%;
+        max-height: 450px;
+        border-radius: 12px;
+        background: black;
+        display: block;
+      }
+      #details {
+        white-space: pre-wrap;
+        overflow-wrap: anywhere;
+        color: #b7b7c6;
+        font-size: 13px;
+      }
+      .error {
+        color: #ff98a9 !important;
+      }
+      @media (max-width: 700px) {
+        .fields {
+          grid-template-columns: 1fr;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <main>
+      <h1>Clone Demo Recorder</h1>
+      <p>
+        Record a fresh browser tab or window. Start and stop with the visible controls, then download the original WebM
+        and capture metadata. Nothing is uploaded.
+      </p>
+      <section class="panel">
+        <div class="fields">
+          <label>Scene name<input id="scene" type="text" value="hero-loop" maxlength="60" /></label>
+          <label>URL shown in the selected capture<input id="origin" type="url" value="http://127.0.0.1:4317" /></label>
+        </div>
+        <label class="audio"
+          ><input id="audio" type="checkbox" /> Capture shared-tab audio if available (off by default)</label
+        >
+        <div class="controls">
+          <button id="start">Start recording</button>
+          <button id="stop" disabled>Stop recording</button>
+          <button id="download" disabled>Download WebM</button>
+          <button id="receipt" disabled>Download capture metadata</button>
+        </div>
+        <p>
+          Select the actual product tab/window or the published upstream QM PR in Chrome's share picker. Do not select
+          this recorder page. Stop shortcut: <strong>Ctrl+Shift+X</strong> while this page is focused. Automatic stop
+          after 10 minutes.
+        </p>
+      </section>
+      <section class="panel status" id="status-panel">
+        <span id="status" role="status" aria-live="polite">Ready to record</span><span id="elapsed">00:00</span>
+      </section>
+      <video id="preview" autoplay muted playsinline></video>
+      <p id="details">
+        Capture will request up to 30 fps. Actual dimensions and frame-rate settings are reported after selection.
+      </p>
+    </main>
+    <script>
+      const element = (id) => document.getElementById(id);
+      let stream = null;
+      let recorder = null;
+      let chunks = [];
+      let timer = null;
+      let videoUrl = null;
+      let blob = null;
+      let metadata = null;
+      let started = 0;
+      let stopping = false;
+      let clickDiagnostics = null;
+      function status(text, error = false) {
+        element("status").textContent = text;
+        element("status").classList.toggle("error", error);
+      }
+      function elapsed() {
+        const seconds = Math.floor((Date.now() - started) / 1000);
+        element("elapsed").textContent =
+          `${String(Math.floor(seconds / 60)).padStart(2, "0")}:${String(seconds % 60).padStart(2, "0")}`;
+        if (seconds >= 600) stop();
+      }
+      function releaseStream() {
+        stream?.getTracks().forEach((track) => track.stop());
+        stream = null;
+      }
+      function resetControls() {
+        element("start").disabled = false;
+        element("stop").disabled = true;
+        element("scene").disabled = false;
+        element("origin").disabled = false;
+        element("audio").disabled = false;
+        element("status-panel").classList.remove("recording");
+      }
+      function stop() {
+        if (!recorder || recorder.state === "inactive" || stopping) return;
+        stopping = true;
+        clearInterval(timer);
+        element("stop").disabled = true;
+        status("Finalizing recording…");
+        recorder.stop();
+      }
+      element("start").addEventListener("click", async (event) => {
+        clickDiagnostics = {
+          phase: "start-click",
+          at: new Date().toISOString(),
+          clickIsTrusted: event.isTrusted,
+          documentHasFocus: document.hasFocus(),
+          visibilityState: document.visibilityState,
+          userActivationIsActive: navigator.userActivation?.isActive ?? null,
+          userActivationHasBeenActive: navigator.userActivation?.hasBeenActive ?? null,
+          secureContext: window.isSecureContext,
+          topLevelDocument: window.self === window.top,
+          activeElement: document.activeElement?.id || document.activeElement?.tagName || null,
+        };
+        element("details").textContent = JSON.stringify(clickDiagnostics, null, 2);
+        if (!navigator.mediaDevices?.getDisplayMedia || !window.MediaRecorder) {
+          status("Screen recording requires a current Chromium browser on localhost or HTTPS.", true);
+          return;
+        }
+        const sourceUrl = element("origin").value.trim().replace(/\/$/, "");
+        const isProduct = /^http:\/\/127\.0\.0\.1:431[78]$/.test(sourceUrl);
+        const isPr = /^https:\/\/github\.com\/yc-software\/qm\/pull\/[1-9][0-9]*$/.test(sourceUrl);
+        if (!isProduct && !isPr) {
+          status("Enter the local product URL or the exact published yc-software/qm pull-request URL.", true);
+          return;
+        }
+        element("start").disabled = true;
+        element("download").disabled = true;
+        element("receipt").disabled = true;
+        status("Choose the real tab or window in Chrome's share picker.");
+        try {
+          stream = await navigator.mediaDevices.getDisplayMedia({
+            video: { frameRate: { ideal: 30, max: 30 }, width: { ideal: 1920 }, height: { ideal: 1080 } },
+            audio: element("audio").checked,
+            selfBrowserSurface: "exclude",
+          });
+          const formats = ["video/webm;codecs=vp9", "video/webm;codecs=vp8", "video/webm"];
+          const mimeType = formats.find((type) => MediaRecorder.isTypeSupported(type));
+          if (!mimeType) throw new Error("This browser does not offer a supported WebM recording format.");
+          chunks = [];
+          blob = null;
+          stopping = false;
+          if (videoUrl) URL.revokeObjectURL(videoUrl);
+          videoUrl = null;
+          const settings = stream.getVideoTracks()[0].getSettings();
+          const scene =
+            element("scene")
+              .value.trim()
+              .toLowerCase()
+              .replace(/[^a-z0-9-]/g, "-")
+              .replace(/-+/g, "-") || "capture";
+          started = Date.now();
+          metadata = {
+            scene,
+            kind: isPr ? "upstream-pr" : "product",
+            declaredSourceUrl: sourceUrl,
+            startedAt: new Date(started).toISOString(),
+            method: "Browser getDisplayMedia and MediaRecorder, operated through visible CUA controls",
+            requestedFrameRate: 30,
+            settings,
+            mimeType,
+            videoBitsPerSecond: 18000000,
+            audioTracks: stream.getAudioTracks().length,
+            uiSourceVerified: false,
+          };
+          recorder = new MediaRecorder(stream, { mimeType, videoBitsPerSecond: 18000000 });
+          recorder.ondataavailable = (event) => {
+            if (event.data.size) chunks.push(event.data);
+          };
+          recorder.onerror = (event) => {
+            status(event.error?.message || "Recording failed. Inspect the browser state before retrying.", true);
+            stop();
+          };
+          recorder.onstop = () => {
+            clearInterval(timer);
+            releaseStream();
+            blob = new Blob(chunks, { type: mimeType });
+            chunks = [];
+            metadata.finishedAt = new Date().toISOString();
+            metadata.durationWallSeconds = (Date.now() - started) / 1000;
+            metadata.bytes = blob.size;
+            metadata.finalized = blob.size > 0;
+            videoUrl = URL.createObjectURL(blob);
+            element("preview").srcObject = null;
+            element("preview").src = videoUrl;
+            element("preview").controls = true;
+            element("preview").pause();
+            resetControls();
+            element("download").disabled = blob.size === 0;
+            element("receipt").disabled = blob.size === 0;
+            status(
+              blob.size ? "Recording ready. Download both files before another take." : "No video data was captured.",
+              !blob.size,
+            );
+            element("details").textContent = JSON.stringify(metadata, null, 2);
+          };
+          stream.getVideoTracks()[0].addEventListener("ended", stop, { once: true });
+          element("preview").srcObject = stream;
+          element("preview").controls = false;
+          element("preview")
+            .play()
+            .catch(() => undefined);
+          element("scene").disabled = true;
+          element("origin").disabled = true;
+          element("audio").disabled = true;
+          element("stop").disabled = false;
+          element("status-panel").classList.add("recording");
+          element("details").textContent =
+            `${settings.width} × ${settings.height} · ${settings.frameRate ?? "requested 30"} fps · ${settings.displaySurface || "shared surface"} · audio ${metadata.audioTracks ? "enabled" : "off"}`;
+          recorder.start(1000);
+          status("Recording the selected surface");
+          elapsed();
+          timer = setInterval(elapsed, 250);
+        } catch (error) {
+          releaseStream();
+          resetControls();
+          element("download").disabled = !blob;
+          element("receipt").disabled = !blob;
+          element("details").textContent = JSON.stringify(
+            {
+              ...clickDiagnostics,
+              phase: "capture-error",
+              errorName: error.name,
+              errorMessage: error.message,
+              errorTimeHasFocus: document.hasFocus(),
+              errorTimeVisibility: document.visibilityState,
+              errorTimeUserActivationIsActive: navigator.userActivation?.isActive ?? null,
+            },
+            null,
+            2,
+          );
+          status(
+            error.name === "NotAllowedError"
+              ? "Sharing was canceled or permission was not granted. No recording started."
+              : `${error.name}: ${error.message}`,
+            true,
+          );
+        }
+      });
+      element("stop").addEventListener("click", stop);
+      function download(data, extension) {
+        const url = URL.createObjectURL(data);
+        const link = document.createElement("a");
+        link.href = url;
+        link.download = `${metadata.scene}-${metadata.startedAt.replace(/[:.]/g, "-")}.${extension}`;
+        document.body.append(link);
+        link.click();
+        link.remove();
+        setTimeout(() => URL.revokeObjectURL(url), 30000);
+      }
+      element("download").addEventListener("click", () => {
+        if (blob) download(blob, "webm");
+      });
+      element("receipt").addEventListener("click", () => {
+        if (metadata)
+          download(new Blob([JSON.stringify(metadata, null, 2)], { type: "application/json" }), "capture.json");
+      });
+      document.addEventListener("keydown", (event) => {
+        if (event.ctrlKey && event.shiftKey && event.code === "KeyX") {
+          event.preventDefault();
+          stop();
+        }
+      });
+      window.addEventListener("beforeunload", (event) => {
+        if (recorder?.state === "recording") {
+          event.preventDefault();
+          event.returnValue = "";
+        }
+      });
+    </script>
+  </body>
+</html>

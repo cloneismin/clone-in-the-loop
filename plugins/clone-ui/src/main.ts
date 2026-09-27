@@ -579,8 +579,8 @@ class CloneApp extends LitElement {
 
   private sidebar() {
     return html`<aside class="sidebar" aria-label="Workspace navigation">
-      <button class="brand" @click=${() => this.navigate("new")} aria-label="Clone home">
-        ${brand()}<span>QM<span class="brand-caption">Clone-in-the-Loop</span></span>
+      <button class="brand" @click=${() => this.navigate("new")} aria-label="QM with Clone-in-the-Loop home">
+        ${brand()}<span>QM <span class="brand-caption">with Clone-in-the-Loop</span></span>
       </button>
       <div class="workspace-wrap">
         <button
@@ -1049,7 +1049,7 @@ class CloneApp extends LitElement {
             }, 350);
           }}
         /><span
-          >${this.memoryLoading ? html`<span class="tiny-spinner"></span>` : `${this.memoryData?.results?.length ?? 0} results`}</span
+          >${this.memoryLoading ? html`<span class="tiny-spinner"></span>` : `${this.memoryData?.results?.length ?? 0} ${this.memoryData?.results?.length === 1 ? "result" : "results"}`}</span
         >
       </div>
       <div class="memory-results">
@@ -1161,7 +1161,6 @@ class CloneApp extends LitElement {
                 This excerpt grounds the Clone's suggestion. Past conversation is context, not proof that an outcome was
                 verified.
               </p>
-              <code>${source.id}</code>
             </div>
           </div>
         </div>

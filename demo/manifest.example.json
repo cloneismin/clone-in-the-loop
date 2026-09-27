@@ -1,0 +1,166 @@
+{
+  "schemaVersion": 1,
+  "language": "en",
+  "eventStart": "2026-09-27T13:15:00-07:00",
+  "width": 1920,
+  "height": 1080,
+  "fps": 30,
+  "captures": {
+    "upstream-pr": {
+      "kind": "upstream-pr",
+      "path": "output/raw/upstream-pr.mp4",
+      "sha256": "PENDING_CAPTURE_SHA256",
+      "capturedAt": "PENDING_ACTUAL_CAPTURE_TIME",
+      "appUrl": "https://github.com/yc-software/qm/pull/1671",
+      "gitRevision": "PENDING_ACTUAL_GIT_REVISION",
+      "workingTreeSha256": "PENDING_ACTUAL_WORKING_TREE_DIGEST"
+    },
+    "fresh-take": {
+      "path": "output/raw/fresh-take.mp4",
+      "sha256": "PENDING_CAPTURE_SHA256",
+      "capturedAt": "PENDING_ACTUAL_CAPTURE_TIME",
+      "appUrl": "http://127.0.0.1:4317",
+      "gitRevision": "PENDING_ACTUAL_GIT_REVISION",
+      "workingTreeSha256": "PENDING_ACTUAL_WORKING_TREE_DIGEST",
+      "kind": "product"
+    }
+  },
+  "segments": [
+    {
+      "id": "upstream-pr",
+      "capture": "upstream-pr",
+      "start": null,
+      "duration": 3,
+      "speed": 1,
+      "evidence": "PENDING: actual upstream QM PR URL, visible title, number, and current state; do not imply merge"
+    },
+    {
+      "id": "opening",
+      "capture": "fresh-take",
+      "start": null,
+      "duration": 5,
+      "speed": 1,
+      "evidence": "PENDING: record the actual interaction and verified result"
+    },
+    {
+      "id": "tab-accept-send",
+      "capture": "fresh-take",
+      "start": null,
+      "duration": 6,
+      "speed": 1,
+      "evidence": "PENDING: record the actual interaction and verified result"
+    },
+    {
+      "id": "research",
+      "capture": "fresh-take",
+      "start": null,
+      "duration": 6,
+      "speed": 1,
+      "evidence": "PENDING: record the actual interaction and verified result"
+    },
+    {
+      "id": "product",
+      "capture": "fresh-take",
+      "start": null,
+      "duration": 6,
+      "speed": 1,
+      "evidence": "PENDING: record the actual interaction and verified result"
+    },
+    {
+      "id": "marketing",
+      "capture": "fresh-take",
+      "start": null,
+      "duration": 6,
+      "speed": 1,
+      "evidence": "PENDING: record the actual interaction and verified result"
+    },
+    {
+      "id": "clone-start",
+      "capture": "fresh-take",
+      "start": null,
+      "duration": 5,
+      "speed": 1,
+      "evidence": "PENDING: record the actual interaction and verified result"
+    },
+    {
+      "id": "execute",
+      "capture": "fresh-take",
+      "start": null,
+      "duration": 7,
+      "speed": 20,
+      "evidence": "PENDING: record the actual interaction and verified result"
+    },
+    {
+      "id": "review",
+      "capture": "fresh-take",
+      "start": null,
+      "duration": 6,
+      "speed": 1,
+      "evidence": "PENDING: record the actual interaction and verified result"
+    },
+    {
+      "id": "correction",
+      "capture": "fresh-take",
+      "start": null,
+      "duration": 6,
+      "speed": 20,
+      "evidence": "PENDING: record the actual interaction and verified result"
+    },
+    {
+      "id": "result-stop",
+      "capture": "fresh-take",
+      "start": null,
+      "duration": 5,
+      "speed": 1,
+      "evidence": "PENDING: record the actual interaction and verified result"
+    },
+    {
+      "id": "goals",
+      "capture": "fresh-take",
+      "start": null,
+      "duration": 5,
+      "speed": 1,
+      "evidence": "PENDING: record the actual interaction and verified result"
+    },
+    {
+      "id": "inbox",
+      "capture": "fresh-take",
+      "start": null,
+      "duration": 5,
+      "speed": 1,
+      "evidence": "PENDING: record the actual interaction and verified result"
+    },
+    {
+      "id": "team-garry",
+      "capture": "fresh-take",
+      "start": null,
+      "duration": 6,
+      "speed": 1,
+      "evidence": "PENDING: record the actual interaction and verified result"
+    },
+    {
+      "id": "gbrain",
+      "capture": "fresh-take",
+      "start": null,
+      "duration": 6,
+      "speed": 1,
+      "evidence": "PENDING: record the actual interaction and verified result"
+    },
+    {
+      "id": "closing-send",
+      "capture": "fresh-take",
+      "start": null,
+      "duration": 4,
+      "speed": 1,
+      "evidence": "PENDING: record the actual interaction and verified result"
+    },
+    {
+      "id": "logo",
+      "kind": "title",
+      "text": "Clone-in-the-Loop",
+      "duration": 3
+    }
+  ],
+  "narration": null,
+  "music": null
+}
