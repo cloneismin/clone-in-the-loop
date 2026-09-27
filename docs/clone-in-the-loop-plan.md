@@ -14,7 +14,7 @@ The hackathon submission retains the QM upstream history. All application source
 - Main demonstration: the owner's Clone continues instructions and reviews until the user stops it.
 - Clone mode continues into further improvements after a completed task. Stop cancels the active operation and prevents another iteration.
 - GBrain memory starts with owner-approved local Codex and Claude user messages. Team memory uses explicitly labelled synthetic teammate conversations.
-- Personal and team workspaces, Tab completion, continuous Clone mode, and teammate Clone selection are required.
+- Personal and team workspaces, Tab completion, Clone mode, and teammate Clone selection are required.
 - Local working application plus reproducible GitHub source and a Loom video. Public production deployment is outside this submission.
 
 ## Delivery schedule
@@ -35,7 +35,7 @@ All times are September 27, 2026, America/Los_Angeles. Confirmed event deadline:
 1. Reuse QM's core, provider harness, session model, and web surface interfaces. Verify one real provider response before building the full experience.
 2. Add scoped GBrain ingestion and retrieval with source receipts. Separate owner-private memory from team-shared memory and synthetic teammate evidence.
 3. Add next-prompt prediction with draft revision protection, ghost text, Tab acceptance, Escape dismissal, and explicit manual Send.
-4. Add a durable Clone loop: predict instruction, execute, review, correct or improve, repeat. Double Tab enables it; Stop aborts and prevents queued continuations. Preserve the actor and Clone identity on each message.
+4. Add a durable Clone loop: predict instruction, execute, review, correct or improve, repeat. Press Tab twice to enable Clone mode; Stop aborts and prevents queued continuations. Preserve the actor and Clone identity on each message.
 5. Provide personal/team workspace switching, teammate Clone selection, Goals and Inbox projections, and inspectable memory citations.
 6. Run browser acceptance, package reproducible setup, record real interaction, and complete the submission fields.
 
@@ -52,7 +52,7 @@ All times are September 27, 2026, America/Los_Angeles. Confirmed event deadline:
 
 ## Demo direction
 
-Approximately 90 seconds, following the referenced Demo Video task: blinking cursor and ambition; Tab prediction; Research, Product, and Marketing workflow examples; a continuous Clone review/correction loop; Goals followed by Inbox; team workspace and teammate Clone; GBrain memory evidence; closing prediction and send. Use full-app framing by default, selective composer zoom, visible key cues, deliberate navigation, and a consistent speed indicator for accelerated execution.
+Approximately 90 seconds, following the referenced Demo Video task: blinking cursor and ambition; Tab prediction; Research, Product, and Marketing workflow examples; Clone mode with review and correction; Goals followed by Inbox; team workspace and teammate Clone; GBrain memory evidence; closing prediction and send. Use full-app framing by default, selective composer zoom, visible key cues, deliberate navigation, and a consistent speed indicator for accelerated execution.
 
 ## Submission
 
@@ -61,8 +61,8 @@ Approximately 90 seconds, following the referenced Demo Video task: blinking cur
 - Repository: https://github.com/cloneismin/clone-in-the-loop
 - Side quests: GBrain and QM
 - Loom URL: pending actual recording and upload
-- Organizer note: write after verification; describe only implemented QM and GBrain integration.
+- Organizer note: “We extended QM with a Clone that predicts the next instruction, reviews execution, and continues until stopped. Official GBrain retrieves source-scoped personal and shared chat history for prediction and review. Team memory is clearly labeled synthetic demo data.”
 
 ## Status
 
-Interview complete. QM upstream fetched at `a5a36675041a85e30b9ff3632f678ba36837aabf` into `codex/hackathon-qm`. Implementation and acceptance are in progress; no completed integration, final video, or submission is claimed yet.
+Interview and implementation are complete. The fork preserves QM upstream `a5a36675041a85e30b9ff3632f678ba36837aabf`. Real QM execution, GBrain-backed prediction, personal and synthetic-teammate Clone mode, durable Stop, and restart persistence have been exercised. CI and focused regression checks passed as recorded in [verification](verification.md). The upstream PR is an open text proposal; implementation lives in the fork. Final recording-build keyboard acceptance, full video playback, Loom upload, and submission remain pending.

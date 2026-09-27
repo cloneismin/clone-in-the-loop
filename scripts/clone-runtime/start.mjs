@@ -46,7 +46,7 @@ const environment = {
   SUGGESTED_ACTIVITIES_ENABLED: "false",
   WORKERS: "2",
   ORG_BRAND_SELF_LABEL: "Clone",
-  ORG_BRAND_ORG_NAME: "Clone in the Loop",
+  ORG_BRAND_ORG_NAME: "Clone-in-the-Loop",
   ORG_BRAND_MARK: "C",
   SHUTDOWN_DRAIN_MS: "2000",
 };

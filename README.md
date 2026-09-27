@@ -4,9 +4,9 @@
 
 An AI-native founder should not have to write every follow-up, catch every missing detail, and keep restarting the same workflow. Clone-in-the-Loop extends [QM](https://github.com/yc-software/qm) with a personal decision loop, grounded in conversation history stored in [GBrain](https://github.com/garrytan/gbrain).
 
-Start with a Goal. Your Clone predicts the next instruction. Press **Tab** to accept it, or enable **Clone mode** to let it execute, review, and improve the work until you press **Stop**. Switch to a team workspace to explore a teammate's shared judgment, with every synthetic demo record labeled.
+Start with a Goal. Your Clone predicts the next instruction. Press **Tab once** to accept the prediction. Press **Tab twice** to enable **Clone mode**, which executes, reviews, and improves the work until you press **Stop**. Switch to a team workspace to explore a teammate's shared judgment, with every synthetic demo record labeled.
 
-[Quickstart](#quickstart) · [How it works](#how-it-works) · [Architecture](docs/architecture-clone.md) · [Demo script](docs/pitch.md) · [Build plan](docs/clone-in-the-loop-plan.md) · [Upstream QM](README.qm.md)
+[Quickstart](#quickstart) · [How it works](#how-it-works) · [Architecture](docs/architecture-clone.md) · [Verification](docs/verification.md) · [Demo script](docs/pitch.md) · [Build plan](docs/clone-in-the-loop-plan.md) · [Upstream QM](README.qm.md)
 
 ## See the loop
 
@@ -20,12 +20,10 @@ Start with a Goal. Your Clone predicts the next instruction. Press **Tab** to ac
 
 **Demo video:** recording and Loom upload pending. A verified playback link will be added here. The [90-second storyboard and production kit](demo/README.md) describe the fresh capture and review process.
 
-**Product screenshots:** browser acceptance and review captures pending.
-
 ## What we added to QM
 
-- **Next-prompt prediction.** Inline suggestions grounded in GBrain evidence, with Tab acceptance and draft-revision tracking.
-- **Continuous Clone mode.** A visible instruction → execution → review → improvement loop, with durable messages and explicit interruption.
+- **Next-prompt prediction.** Inline suggestions grounded in GBrain evidence, with one-Tab acceptance, two-Tab Clone mode activation, and draft-revision tracking.
+- **Clone mode.** A visible instruction → execution → review → improvement loop, with durable messages and explicit interruption.
 - **Personal and team workspaces.** The active workspace determines which memory sources enter a prediction.
 - **Teammate Clones.** Clone Jun demonstrates a teammate's review style using clearly labeled synthetic, shared history.
 - **Goals and Inbox.** Persisted work and model-proposed next Goals in one web interface.
@@ -158,16 +156,16 @@ npm run clone:core:smoke
 
 Current verification status:
 
-| Layer                                                        | Evidence                                                                                                  |
-| ------------------------------------------------------------ | --------------------------------------------------------------------------------------------------------- |
-| QM runtime changes                                           | 61 targeted runtime tests passed during implementation.                                                   |
-| GBrain adapter                                               | 4 tests passed, including real PGLite retrieval, private/team isolation, and persistence after reopening. |
-| Memory code quality                                          | Strict TypeScript and ESLint checks passed.                                                               |
-| Frontend build and browser acceptance                        | Pending final integration verification.                                                                   |
-| Continuous loop, Stop, and workspace behavior in the browser | Pending end-to-end acceptance.                                                                            |
-| Final demo and Loom playback                                 | Pending recording and upload.                                                                             |
+| Layer                             | Evidence                                                                                                                                                                                                                |
+| --------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Automated checks                  | 77 tests passed in [Clone CI on main](https://github.com/cloneismin/clone-in-the-loop/actions/runs/36351789397): 62 QM runtime tests and 15 extension tests. Three additional keyboard regression tests passed locally. |
+| TypeScript, lint, and build       | Core and extension typechecks, extension ESLint, and the production web build passed.                                                                                                                                   |
+| Real execution                    | QM produced a sourced Research response and a Product command-line tool. The generated tool's three unit tests passed independently, and its CSV input produced real output.                                            |
+| Clone mode and Stop               | Observed six personal iterations and seven synthetic-Jun team iterations. Stop persisted the paused state without further continuation; saved personal work survived restart.                                           |
+| Prediction and workspace behavior | Real GBrain-backed predictions and Tab acceptance were observed. Independent delayed-response checks cover stale predictions and workspace navigation; long-text layout was checked with a synthetic browser fixture.   |
+| Final delivery                    | Final keyboard acceptance in the recorded build, complete movie playback, Loom upload, and submission receipt remain pending.                                                                                           |
 
-A passing unit test is not treated as proof of the complete product interaction. The final acceptance checklist is in the [build plan](docs/clone-in-the-loop-plan.md).
+The [verification record](docs/verification.md) separates CI, focused regression checks, observed browser behavior, and remaining acceptance. The [upstream QM proposal](https://github.com/yc-software/qm/pull/1671) is open and contains a text proposal under upstream contribution policy. The implementation is in this fork's `main` branch.
 
 ## Repository guide
 

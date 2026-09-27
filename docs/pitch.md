@@ -1,37 +1,37 @@
 # Presentation script
 
-Draft for the live demonstration. Keep the final wording aligned with verified behavior.
+Use the live application for the demonstration. The teammate is synthetic and labeled; personal and team memory stay separate.
 
 ## 30 seconds
 
-Agents can do the work. You still have to decide what comes next.
+Agents can do the work. You still decide what comes next.
 
-We built Clone-in-the-Loop on QM. Your Clone uses your past conversations in GBrain to predict your next instruction, review the agent's work, and keep improving it until you press Stop.
+Clone-in-the-Loop extends QM with your judgment. GBrain recalls relevant conversations. Your Clone predicts your next instruction, reviews the result, and keeps improving it.
 
-Switch to a team workspace, and you can bring a teammate's shared judgment into the loop.
+Press Tab once to accept. Press Tab twice to enable Clone mode. Stop whenever you want.
 
-QM executes. GBrain remembers. Your Clone decides what comes next.
+QM executes. GBrain remembers. Your Clone closes the loop.
 
 ## 60 seconds
 
-Every agent demo ends the same way: the agent finishes, and the human has to figure out what to ask next.
+The agent finishes. You still have to decide what to ask next.
 
-That human bottleneck is what we're working on.
+Clone-in-the-Loop puts that next decision inside QM. GBrain retrieves relevant conversations from your history. Your Clone uses that context to predict your next instruction.
 
-Clone-in-the-Loop extends QM with a model of your next decision. GBrain retrieves relevant examples from your past conversations. Your Clone uses them to predict the next instruction in your voice. Press Tab to accept it, or turn on Clone mode.
+Press Tab once to accept the prediction. Press Tab twice to enable Clone mode.
 
-Watch this: QM does the work. My Clone reviews the result, finds what is missing, and sends the next instruction. It keeps going until I press Stop.
+Now QM executes. Your Clone reviews the result, finds what is missing, and sends the next instruction. It keeps going until you press Stop.
 
-In a team workspace, I can select a teammate's Clone and use their shared context. Today's teammate is clearly labelled demo data; my personal history stays separate.
+This is real execution: QM researched primary sources and built a command-line tool whose tests we ran independently.
 
-We kept QM as the execution foundation and made GBrain part of the actual prediction path.
+In Company workspace, Clone Jun brings a teammate's shared context into the same workflow. Jun is a labeled demo persona; personal memory stays separate.
 
-The idea is simple: own your memory, preserve your judgment, and let your agents keep working.
+QM executes. GBrain remembers. Your Clone keeps your judgment in the loop.
 
 ## If asked what was built here
 
-We extended a QM source fork with the Clone interface, next-prompt prediction, a continuous review loop, scoped GBrain history retrieval, and a minimal team demonstration. We retain the upstream history and licenses. The repository documents setup, tested behavior, and remaining limitations.
+We extended a QM source fork with next-prompt prediction, Clone mode, scoped GBrain history retrieval, and a minimal team workflow. QM runs prediction, execution, and review turns. Official GBrain stores and retrieves the human-history evidence. The implementation is in the fork; the open upstream PR is a text proposal under QM's contribution policy.
 
 ## Demo cues
 
-Pause after the first sentence. Show a prediction and press Tab while explaining memory. Start Clone mode before saying “Watch this.” Point at the visible review and next instruction. Switch workspace once, show the demo teammate label, then end on Stop.
+Pause after the first sentence. Show a prediction and press Tab once while explaining memory. Press Tab a second time to enable Clone mode. Show a visible review and next instruction, then a concrete execution result. Switch workspace once, keep the demo teammate label visible, and end on Stop.

@@ -36,7 +36,7 @@ sequenceDiagram
   Core-->>Loop: Proposed instruction + run identity
   Loop->>Store: Persist prediction and provenance
   Loop-->>UI: Suggestion with original revision
-  Owner->>UI: Tab to accept, or enable Clone mode
+  Owner->>UI: Tab once to accept; Tab twice to enable Clone mode
   UI->>Loop: Execute accepted instruction
   Loop->>Core: Bounded execution turn
   Core-->>Loop: Result + run identity
@@ -54,7 +54,7 @@ sequenceDiagram
 
 Prediction and review are model turns routed through QM, not handwritten demo responses. Execution also routes through QM. It gets a bounded instruction and returns a concrete result before another iteration begins.
 
-The review response records whether the current step is complete. In the selected hackathon interaction, completing a step does not automatically disable Clone mode: the Clone chooses the next useful improvement toward the same Goal. The operator ends the continuous loop with Stop.
+The review response records whether the current step is complete. In the selected hackathon interaction, completing a step does not automatically disable Clone mode: the Clone chooses the next useful improvement toward the same Goal. The operator ends Clone mode with Stop.
 
 ## Durable state and interruption
 
@@ -69,7 +69,7 @@ In-memory controllers coordinate currently running operations. They are not the 
 
 Restart recovery reads persisted Goals, requests cancellation of any recorded active run, disables unfinished loops, and marks them paused. It preserves history and requires an explicit action to continue. It does not silently resume autonomous work after restart.
 
-These behaviors must also pass browser acceptance. Source structure and unit checks alone do not establish that Stop worked in the visible product.
+Browser checks observed Stop persisting a paused state with no later continuation, and a service restart preserving personal Goal history. The [verification record](verification.md) distinguishes those observations from automated lifecycle coverage.
 
 ## Real GBrain integration
 
@@ -140,13 +140,15 @@ Expanding this build beyond one trusted local operator requires a real identity 
 
 ## Verification boundary
 
-At this documentation checkpoint, 61 targeted QM runtime tests and four memory tests have passed. The memory integration test runs the official GBrain engine and verifies source isolation plus persistence after engine restart. The memory adapter also passes strict TypeScript and ESLint checks.
+The Clone CI workflow passed on `main` and the implementation branch: 62 targeted QM runtime tests and 15 extension tests. Three subsequent keyboard tests passed locally. Core and extension TypeScript checks, extension ESLint, and the production web build passed. GBrain coverage runs the official PGLite engine and checks source isolation, filtering, and persistence after reopening.
 
-Frontend build, full browser acceptance, continuous-loop cancellation, workspace switching, and final video playback remain separate verification gates. Update those claims only after exercising the actual terminal path. See the [acceptance checklist](clone-in-the-loop-plan.md) and [presentation script](pitch.md).
+Actual QM execution produced a Research answer with primary-source links and a checklist, then a Product command-line tool whose three generated tests passed under an independent run. The browser showed six personal Clone mode iterations and seven synthetic-Jun team iterations. Stop persisted a paused state, and saved personal work survived service restart.
+
+Independent review also exercised delayed workspace responses, draft preservation during navigation, keyboard arming, and project selection. Long multiline predictions were checked in an isolated browser fixture. These checks do not replace final keyboard acceptance in the recorded build. Final film playback, Loom delivery, and the submission receipt remain pending. See the [verification record](verification.md) for evidence boundaries.
 
 ## Upstream and extension boundaries
 
-The repository preserves QM's source history, license, and [original README](../README.qm.md). The Clone interface, decision loop, memory adapter, and local startup scripts are authored as the extension. GBrain is installed as a pinned upstream dependency, not copied into the application as a substitute engine. Private account history, generated artifacts, runtime databases, and review media stay out of Git.
+The repository preserves QM's source history, license, and [original README](../README.qm.md). The Clone interface, decision loop, memory adapter, and local startup scripts are authored as the extension. GBrain is installed as a pinned upstream dependency, not copied into the application as a substitute engine. Private account history, generated artifacts, runtime databases, and review media stay out of Git. The open [QM contribution proposal](https://github.com/yc-software/qm/pull/1671) contains only a text proposal, following upstream policy; the working implementation lives in this fork’s `main` branch.
 
 ## Hackathon demo provenance
 

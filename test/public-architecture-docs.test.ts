@@ -4,7 +4,7 @@ import test from "node:test";
 import { DEFAULT_AGENT_MODEL_ID } from "../src/model/pi-models.ts";
 
 const read = (path: string) => readFileSync(new URL(`../${path}`, import.meta.url), "utf8");
-const readme = read("README.md");
+const qmReadme = read("README.qm.md");
 const index = read("src/index.ts");
 const server = read("src/api/server.ts");
 const agentTools = read("src/harness/agent-tools.ts");
@@ -33,22 +33,22 @@ test(".env.example does not pin a base model that drifts from the shipped defaul
   if (pinned) assert.equal(pinned, DEFAULT_AGENT_MODEL_ID, "an active PI_MODEL pin must match the shipped default");
 });
 
-test("README describes the shipped Slack topology", () => {
+test("QM README describes the shipped Slack topology", () => {
   assert.match(index, /startSlackPlugin\(desired, built\.slackCore\)/);
-  assert.match(readme, /Slack is an optional in-process plugin that core starts\s+and supervises/);
-  assert.doesNotMatch(readme, /nothing in the core knows about Slack/);
+  assert.match(qmReadme, /Slack is an optional in-process plugin that core starts\s+and supervises/);
+  assert.doesNotMatch(qmReadme, /nothing in the core knows about Slack/);
 });
 
-test("README names the frameworks the shipped surfaces use", () => {
+test("QM README names the frameworks the shipped surfaces use", () => {
   assert.ok(rootPackage.dependencies.fastify);
   assert.ok(rootPackage.dependencies["@slack/bolt"]);
   assert.ok(webPackage.devDependencies.vite);
   assert.ok(webPackage.dependencies.lit);
   assert.match(webPackage.scripts.build ?? "", /vite build/);
   for (const framework of ["Fastify", "Bolt", "Vite", "Lit"]) {
-    assert.ok(readme.includes(framework), `README names ${framework}`);
+    assert.ok(qmReadme.includes(framework), `QM README names ${framework}`);
   }
-  assert.doesNotMatch(readme, /No build step, no framework/);
+  assert.doesNotMatch(qmReadme, /No build step, no framework/);
 });
 
 test("Strict posture describes its approval gate, exemptions, and direct-mutation boundary", () => {
