@@ -4,10 +4,10 @@ This record separates automated checks from observed product behavior. All times
 
 ## Automated checks
 
-- The latest completed Clone CI workflow passed on [main](https://github.com/cloneismin/clone-in-the-loop/actions/runs/36353746893) and the [implementation branch](https://github.com/cloneismin/clone-in-the-loop/actions/runs/36353744725) at `3280584cbd2661c1dbb1d161159e349f9d976c30`.
-- Those runs passed 82 tests: 62 targeted QM configuration and trusted-host filesystem tests, plus 20 extension tests covering official GBrain PGLite retrieval and persistence, personal/team source isolation, human-history filtering, Markdown structure, execution lifecycle failures, and keyboard shortcuts.
-- The subsequent local checkpoint passed 146 tests: 24 extension tests, 62 QM configuration and trusted-host tests, five documentation contract tests, and 55 Codex harness tests. These include the renamed teammate's stable identity, migration of existing synthetic records without changing private history or shared feedback, the cancellation regression described below, and conversational recall of quoted and mixed-language context. This total is a local result, not a completed CI result for that checkpoint.
-- Keyboard regressions cover one-Tab acceptance, second-Tab Clone mode activation, edited or cleared acceptance, held keys, and modified Tab.
+- The latest completed Clone CI workflow passed on [main](https://github.com/cloneismin/clone-in-the-loop/actions/runs/36354689566) and the [implementation branch](https://github.com/cloneismin/clone-in-the-loop/actions/runs/36354689917) at `8286a19105df798e481289cca783fc799594641c`.
+- Those runs passed 86 tests: 62 targeted QM configuration and trusted-host filesystem tests, plus 24 extension tests covering official GBrain PGLite retrieval and persistence, personal/team source isolation, human-history filtering, Markdown structure, execution lifecycle failures, and keyboard shortcuts.
+- Separate local checks passed 149 tests: 27 extension tests, 62 QM configuration and trusted-host tests, five documentation contract tests, and 55 Codex harness tests. These include the renamed teammate's stable identity, migration of existing synthetic records without changing private history or shared feedback, the cancellation regression described below, and conversational recall of quoted and mixed-language context. This total includes local-only Codex harness and documentation checks; it is not the CI test count.
+- Keyboard regressions cover one-Tab acceptance, second-Tab Clone mode activation, edited or cleared acceptance, held keys, and modified Tab. The extension suite includes three navigation tests for the four destinations, physical digit keys, modifier combinations, AltGraph, composition, repeat, and already-handled events.
 - Core and extension TypeScript checks, extension-wide ESLint, scoped Clone Knip, formatting, and the production web build passed. The inherited lint workflow now installs the Clone package before whole-repository Knip. Local whole-repository Knip remains limited by uninstalled upstream desktop and web-ui dependencies; those packages are installed in CI.
 - Independent review reproduced workspace navigation races, cancellation races, a failed-start retry problem, and a filesystem root-alias issue. Fixes were exercised with focused regressions or delayed-response fixtures.
 
@@ -24,7 +24,7 @@ This record separates automated checks from observed product behavior. All times
 
 ## Conversational recall
 
-A real GBrain regression reproduced missing teammate evidence when a draft contained quoted text. Official keyword search preserves quoted-phrase semantics and skips its OR fallback for operator queries; an exact learned-message hit can also prevent fallback. Automatic prediction, review, and Inbox recall now use bounded natural-language terms, with a non-CJK OR query and separate CJK literal queries. All requests keep their source allowlist. Real PGLite tests verify teammate evidence before and after storing an exact shared message, private-memory exclusion, deduplication, and mixed-language recall. Manual Memory search retains its original syntax.
+A real GBrain regression reproduced missing teammate evidence when a draft contained quoted text. Official keyword search preserves quoted-phrase semantics and skips its OR fallback for operator queries; an exact learned-message hit can also prevent fallback. Automatic prediction, review, and Inbox recall now use bounded natural-language terms, with a non-CJK OR query and separate CJK literal queries. All requests keep their source allowlist. Real PGLite tests verify teammate evidence before and after storing an exact shared message, private-memory exclusion, deduplication, and mixed-language recall. Manual Memory search retains its original syntax. Native readback after the repair showed five cited memory records on the quoted Garry launch-review prediction and three records on the Company home composer.
 
 ## Cancellation recovery
 
@@ -36,9 +36,11 @@ After a core restart at 14:49, both prior runs reached `done` with `stopped: tru
 
 The interface follows QM's system typography, neutral palette, sidebar proportions, chat layout, and composer structure. A synthetic browser fixture checked a 2,895-character prediction: the composer expanded to its viewport cap, the complete suggestion remained reachable by scrolling, controls stayed below the text, and Tab accepted the full text. This was a layout fixture, not a live provider run.
 
-An independent source-level integration check verified first-Tab focus and caret restoration, second distinct Tab starting Clone mode once, and repeat/modifier/Escape/edit resets. It also verified that Research sidebar → New goal submits to Research, and late personal Send or Clone mode responses preserve a newly selected team view and draft. These checks used delayed-response fixtures; the Marketing recording above subsequently exercised the real second-Tab path.
+An independent source-level integration check verified first-Tab focus and caret restoration, second distinct Tab starting Clone mode once, and repeat/modifier/Escape/edit resets. It also verified that Research sidebar → New submits to Research, and late personal Send or Clone mode responses preserve a newly selected team view and draft. These checks used delayed-response fixtures; the Marketing recording above subsequently exercised the real second-Tab path.
 
-Recording QA also exposed an initial project-picker display mismatch and a previously saved draft reappearing through New goal. Explicit New goal actions now start with a blank composer in the current project, and selected option markup matches the stored project on first render. A focused component-state check verified that existing Goal drafts and ordinary home/workspace draft recovery are preserved. This final refinement still requires native readback after the source update.
+Recording QA also exposed an initial project-picker display mismatch and a previously saved draft reappearing through New. Explicit New actions now start with a blank composer in the current project, and selected option markup matches the stored project on first render. A focused component-state check verified that existing Goal drafts and ordinary home/workspace draft recovery are preserved. Native Chrome readback confirmed the final New shortcut opens a blank focused composer. The earlier project-preservation behavior is covered by the component-state check.
+
+Native Chrome checks verified Cmd+Option+1/2/3/4 opens New/Sessions/Inbox/Memory, with matching sidebar labels and shortcut help. The same handler maps Ctrl+Alt+1/2/3/4 on Windows and Linux; those platforms have automated mapping coverage but were not exercised natively. The visible UI uses Sessions; internal Goal IDs, APIs, and database tables are unchanged.
 
 ## Upstream status
 
@@ -46,4 +48,4 @@ The [QM proposal](https://github.com/yc-software/qm/pull/1671) is open. It conta
 
 ## Remaining acceptance
 
-Native readback of the final New goal refinement, Clone Garry interaction in the recorded build, complete movie playback, the uploaded Loom playback link, and the submission receipt remain pending. No completed submission or verified final video is claimed.
+Complete movie playback, the uploaded Loom playback link, and the user's submission receipt remain pending. No completed submission or verified final video is claimed.

@@ -88,7 +88,7 @@ Before accepting the cut, check:
 - Prediction appears before Tab; Tab accepts it; Send is visibly real.
 - The hero loop shows an actual instruction, execution, review, specific correction, and improved result from the continuous source take.
 - Execution acceleration is consistently 20× and labeled. Review text remains readable.
-- Goals comes before Inbox; team switching uses a visible action; Garry's identity is clear, and narration discloses that its history is synthetic.
+- Sessions come before Inbox; team switching uses a visible action; Garry's identity is clear, and narration discloses that its history is synthetic.
 - GBrain evidence is English, truthful, and appropriate for sharing. Private records are not exposed accidentally.
 - The final model label, cursor, interaction cues, crop, timing, and narration agree with the recorded app.
 - Stop is visibly applied, and the closing prediction and Send occur before the black card.

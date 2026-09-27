@@ -20,14 +20,15 @@ const paths: Record<string, string> = {
   close: "m6 6 12 12M6 18 18 6",
   clock: "M12 7v5l3 2M22 12a10 10 0 1 1-20 0 10 10 0 0 1 20 0Z",
   link: "m10 13 4-4M8 16l-2 2a4 4 0 0 1-6-6l5-5a4 4 0 0 1 6 0m2 1 2-2a4 4 0 0 1 6 6l-5 5a4 4 0 0 1-6 0",
-  settings: "M12 8a4 4 0 1 0 0 8 4 4 0 0 0 0-8ZM9 2h6l1 4 4 1 2 5-3 3 1 4-5 3-3-3-4 1-3-5 3-3-1-4 2-1V2Z",
+  settings:
+    "M9.671 4.136a2.34 2.34 0 0 1 4.659 0 2.34 2.34 0 0 0 3.319 1.915 2.34 2.34 0 0 1 2.33 4.033 2.34 2.34 0 0 0 0 3.831 2.34 2.34 0 0 1-2.33 4.033 2.34 2.34 0 0 0-3.319 1.915 2.34 2.34 0 0 1-4.659 0 2.34 2.34 0 0 0-3.32-1.915 2.34 2.34 0 0 1-2.33-4.033 2.34 2.34 0 0 0 0-3.831A2.34 2.34 0 0 1 6.35 6.051a2.34 2.34 0 0 0 3.319-1.915",
   code: "m8 7-5 5 5 5m8-10 5 5-5 5m-5 3 2-16",
   book: "M12 6c-3-2-6-3-10-2v15c4-1 7 0 10 2m0-15c3-2 6-3 10-2v15c-4-1-7 0-10 2V6Z",
   external: "M14 3h7v7m0-7L10 14M10 3H3v18h18v-7",
 };
 
 export function icon(name: string, size = 18) {
-  return svg`<svg width=${size} height=${size} viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.65" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d=${paths[name] ?? paths.sparkle}></path></svg>`;
+  return svg`<svg width=${size} height=${size} viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.65" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d=${paths[name] ?? paths.sparkle}></path>${name === "settings" ? svg`<circle cx="12" cy="12" r="3"></circle>` : null}</svg>`;
 }
 
 export function brand(size = 29) {

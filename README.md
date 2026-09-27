@@ -4,7 +4,7 @@
 
 An AI-native founder should not have to write every follow-up, catch every missing detail, and keep restarting the same workflow. Clone-in-the-Loop extends [QM](https://github.com/yc-software/qm) with a personal decision loop, grounded in conversation history stored in [GBrain](https://github.com/garrytan/gbrain).
 
-Start with a Goal. Your Clone predicts the next instruction. Press **Tab once** to accept the prediction. Press **Tab twice** to enable **Clone mode**, which executes, reviews, and improves the work until you press **Stop**. Switch to a team workspace to explore a teammate's shared judgment, with every synthetic demo record labeled.
+Start a session from **New**. Your Clone predicts the next instruction. Press **Tab once** to accept the prediction. Press **Tab twice** to enable **Clone mode**, which executes, reviews, and improves the work until you press **Stop**. Switch to a team workspace to explore a teammate's shared judgment, with every synthetic demo record labeled.
 
 [Quickstart](#quickstart) · [How it works](#how-it-works) · [Architecture](docs/architecture-clone.md) · [Verification](docs/verification.md) · [Demo script](docs/pitch.md) · [Build plan](docs/clone-in-the-loop-plan.md) · [Upstream QM](README.qm.md)
 
@@ -13,9 +13,9 @@ Start with a Goal. Your Clone predicts the next instruction. Press **Tab once** 
 | Step         | What happens                                                                                        |
 | ------------ | --------------------------------------------------------------------------------------------------- |
 | **Remember** | GBrain retrieves relevant, source-scoped evidence from human chat history.                          |
-| **Predict**  | A Clone proposes the next instruction using the Goal, conversation, and retrieved evidence.         |
+| **Predict**  | A Clone proposes the next instruction using the session, conversation, and retrieved evidence.      |
 | **Execute**  | QM runs the instruction through its Codex harness and records the execution.                        |
-| **Review**   | The Clone examines the result against the Goal and remembered preferences.                          |
+| **Review**   | The Clone examines the result against the intended outcome and remembered preferences.              |
 | **Improve**  | It requests a correction or chooses the next useful improvement. Stop remains available throughout. |
 
 **Demo video:** recording and Loom upload pending. A verified playback link will be added here. The [90-second storyboard and production kit](demo/README.md) describe the fresh capture and review process.
@@ -26,7 +26,7 @@ Start with a Goal. Your Clone predicts the next instruction. Press **Tab once** 
 - **Clone mode.** A visible instruction → execution → review → improvement loop, with durable messages and explicit interruption.
 - **Personal and team workspaces.** The active workspace determines which memory sources enter a prediction.
 - **Teammate Clones.** Your pitch has adjectives. Clone Garry has questions. This synthetic Garry Tan demo persona uses fictional shared history to demonstrate teammate review.
-- **Goals and Inbox.** Persisted work and model-proposed next Goals in one web interface.
+- **Sessions and Inbox.** Persisted work and model-proposed next sessions in one web interface.
 - **Inspectable memory.** Source labels, excerpts, and demo markers travel with the predictions and reviews they inform.
 
 This repository is a **QM source fork**, preserving its upstream history and MIT license. The extension lives primarily in `plugins/clone-ui`, with a small runtime addition for explicitly trusted local execution. QM remains the execution foundation; GBrain is part of the actual retrieval path.
@@ -112,6 +112,17 @@ npm run clone:start
 
 Then open **[http://127.0.0.1:4318](http://127.0.0.1:4318)**.
 
+### Navigate and compose
+
+| Destination | macOS          | Windows / Linux |
+| ----------- | -------------- | --------------- |
+| New         | `Cmd+Option+1` | `Ctrl+Alt+1`    |
+| Sessions    | `Cmd+Option+2` | `Ctrl+Alt+2`    |
+| Inbox       | `Cmd+Option+3` | `Ctrl+Alt+3`    |
+| Memory      | `Cmd+Option+4` | `Ctrl+Alt+4`    |
+
+**New** opens a blank composer in the selected project. **Sessions** contains saved conversations and their progress. Press **Tab** to accept a suggestion, then **Tab** again to start Clone mode with that unchanged instruction. **Enter** sends; **Shift+Enter** adds a line; **Esc** dismisses the suggestion. The profile button opens the shortcut reference.
+
 ### Configuration
 
 | Variable          | Purpose                                                                              |
@@ -134,7 +145,7 @@ Runtime configuration, signing material, PostgreSQL data, and local working dire
 | **Garry / Team**     | The same team-shared scope, including Garry's synthetic demo history. |
 | **Garry / Personal** | Rejected. Garry cannot select Min's private source.                   |
 
-Switching to Team does not share imported personal history. A human message sent in a team Goal becomes shared feedback for that workspace. Clone Garry is a fictional demo persona inspired by Garry Tan. Its history is invented, with no actual Garry Tan conversations, participation, affiliation, or endorsement. Memory evidence retains its demo origin labels.
+Switching to Team does not share imported personal history. A human message sent in a team session becomes shared feedback for that workspace. Clone Garry is a fictional demo persona inspired by Garry Tan. Its history is invented, with no actual Garry Tan conversations, participation, affiliation, or endorsement. Memory evidence retains its demo origin labels.
 
 This build is for **one trusted local operator**. It has no production user authentication, multi-user authorization, or OS sandbox isolation. The trusted-host runtime can execute commands with the operator's local permissions. Memory source filtering is real and tested, but it is not a replacement for a production identity boundary. Keep this demo on loopback.
 
@@ -156,14 +167,14 @@ npm run clone:core:smoke
 
 Current verification status:
 
-| Layer                             | Evidence                                                                                                                                                                                                                    |
-| --------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Automated checks                  | 82 tests passed in [Clone CI on main](https://github.com/cloneismin/clone-in-the-loop/actions/runs/36353746893). The later local checkpoint passed 146 targeted runtime, extension, documentation, and Codex harness tests. |
-| TypeScript, lint, and build       | Core and extension typechecks, extension ESLint, and the production web build passed.                                                                                                                                       |
-| Real execution                    | QM produced a sourced Research response and a Product command-line tool. The generated tool's three unit tests passed independently, and its CSV input produced real output.                                                |
-| Clone mode and Stop               | Observed six personal iterations and seven synthetic-teammate iterations before the Garry persona update. Stop persisted the paused state without further continuation; saved personal work survived restart.               |
-| Prediction and workspace behavior | Real GBrain-backed predictions and Tab acceptance were observed. Independent delayed-response checks cover workspace navigation and draft preservation; long-text layout was checked with a synthetic browser fixture.      |
-| Final delivery                    | A recorded Marketing run exercised second-Tab Clone mode through seven iterations and Stop. Final movie playback, Loom upload, and submission receipt remain pending.                                                       |
+| Layer                             | Evidence                                                                                                                                                                                                               |
+| --------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Automated checks                  | 86 tests passed in [Clone CI on main](https://github.com/cloneismin/clone-in-the-loop/actions/runs/36354689566). Additional local checks cover Codex cancellation, documentation contracts, and navigation shortcuts.  |
+| TypeScript, lint, and build       | Core and extension typechecks, extension ESLint, and the production web build passed.                                                                                                                                  |
+| Real execution                    | QM produced a sourced Research response and a Product command-line tool. The generated tool's three unit tests passed independently, and its CSV input produced real output.                                           |
+| Clone mode and Stop               | Observed six personal iterations and seven synthetic-teammate iterations before the Garry persona update. Stop persisted the paused state without further continuation; saved personal work survived restart.          |
+| Prediction and workspace behavior | Real GBrain-backed predictions and Tab acceptance were observed. Independent delayed-response checks cover workspace navigation and draft preservation; long-text layout was checked with a synthetic browser fixture. |
+| Final delivery                    | A recorded Marketing run exercised second-Tab Clone mode through seven iterations and Stop. Final movie playback, Loom upload, and submission receipt remain pending.                                                  |
 
 The [verification record](docs/verification.md) separates CI, focused regression checks, observed browser behavior, and remaining acceptance. The [upstream QM proposal](https://github.com/yc-software/qm/pull/1671) is open and contains a text proposal under upstream contribution policy. The implementation is in this fork's `main` branch.
 
@@ -171,7 +182,7 @@ The [verification record](docs/verification.md) separates CI, focused regression
 
 | Path                                                               | Responsibility                                                                           |
 | ------------------------------------------------------------------ | ---------------------------------------------------------------------------------------- |
-| [`plugins/clone-ui/src`](plugins/clone-ui/src)                     | Lit interface, composer, Goals, Inbox, workspaces, and memory views.                     |
+| [`plugins/clone-ui/src`](plugins/clone-ui/src)                     | Lit interface, composer, Sessions, Inbox, workspaces, and memory views.                  |
 | [`plugins/clone-ui/server`](plugins/clone-ui/server)               | Goal API, PostgreSQL store, QM client, prediction prompts, and loop control.             |
 | [`plugins/clone-ui/server/memory`](plugins/clone-ui/server/memory) | Official GBrain setup, bounded history import, scoped retrieval, and synthetic fixtures. |
 | [`scripts/clone-runtime`](scripts/clone-runtime)                   | Reproducible trusted-local QM startup and smoke check.                                   |

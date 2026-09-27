@@ -24,7 +24,7 @@ It asks for a correction, then checks the improved result.
 
 It keeps going until you press Stop.
 
-Your Goals stay together.
+Your sessions stay together.
 
 Your Inbox suggests what to tackle next.
 

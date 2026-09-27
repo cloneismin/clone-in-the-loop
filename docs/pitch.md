@@ -34,4 +34,4 @@ We extended a QM source fork with next-prompt prediction, Clone mode, scoped GBr
 
 ## Demo cues
 
-Pause after the first sentence. Show a prediction and press Tab once while explaining memory. Press Tab a second time to enable Clone mode. Show a visible review and next instruction, then a concrete execution result. Switch workspace once, introduce Clone Garry as the fictional demo teammate, and end on Stop.
+Pause after the first sentence. Show a prediction and press Tab once while explaining memory. Press Tab a second time to enable Clone mode. Show a visible review and next instruction, then a concrete execution result. Open Sessions, then Inbox. Switch workspace once, introduce Clone Garry as the fictional demo teammate, and end on Stop. During a live presentation, Cmd+Option+1/2/3/4 opens New/Sessions/Inbox/Memory on macOS; use Ctrl+Alt+1/2/3/4 on Windows or Linux.

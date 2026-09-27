@@ -333,20 +333,6 @@ clone-app {
   margin-top: auto;
   padding-top: 20px;
 }
-.built-on {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  gap: 7px;
-  color: #adb0bd;
-  font-size: 9px;
-  margin: 13px 0 20px;
-}
-.built-on a {
-  font-size: 9px;
-  color: #8d93a4;
-  font-weight: 650;
-}
 .profile {
   display: flex;
   align-items: center;
@@ -2024,7 +2010,6 @@ clone-app {
   .project-nav,
   .teammates,
   .recent-goals,
-  .built-on,
   .profile > span:nth-child(2),
   .profile > svg {
     display: none;

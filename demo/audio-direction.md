@@ -33,7 +33,7 @@ Set the manifest's narration path to the replacement helper's output. Preserve b
 
 ## Pacing and music
 
-The PR line starts at 00:00.25, ambition at 00:03.60, Clone activation at 00:32.60, review at 00:44.20, correction at 00:50.40, and Stop at 00:56.35. Goals and Inbox follow at 01:01.70 and 01:06.40. “Own Your Clone” begins at 01:27.60 over the black title card.
+The PR line starts at 00:00.25, ambition at 00:03.60, Clone activation at 00:32.60, review at 00:44.20, correction at 00:50.40, and Stop at 00:56.35. Sessions and Inbox follow at 01:01.70 and 01:06.40. “Own Your Clone” begins at 01:27.60 over the black title card.
 
 The user-approved instrumental direction is continuous and restrained. The prepared 90-second bed is normalized to −28 LUFS and fades over the final three seconds. Its ignored receipt records source provenance and hashes. Set manifest music gain to 1 for this already attenuated bed; use a lower gain for an unprocessed source.
 

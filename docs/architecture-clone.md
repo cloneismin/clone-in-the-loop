@@ -2,20 +2,20 @@
 
 Clone-in-the-Loop adds a decision layer to QM. A Clone uses a Goal, its recent conversation, and retrieved human history to propose an instruction. QM executes it. The Clone reviews the result and selects the next correction or improvement.
 
-The product is a local web application with one real owner and one synthetic teammate persona. The browser interface and orchestration are the extension; the execution and memory engines are QM and official GBrain.
+The product is a local web application with one real owner and one synthetic teammate persona. The interface calls saved conversations **Sessions**; the existing `Goal` type, `/goals` API, and `goals` database table retain their implementation names. The browser interface and orchestration are the extension; the execution and memory engines are QM and official GBrain.
 
 ## Components
 
-| Component        | Implementation                                | Responsibility                                                                              |
-| ---------------- | --------------------------------------------- | ------------------------------------------------------------------------------------------- |
-| Browser          | Lit + Vite in `plugins/clone-ui/src`          | Goals, workspace selection, prediction acceptance, visible execution/review messages, Stop. |
-| Clone API        | Node.js in `plugins/clone-ui/server/index.ts` | Validates requests, scopes Goals, serves state and memory, starts or stops work.            |
-| Decision loop    | `server/loop.ts` and `server/prompts.ts`      | Predicts, executes, reviews, and selects the next instruction.                              |
-| Goal store       | `server/store.ts` + PostgreSQL                | Persists Goals, messages, predictions, and loop generations.                                |
-| QM adapter       | `server/qm.ts` + QM's shared chassis client   | Signs internal requests, starts real core turns, polls runs, and requests cancellation.     |
-| Execution engine | QM core + Codex harness                       | Runs model turns and bounded execution steps.                                               |
-| Memory adapter   | `server/memory`                               | Imports approved local human history, applies source scope, returns evidence.               |
-| Memory engine    | Official GBrain `PGLiteEngine`                | Owns schema, migrations, pages, chunks, indexes, and keyword retrieval.                     |
+| Component        | Implementation                                | Responsibility                                                                                 |
+| ---------------- | --------------------------------------------- | ---------------------------------------------------------------------------------------------- |
+| Browser          | Lit + Vite in `plugins/clone-ui/src`          | Sessions, workspace selection, prediction acceptance, visible execution/review messages, Stop. |
+| Clone API        | Node.js in `plugins/clone-ui/server/index.ts` | Validates requests, scopes Goals, serves state and memory, starts or stops work.               |
+| Decision loop    | `server/loop.ts` and `server/prompts.ts`      | Predicts, executes, reviews, and selects the next instruction.                                 |
+| Goal store       | `server/store.ts` + PostgreSQL                | Persists Goals, messages, predictions, and loop generations.                                   |
+| QM adapter       | `server/qm.ts` + QM's shared chassis client   | Signs internal requests, starts real core turns, polls runs, and requests cancellation.        |
+| Execution engine | QM core + Codex harness                       | Runs model turns and bounded execution steps.                                                  |
+| Memory adapter   | `server/memory`                               | Imports approved local human history, applies source scope, returns evidence.                  |
+| Memory engine    | Official GBrain `PGLiteEngine`                | Owns schema, migrations, pages, chunks, indexes, and keyword retrieval.                        |
 
 ## One loop iteration
 
@@ -142,11 +142,11 @@ Expanding this build beyond one trusted local operator requires a real identity 
 
 ## Verification boundary
 
-The Clone CI workflow passed on `main` and the implementation branch with 82 tests at the recorded revision. The later local checkpoint passed 146 focused tests across the extension, QM runtime configuration, filesystem confinement, documentation contracts, and Codex harness. Core and extension TypeScript checks, extension ESLint, scoped Clone Knip, and the production web build passed. GBrain coverage runs the official PGLite engine and checks source isolation, filtering, persistence after reopening, and migration of the synthetic teammate's display name without changing private or shared feedback.
+The Clone CI workflow passed on `main` and the implementation branch with 86 tests at the recorded revision. The later local checkpoint passed 149 focused tests across the extension, QM runtime configuration, filesystem confinement, documentation contracts, and Codex harness. Core and extension TypeScript checks, extension ESLint, scoped Clone Knip, and the production web build passed. GBrain coverage runs the official PGLite engine and checks source isolation, filtering, persistence after reopening, and migration of the synthetic teammate's display name without changing private or shared feedback.
 
 Actual QM execution produced a Research answer with primary-source links and a checklist, then a Product command-line tool whose three generated tests passed under an independent run. The browser showed six personal Clone mode iterations and seven synthetic-teammate iterations before the Garry persona update. Stop persisted a paused state, and saved personal work survived service restart.
 
-Independent review also exercised delayed workspace responses, draft preservation during navigation, keyboard arming, and project selection. Long multiline predictions were checked in an isolated browser fixture. A recorded Marketing run subsequently exercised second-Tab Clone mode through seven iterations and Stop. Final film playback, Loom delivery, and the submission receipt remain pending. See the [verification record](verification.md) for evidence boundaries.
+Independent review also exercised delayed workspace responses, draft preservation during navigation, keyboard arming, and project selection. Long multiline predictions were checked in an isolated browser fixture. A recorded Marketing run subsequently exercised second-Tab Clone mode through seven iterations and Stop. Native Chrome checks also verified all four navigation shortcuts: Cmd+Option+1 for New, 2 for Sessions, 3 for Inbox, and 4 for Memory. Windows and Linux use Ctrl+Alt with the same digits. Final film playback, Loom delivery, and the submission receipt remain pending. See the [verification record](verification.md) for evidence boundaries.
 
 ## Upstream and extension boundaries
 

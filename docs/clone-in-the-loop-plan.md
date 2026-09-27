@@ -36,7 +36,7 @@ All times are September 27, 2026, America/Los_Angeles. Confirmed event deadline:
 2. Add scoped GBrain ingestion and retrieval with source receipts. Separate owner-private memory from team-shared memory and synthetic teammate evidence.
 3. Add next-prompt prediction with draft revision protection, ghost text, Tab acceptance, Escape dismissal, and explicit manual Send.
 4. Add a durable Clone loop: predict instruction, execute, review, correct or improve, repeat. Press Tab twice to enable Clone mode; Stop aborts and prevents queued continuations. Preserve the actor and Clone identity on each message.
-5. Provide personal/team workspace switching, teammate Clone selection, Goals and Inbox projections, and inspectable memory citations.
+5. Provide personal/team workspace switching, teammate Clone selection, Sessions and Inbox views, and inspectable memory citations.
 6. Run browser acceptance, package reproducible setup, record real interaction, and complete the submission fields.
 
 ## Acceptance evidence
@@ -52,7 +52,7 @@ All times are September 27, 2026, America/Los_Angeles. Confirmed event deadline:
 
 ## Demo direction
 
-Approximately 90 seconds, following the referenced Demo Video task: blinking cursor and ambition; Tab prediction; Research, Product, and Marketing workflow examples; Clone mode with review and correction; Goals followed by Inbox; team workspace and teammate Clone; GBrain memory evidence; closing prediction and send. Use full-app framing by default, selective composer zoom, visible key cues, deliberate navigation, and a consistent speed indicator for accelerated execution.
+Approximately 90 seconds, following the referenced Demo Video task: blinking cursor and ambition; Tab prediction; Research, Product, and Marketing workflow examples; Clone mode with review and correction; Sessions followed by Inbox; team workspace and teammate Clone; GBrain memory evidence; closing prediction and send. Use full-app framing by default, selective composer zoom, visible key cues, deliberate navigation, and a consistent speed indicator for accelerated execution.
 
 ## Submission
 
@@ -65,4 +65,4 @@ Approximately 90 seconds, following the referenced Demo Video task: blinking cur
 
 ## Status
 
-Interview and implementation are complete. The fork preserves QM upstream `a5a36675041a85e30b9ff3632f678ba36837aabf`. Real QM execution, GBrain-backed prediction, personal and synthetic-teammate Clone mode, durable Stop, and restart persistence have been exercised. CI and focused regression checks passed as recorded in [verification](verification.md). The upstream PR is an open text proposal; implementation lives in the fork. Final recording-build keyboard acceptance, full video playback, Loom upload, and submission remain pending.
+Interview and implementation are complete. The fork preserves QM upstream `a5a36675041a85e30b9ff3632f678ba36837aabf`. Real QM execution, GBrain-backed prediction, personal and synthetic-teammate Clone mode, durable Stop, and restart persistence have been exercised. CI and focused regression checks passed as recorded in [verification](verification.md). The upstream PR is an open text proposal; implementation lives in the fork. Final recording-build keyboard acceptance passed for New, Sessions, Inbox, and Memory navigation. Full video playback, Loom upload, and the user's submission remain pending.
