@@ -406,6 +406,24 @@ select {
   gap: 7px;
 }
 
+.composer-clone-controls {
+  display: flex;
+  align-items: center;
+  flex: 0 0 auto;
+  gap: 2px;
+}
+
+.avatar > img {
+  display: block;
+  object-fit: cover;
+  object-position: center;
+}
+
+.avatar > img[src="/avatars/min.png"] {
+  transform: scale(1.65);
+  transform-origin: 50% 16%;
+}
+
 .composer-actions .model-label {
   display: inline-flex;
   white-space: nowrap;
@@ -431,6 +449,7 @@ select {
   min-height: 28px;
   padding: 4px;
   flex-shrink: 0;
+  gap: 5px;
 }
 
 .loop-toggle[aria-checked="true"] {
@@ -874,6 +893,9 @@ kbd {
     max-width: 90%;
   }
   .composer-controls {
+    flex-wrap: wrap;
+  }
+  .composer-left {
     flex-wrap: wrap;
   }
   .composer-actions {

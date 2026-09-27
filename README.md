@@ -121,7 +121,7 @@ Then open **[http://127.0.0.1:4318](http://127.0.0.1:4318)**.
 | Inbox       | `Cmd+Option+3` | `Ctrl+Alt+3`    |
 | Memory      | `Cmd+Option+4` | `Ctrl+Alt+4`    |
 
-**New** opens a blank composer in the selected project. **Sessions** contains saved conversations and their progress. Press **Tab** to accept a suggestion, then **Tab** again to start Clone mode with that unchanged instruction. The composer also has a **Clone mode** switch. The composer border glows blue while Clone mode is on; turning the switch off or pressing the square **Stop** control stops the loop. **Enter** sends; **Shift+Enter** adds a line; **Esc** dismisses the suggestion. The profile button opens the shortcut reference.
+**New** opens a blank composer in the selected project. **Sessions** contains saved conversations and their progress. Press **Tab** to accept a suggestion, then **Tab** again to start Clone mode with that unchanged instruction. The composer also has a **Clone** switch. The composer border glows blue while Clone mode is on; turning the switch off or pressing the square **Stop** control stops the loop. **Enter** sends; **Shift+Enter** adds a line; **Esc** dismisses the suggestion. The profile button opens the shortcut reference.
 
 ### Configuration
 

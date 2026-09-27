@@ -119,6 +119,7 @@ class CloneApp extends LitElement {
   private lastPredictionContext = "";
   private navigationRevision = 0;
   private operationRevision = 0;
+  private failedAvatars = new Set<string>();
 
   protected createRenderRoot() {
     return this;
@@ -582,10 +583,22 @@ class CloneApp extends LitElement {
   }
 
   private avatar(clone: Clone | undefined, small = false) {
+    const avatar = clone?.avatar;
     return html`<span
       class="avatar ${small ? "small" : ""} ${clone?.demo ? "teammate-avatar" : ""}"
       style=${clone?.color ? `--avatar-color:${clone.color}` : ""}
-      >${clone?.avatar ? html`<img src=${clone.avatar} alt="" />` : personName(clone).charAt(0)}</span
+      >${
+        avatar && !this.failedAvatars.has(avatar)
+          ? html`<img
+              src=${avatar}
+              alt=""
+              @error=${() => {
+                this.failedAvatars.add(avatar);
+                this.requestUpdate();
+              }}
+            />`
+          : personName(clone).charAt(0)
+      }</span
     >`;
   }
 
@@ -769,9 +782,9 @@ class CloneApp extends LitElement {
     const hasInstruction = !!this.active || !!this.draft.trim() || !!this.prediction?.text;
     const toggleDisabled =
       this.pending || this.booting || stopping || (!this.loopOn && (this.working || !hasInstruction));
-    let toggleTitle = this.loopOn ? "Turn off Clone mode" : "Turn on Clone mode";
-    if (!this.loopOn && this.working) toggleTitle = "Stop the current run to enable Clone mode";
-    else if (!hasInstruction) toggleTitle = "Add direction to enable Clone mode";
+    let toggleTitle = this.loopOn ? "Turn off Clone" : "Turn on Clone";
+    if (!this.loopOn && this.working) toggleTitle = "Stop the current run to enable Clone";
+    else if (!hasInstruction) toggleTitle = "Add direction to enable Clone";
     let placeholder = "Ask anything";
     if (stopping) placeholder = "Stopping…";
     else if (active) placeholder = "Press Stop to add direction…";
@@ -809,17 +822,23 @@ class CloneApp extends LitElement {
         </div>
         <div class="composer-controls">
           <div class="composer-left">
-            ${this.clonePicker()}<button
-              class="loop-toggle"
-              role="switch"
-              aria-label="Clone mode"
-              aria-checked=${String(this.loopOn)}
-              title=${toggleTitle}
-              @click=${() => this.toggleLoop(!this.loopOn)}
-              ?disabled=${toggleDisabled}
-            >
-              <span class="loop-switch-track" aria-hidden="true"></span></button
-            >${
+            <div class="composer-clone-controls">
+              ${this.workspace === "team" ? this.clonePicker() : nothing}<button
+                class="loop-toggle"
+                role="switch"
+                aria-label="Clone"
+                aria-checked=${String(this.loopOn)}
+                title=${toggleTitle}
+                @click=${() => this.toggleLoop(!this.loopOn)}
+                ?disabled=${toggleDisabled}
+              >
+                ${this.workspace === "personal" ? html`<span>Clone</span>` : nothing}<span
+                  class="loop-switch-track"
+                  aria-hidden="true"
+                ></span>
+              </button>
+            </div>
+            ${
               home
                 ? html`<label class="project-select"
                     >${this.projectDot(this.selectedProject)}<select
@@ -874,7 +893,7 @@ class CloneApp extends LitElement {
       if (this.active?.goal.phase === "stopping") phase = "Stopping";
       else if (/review/.test(this.active?.goal.phase ?? "")) phase = "Reviewing";
       else if (/predict|plan/.test(this.active?.goal.phase ?? "")) phase = "Choosing the next step";
-      return html`${icon("loop", 12)}Clone mode · ${phase}`;
+      return html`${icon("loop", 12)}Clone · ${phase}`;
     }
     if (this.working) return nothing;
     if (this.acceptedPrediction === this.draft && this.acceptedPrediction)
@@ -899,9 +918,9 @@ class CloneApp extends LitElement {
   private shortcutHint() {
     if (this.loopOn || this.working) return nothing;
     if (this.acceptedPrediction === this.draft && this.acceptedPrediction)
-      return html`<kbd>Tab</kbd> again: Clone mode <span class="hint-divider">·</span> <kbd>↵</kbd> send`;
+      return html`<kbd>Tab</kbd> again: Clone <span class="hint-divider">·</span> <kbd>↵</kbd> send`;
     if (this.prediction?.text)
-      return html`<kbd>Tab</kbd> once: accept <span class="hint-divider">·</span> <kbd>Tab</kbd> twice: Clone mode
+      return html`<kbd>Tab</kbd> once: accept <span class="hint-divider">·</span> <kbd>Tab</kbd> twice: Clone
         <span class="hint-divider">·</span> <kbd>Esc</kbd> dismiss`;
     return html`<kbd>↵</kbd> send <span class="hint-divider">·</span> <kbd>Shift ↵</kbd> new line`;
   }
@@ -1261,9 +1280,9 @@ class CloneApp extends LitElement {
               <h3>Keep your flow.</h3>
               ${navigationItems.map((item) => html`<p><kbd>${navigationShortcutHint(item.digit, this.isMac)}</kbd><span>${item.label}</span></p>`)}
               <p><kbd>Tab</kbd><span>Press once to accept the prediction</span></p>
-              <p><kbd>Tab</kbd><kbd>Tab</kbd><span>Press twice to enable Clone mode</span></p>
+              <p><kbd>Tab</kbd><kbd>Tab</kbd><span>Press twice to enable Clone</span></p>
               <p><kbd>Esc</kbd><span>Dismiss a suggestion</span></p>
-              <small>Clone mode continues until you press Stop.</small>
+              <small>Clone continues until you press Stop.</small>
             </div>`
           : nothing
       }
