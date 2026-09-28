@@ -2,84 +2,84 @@
 
 **Your agent does the work. Your Clone decides what comes next.**
 
-Use one complete review-and-correction sequence as the central demonstration. The scripts below are delivery targets, not timed voice recordings. Clone Garry is a fictional demo teammate with invented history.
+Build the demo around one complete review-and-correction sequence. The durations below are speaking targets, not measured recordings. Clone Garry is a fictional teammate whose history was created for the demo.
 
 ## 30 seconds
 
-Your agent does the work. You still supply every next decision.
+Your agent does the work. You still have to decide what comes next.
 
-Clone-in-the-Loop puts your past judgment to work. GBrain recalls your instructions and feedback. Your Clone predicts what you would ask next. QM executes, and your Clone reviews the result and requests the next correction.
+Clone-in-the-Loop uses your past instructions and feedback to help make that decision. GBrain retrieves the context, your Clone suggests the next instruction, and QM carries it out. Your Clone then reviews the result and asks for a correction.
 
-Tab accepts the suggestion. Tab again delegates the loop. Stop returns control to you.
+Press Tab to accept a suggestion, Tab again to let the loop continue, and Stop to take control back.
 
 QM executes. GBrain remembers. Your Clone keeps your judgment in the loop.
 
 ## 60 seconds
 
-What would it mean to own the judgment behind your work?
+What if your past feedback could guide your agent's next step?
 
-Founders direct agents across research, product, and marketing. They still write the follow-up, catch the missing detail, and start the next round.
+Founders use agents across research, product, and marketing, but they still have to write the follow-up, catch the missing detail, and start the next round.
 
-We extended QM and GBrain around that person. GBrain retrieves your past instructions and feedback. Your Clone predicts the next instruction you would give. QM executes it; your Clone reviews the result and directs the correction.
+We built Clone-in-the-Loop for that person. GBrain retrieves your past instructions and feedback so your Clone can suggest what you would ask next. QM carries out the instruction, and your Clone reviews the result and asks for any changes.
 
-Tab once accepts the suggestion. Tab again delegates the loop. Stop returns control to you.
+Press Tab to accept a suggestion, Tab again to let the loop continue, and Stop to take control back.
 
-In our launch-review workflow, the Clone caught a repeated call to action. QM revised the post. We inspected the artifact: 50 words, one call to action, and a publication checklist. Stop left the Goal paused.
+In our launch-review workflow, the Clone caught a repeated call to action and asked QM to revise the post. We checked the saved result: 50 words, one call to action, and a publication checklist. Pressing Stop left the Goal paused.
 
-Team context extends the same idea to shared judgment. Clone Garry demonstrates it with fictional history, separate from personal records.
+Shared team feedback can guide the same loop. Clone Garry demonstrates that idea using fictional history, kept separate from personal records.
 
 QM executes. GBrain remembers. Your Clone keeps your judgment in the loop.
 
 ## Demo cues
 
-| Moment  | Show                                                    | Say                                                                  |
-| ------- | ------------------------------------------------------- | -------------------------------------------------------------------- |
-| Context | A next-prompt suggestion and its memory evidence        | "This is the context behind the next instruction."                   |
-| Control | Tab once, then a second distinct Tab                    | "First I accept. Then I let my Clone continue."                      |
-| Review  | A concrete missing item, correction, and changed result | "The next decision is the product."                                  |
-| Proof   | Inspect the generated template and its approval gate    | "Here is what the agent actually changed."                           |
-| Stop    | Square Stop or the Clone switch; paused state           | "I can take control back."                                           |
-| Team    | Company workspace, Clone Garry, shared evidence         | "A fictional teammate shows how shared judgment changes the review." |
+| Moment  | Show                                                        | Say                                                                  |
+| ------- | ----------------------------------------------------------- | -------------------------------------------------------------------- |
+| Context | A next-prompt suggestion and its memory evidence            | "This is the context behind the next instruction."                   |
+| Control | Tab once, then a second distinct Tab                        | "First I accept. Then I let my Clone continue."                      |
+| Review  | A missing item, a request to fix it, and the revised result | "The Clone spotted what was missing and asked QM to fix it."         |
+| Proof   | Open the generated template and its approval checklist      | "Here is what the agent actually changed."                           |
+| Stop    | Square Stop or the Clone switch; paused state               | "I can take control back."                                           |
+| Team    | Company workspace, Clone Garry, shared evidence             | "A fictional teammate shows how shared judgment changes the review." |
 
-Keep the product story first and the upstream PR as a brief closing bonus after the product logo. Use current UI captures and genuine action cues. Keep selected source footage at 1×, with the review, correction, and changed artifact legible. Do not replace the existing narration solely to match these live scripts.
+Keep the product story at the center of the demo, then briefly show the upstream PR after the closing logo. Use current app footage and mark only actions that actually occurred. Keep selected source footage at 1×, and leave enough time to read the review, requested correction, and revised result. These scripts are for live delivery; they do not require changes to the video's narration.
 
 ## Short Q&A
 
 **Why does this fit the hackathon?**
 
-It connects the event's themes in one working workflow: a source extension of QM, official GBrain retrieval that informs instructions and reviews, a Tab-driven delegation interface, and an experiment in shared team judgment. Research, Product, and Marketing use the same loop, with saved work and progress visible in Goals.
+It brings several of the event's themes into one working prototype. We extended QM, used the official GBrain engine to inform predictions and reviews, and added a simple interface for delegating the next step. Personal and shared team context support recurring Research, Product, and Marketing work, with saved conversations and progress visible in Goals.
 
 **What is distinctive about Clone?**
 
-We focus on the person directing the agents. Their past instructions and feedback inform the next prompt, the review, and the correction. The contribution is that personal decision loop: memory informs what to ask, execution produces a result, and review directs the next action. One Tab accepts a suggestion; a second Tab delegates the loop. The prototype uses retrieved history rather than training new model weights.
+We focus on the person directing the agents. Their past instructions and feedback help determine what to ask next and what to change in the result. The Clone connects those decisions: it suggests an instruction, reviews what QM produces, and requests the next correction. You can accept a suggestion with Tab or let the loop continue with a second Tab. The prototype personalizes this process through retrieved history; it does not train new model weights.
 
 **What did you build?**
 
-A source extension of QM: next-prompt prediction, a continuous instruction/execution/review loop, personal and team memory scopes, teammate selection, and a compact web interface. QM supplies real model turns and execution; the implementation is in this fork.
+We built a QM extension with next-prompt prediction, a continuous instruction-and-review loop, personal and team memory scopes, and teammate selection in a compact web interface. QM handles the model turns and execution. The working implementation is available in this fork.
 
 **How is GBrain used?**
 
-The official GBrain PGLite engine stores and retrieves imported human messages and shared records. Automatic recall uses bounded keyword queries with source allowlists. Retrieved excerpts enter prediction and review prompts and appear as inspectable evidence. Hosted federation and semantic vector retrieval are outside this build.
+The official GBrain PGLite engine stores imported user messages and shared feedback. Before each prediction or review, the app retrieves relevant excerpts using bounded keyword queries restricted to the permitted sources. Those excerpts provide context for the model and appear in the interface so you can inspect them. This build does not use hosted federation or semantic vector search.
 
 **What proves the loop is real?**
 
-Recorded QM runs produced reviews, corrections, and actual files. In the launch task, the Clone caught a repeated call to action, requested tighter wording and specific sources, and strengthened the review checklist. We inspected that template and separately verified Stop left the session paused with no active run. A Product task also generated a command-line tool whose three tests passed independently.
+Recorded QM runs produced reviews, corrections, and files. In the launch task, the Clone caught a repeated call to action, requested tighter wording and specific sources, and asked for a stronger review checklist. We opened the saved template to check the changes, then separately confirmed that Stop left the session paused with no active run. A Product task also generated a command-line tool whose three tests passed when run independently.
 
 **How private is the memory?**
 
-Imported history is stored locally, and team retrieval excludes personal sources. Relevant excerpts are sent to the configured model provider for inference. This is a trusted local prototype with one operator, not a production multi-user isolation system.
+Imported history is stored locally, and team retrieval excludes personal sources. Relevant excerpts are sent to the configured model provider for prediction and review. The prototype is intended for one trusted local operator. A production team deployment would require additional authentication and access controls.
 
 **Is Clone Garry the real Garry?**
 
-Clone Garry is a fictional demo teammate with invented shared history. It demonstrates how a teammate's review preferences can guide the loop.
+No. Clone Garry is a fictional demo teammate with invented shared history. It shows how a teammate's review preferences could guide the loop.
 
 **Why keep looping after one task is complete?**
 
-The Clone proposes the next useful improvement within the current session. The operator can turn Clone off or press Stop. The generated publication template still requires verification and explicit approval; it does not claim those steps have happened.
+Completing one step can reveal another useful improvement toward the same Goal, so Clone mode continues until you turn it off or press Stop. In the launch example, the generated publication template still required verification and explicit approval before publication.
 
 **What is the upstream status?**
 
-The working code is in the public QM fork. The open Upstream QM PR contains a short text proposal under the contribution policy. It has not been merged or accepted upstream.
+The working code is on this public fork's `main` branch. Following QM's contribution policy, the upstream PR contains a short text proposal. It remains open and has not been accepted or merged upstream.
 
 ## Links for judges
 

@@ -1,45 +1,45 @@
 # Presentation strategy
 
-## The message to carry through every surface
+## The central message
 
 **QM executes. GBrain remembers. Your Clone keeps your judgment in the loop.**
 
-The distinctive idea is to focus on the person directing the agents. Their past instructions and feedback inform what to ask next, what to correct, and how to continue. The demo should make that judgment visible in a changed result.
+Clone focuses on the person directing the agents. Their past instructions and feedback help it decide what to ask next, what to correct, and how to continue. The clearest way to show this is to follow a review through to a changed result.
 
-| Point to emphasize                              | Concrete support                                                                                                                                                                              |
-| ----------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| **Extend the hackathon's foundations**          | Real QM turns and tools execute the work; official GBrain retrieval supplies scoped context for prediction and review.                                                                        |
-| **Put personal judgment to work**               | A Clone proposes the next human-side instruction, reviews the response against the Goal and remembered preferences, and sends a correction back to QM.                                        |
-| **Make delegation a simple interaction**        | **Tab → Tab → Stop** moves from accepting a suggestion to delegating the loop and taking control back. Persisted messages make the sequence inspectable.                                      |
-| **Explore shared judgment and repeatable work** | Personal/team scopes and a fictional teammate demonstrate the team interaction. Research, Product, and Marketing use the same loop; the launch-review template is a concrete reusable output. |
+| Point to emphasize                             | Concrete support                                                                                                                                                                                       |
+| ---------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| **Build on the hackathon's foundations**       | QM runs the model turns and tools, while official GBrain retrieval provides context for prediction and review.                                                                                         |
+| **Put personal judgment to work**              | A Clone suggests the instruction a person might give next, reviews the response against the Goal and past feedback, and asks QM for a correction.                                                      |
+| **Make delegation simple**                     | **Tab → Tab → Stop** lets a user accept a suggestion, delegate the cycle, and take control back. Saved messages make each step available for review.                                                   |
+| **Explore shared judgment and recurring work** | Separate personal and team memory scopes support a demo with a fictional teammate. The same loop works across Research, Product, and Marketing, with a reusable launch-review template as one example. |
 
-Use the [README](../README.md#what-makes-clone-different) for the contribution and implementation, the [loop diagram](assets/clone-decision-loop.svg) for the mechanism, and the [30-second and 60-second scripts](pitch.md) for delivery. The upstream proposal should stay short and point readers to the runnable fork and demo.
+The [README](../README.md#what-makes-clone-different) explains the contribution and implementation, the [loop diagram](assets/clone-decision-loop.svg) shows how the pieces connect, and the [30-second and 60-second scripts](pitch.md) provide speaking versions. Keep the upstream proposal brief and link to the working fork and demo for more detail.
 
 ## What the official pages establish
 
-The [official event page](https://events.ycombinator.com/gstack-qm-river-memorable-hackathon), checked September 27, 2026, emphasizes extensions to QM and GBrain, new agent workflows and interfaces, multiplayer and software-factory ideas, and work that is ambitious, useful, or unexpected. Projects are due at 5:00 PM Pacific; judging follows from 5:00 to 5:45 PM.
+When checked on September 27, 2026, the [official event page](https://events.ycombinator.com/gstack-qm-river-memorable-hackathon) encouraged extensions to QM and GBrain, new agent workflows and interfaces, and multiplayer and software-factory ideas. It also welcomed ambitious, useful, or unexpected projects. The listed deadline was 5:00 PM Pacific, followed by judging from 5:00 to 5:45 PM.
 
-The [official submission form](https://docs.google.com/forms/d/e/1FAIpQLSdiU5L7PhlkD7HQQouQKPSlm7WrobkdJuvSZLoi6O7jXRWKiQ/viewform) requires a project description, GitHub URL, demo video URL, and team/contact information. It also provides side-quest selections and an optional note to judges.
+The [official submission form](https://docs.google.com/forms/d/e/1FAIpQLSdiU5L7PhlkD7HQQouQKPSlm7WrobkdJuvSZLoi6O7jXRWKiQ/viewform) asks for a project description, GitHub and demo video URLs, and team contact details. It also includes side-quest selections and an optional note to the judges.
 
-Neither inspected public page supplies weighted scoring criteria or a prize-specific evaluation rubric. The priorities below are our interpretation of the event's stated purpose, not official judging rules or a prediction of an award.
+Neither page provided weighted scoring criteria or a rubric for individual prizes. The priorities below reflect our reading of the event's purpose, rather than official judging rules or a prediction about awards.
 
 ## The strongest case this build can make
 
-| Presentation priority                | Evidence to show                                                                                               |
-| ------------------------------------ | -------------------------------------------------------------------------------------------------------------- |
-| Extend the actual foundation         | The preserved QM source fork, live QM turns, an inspected generated file, and the reproducible quickstart.     |
-| Make memory affect the next decision | A prediction or review with relevant official GBrain evidence, followed by opening a cited source.             |
-| Show a complete new workflow         | One uninterrupted intent, prediction, execution, specific review, correction, and stopped state.               |
-| Make team judgment concrete          | Shared-source retrieval through Clone Garry, clearly identified as a fictional teammate with invented history. |
-| Connect the demo to repeatable work  | Research, Product, and Marketing sessions plus a reusable launch-review template.                              |
+| Presentation priority              | Evidence to show                                                                                             |
+| ---------------------------------- | ------------------------------------------------------------------------------------------------------------ |
+| Build on QM                        | Show the source fork, a real QM run, its generated file, and the instructions for reproducing it.            |
+| Show how memory affects a decision | Show a prediction or review alongside relevant GBrain evidence, then open one of its cited sources.          |
+| Demonstrate the complete workflow  | Follow one session from the initial request through prediction, execution, review, correction, and Stop.     |
+| Make team context concrete         | Show how Clone Garry retrieves shared history, making clear that the teammate and its history are fictional. |
+| Connect the demo to recurring work | Show Research, Product, and Marketing sessions and the reusable launch-review template.                      |
 
-Lead with the review that changes an outcome. The useful distinction is that memory informs the next instruction and the review, while QM performs the work. A list of integrations or attractive chat output alone does not demonstrate that loop.
+Lead with a review that changes the result. Explain how memory guides the next instruction and review, then show QM carrying out the requested change. That sequence makes the contribution easier to understand than a list of integrations or an isolated chat response.
 
-## Tighten the presentation without destabilizing the build
+## Prepare the final presentation
 
 1. Freeze the current product controls and profile assets before final capture.
-2. Keep the memory source, missing-item review, changed artifact, and Stop visible. Use only recorded action cues and mark accelerated execution.
-3. Use the 30-second script for the premise and the 60-second script for the proof. Keep implementation details for Q&A.
-4. Finish the local playback and uploaded playback checks before replacing any pending-video claim. Keep the user's form submission separate from link preparation.
+2. Keep the memory source, review, revised artifact, and Stop visible. Show input cues only for actions that occurred, and label accelerated footage.
+3. Use the 30-second script to introduce the idea or the 60-second script to include a concrete example. Save implementation details for Q&A.
+4. Watch both the local video and the uploaded version before reporting either as verified. Preparing a submission link does not mean the form has been submitted.
 
-The evidence boundary is deliberate: personal/team retrieval isolation is tested, while the application remains a trusted local prototype. The publication gate is an inspected generated artifact, not proof of publication approval. The upstream PR is a text proposal; the executable implementation lives in the fork. These distinctions make the claim easy to verify.
+Be precise about what the evidence establishes. Tests cover the separation of personal and team retrieval, but the app still assumes one trusted local operator. The generated publication checklist was inspected; publication itself has not been approved. The upstream PR contains a text proposal, while the working implementation is in the fork. Keeping these distinctions clear makes the project easier to evaluate.
