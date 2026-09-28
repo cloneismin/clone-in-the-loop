@@ -58,6 +58,8 @@ export interface Prediction {
   text: string;
   revision: number;
   sources?: MemorySource[];
+  expiresAt: number;
+  status: "suggested" | "abstained";
 }
 
 export interface MemoryResults {
@@ -75,12 +77,12 @@ export interface InboxItem {
   reason: string;
 }
 
-export async function api<T>(path: string, body?: unknown): Promise<T> {
+export async function api<T>(path: string, body?: unknown, signal?: AbortSignal): Promise<T> {
   const response = await fetch(`/api${path}`, {
     method: body === undefined ? "GET" : "POST",
     headers: body === undefined ? {} : { "Content-Type": "application/json" },
     body: body === undefined ? undefined : JSON.stringify(body),
-    signal: AbortSignal.timeout(120_000),
+    signal: signal ? AbortSignal.any([signal, AbortSignal.timeout(120_000)]) : AbortSignal.timeout(120_000),
   });
   const data = await response.json().catch(() => null);
   if (!response.ok) {

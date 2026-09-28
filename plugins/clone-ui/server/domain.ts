@@ -30,6 +30,7 @@ export type Message = {
   runId?: string;
   executionInstruction?: string;
   replyTo?: string;
+  origin?: "human" | "agent" | "accepted_prediction" | "edited_prediction" | "unknown";
 };
 
 export const CLONES = [
@@ -40,18 +41,4 @@ export const CLONES = [
 export function assertCloneScope(workspace: Workspace, cloneId: CloneId): void {
   if (workspace === "personal" && cloneId !== "min")
     throw new Error("Teammate Clones are available in the team workspace.");
-}
-
-export function parsePrediction(text: string, draft: string): string {
-  const trimmed = text.trim().replace(/^```(?:json)?\s*|\s*```$/g, "");
-  let instruction = trimmed;
-  try {
-    const parsed = JSON.parse(trimmed);
-    if (typeof parsed.instruction === "string") instruction = parsed.instruction.trim();
-  } catch {
-    instruction = trimmed.replace(/^['"]|['"]$/g, "");
-  }
-  if (!instruction || instruction.length > 2400) throw new Error("The prediction was empty or too long. Try again.");
-  if (draft && !instruction.startsWith(draft)) return `${draft}${/\s$/.test(draft) ? "" : " "}${instruction}`;
-  return instruction;
 }

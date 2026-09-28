@@ -118,8 +118,11 @@ function isBinary(content: Buffer): boolean {
   return controls.length > sample.length / 10;
 }
 
-function isCompressedMedia(content: Buffer): boolean {
+function isEncodedArtifact(content: Buffer): boolean {
   return (
+    content.subarray(0, 3).equals(Buffer.from([0x1f, 0x8b, 0x08])) ||
+    content.subarray(0, 4).equals(Buffer.from([0x50, 0x4b, 0x03, 0x04])) ||
+    content.subarray(0, 5).toString("ascii") === "%PDF-" ||
     content.subarray(0, 3).equals(Buffer.from([0xff, 0xd8, 0xff])) ||
     content.subarray(0, 8).equals(Buffer.from([0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a])) ||
     content.subarray(0, 4).toString("ascii") === "GIF8" ||
@@ -149,15 +152,10 @@ test("tracked files use only QM branding", () => {
   const legacyPaths = paths.filter((path) => findLegacyNames(path, { path: true }).length > 0);
   const legacyContent = paths.flatMap((path) => {
     const content = readTrackedContent(path);
-    if (!content || isCompressedMedia(content)) return [];
-    const encodedDocumentFixture =
-      path.startsWith("test/fixtures/documents/") &&
-      (content.subarray(0, 4).equals(Buffer.from([0x50, 0x4b, 0x03, 0x04])) ||
-        content.subarray(0, 5).toString("ascii") === "%PDF-");
-    if (encodedDocumentFixture) return [];
+    if (!content || isEncodedArtifact(content)) return [];
     return findLegacyNames(content.toString("latin1"), {
       binary: isBinary(content),
-      compressed: isCompressedMedia(content),
+      compressed: isEncodedArtifact(content),
     }).map((match) => `${path}:${match}`);
   });
 
@@ -229,7 +227,7 @@ test("brand guard recognizes legacy variants", () => {
   assert.ok(forbidden.every((value) => findLegacyNames(value).length > 0));
   assert.ok(binaryMetadata.every(isBinary));
   assert.ok(binaryMetadata.every((value) => findLegacyNames(value.toString("latin1"), { binary: true }).length > 0));
-  assert.ok(isCompressedMedia(compressedMetadata));
+  assert.ok(isEncodedArtifact(compressedMetadata));
   assert.ok(
     findLegacyNames(compressedMetadata.toString("latin1"), {
       binary: true,
@@ -249,4 +247,16 @@ test("brand guard recognizes legacy variants", () => {
   assert.deepEqual(findLegacyNames("WCAG2Config"), []);
   assert.deepEqual(findLegacyNames("wcagConfig"), []);
   assert.deepEqual(findLegacyNames("myWCAGConfig"), []);
+});
+
+test("brand guard skips encoded document and archive bytes while checking plain source", () => {
+  for (const header of [
+    Buffer.from([0x1f, 0x8b, 0x08]),
+    Buffer.from([0x50, 0x4b, 0x03, 0x04]),
+    Buffer.from("%PDF-1.7"),
+  ]) {
+    assert.ok(isEncodedArtifact(Buffer.concat([header, Buffer.from([0, 0x80, 0x81])])));
+  }
+  assert.equal(isEncodedArtifact(Buffer.from("export const name = 'QM';")), false);
+  assert.equal(isEncodedArtifact(Buffer.concat([Buffer.from([0]), Buffer.from("NAME=QM")])), false);
 });

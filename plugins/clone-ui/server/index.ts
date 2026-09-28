@@ -15,8 +15,9 @@ import { requestError } from "./errors.ts";
 
 const root = resolve(dirname(fileURLToPath(import.meta.url)), "../../..");
 const runtimeEnv = resolve(process.env.CLONE_RUNTIME_DIR || resolve(root, "data/clone-runtime"), "runtime.env");
-if (existsSync(runtimeEnv)) {
-  for (const [key, value] of Object.entries(parseEnv(readFileSync(runtimeEnv, "utf8")))) process.env[key] ??= value;
+for (const envFile of [resolve(root, ".env.local"), runtimeEnv]) {
+  if (existsSync(envFile))
+    for (const [key, value] of Object.entries(parseEnv(readFileSync(envFile, "utf8")))) process.env[key] ??= value;
 }
 if (!process.env.DATABASE_URL)
   throw new Error("Start QM with npm run clone:core before starting the Clone web server.");
@@ -109,6 +110,20 @@ async function inbox(workspace: "personal" | "team"): Promise<unknown> {
   return pending;
 }
 
+async function predictionResponse(res: ServerResponse, run: (signal: AbortSignal) => Promise<unknown>): Promise<void> {
+  const controller = new AbortController();
+  const abort = () => {
+    if (!res.writableEnded) controller.abort();
+  };
+  res.once("close", abort);
+  try {
+    const result = await run(controller.signal);
+    if (!res.destroyed) json(res, 200, result);
+  } finally {
+    res.removeListener("close", abort);
+  }
+}
+
 async function handle(req: IncomingMessage, res: ServerResponse): Promise<void> {
   const host = req.headers.host || "";
   if (!/^(?:127\.0\.0\.1|localhost)(?::\d+)?$/.test(host))
@@ -118,7 +133,14 @@ async function handle(req: IncomingMessage, res: ServerResponse): Promise<void> 
   const url = new URL(req.url || "/", `http://${host}`);
   const path = url.pathname;
   const method = req.method || "GET";
-  if (path === "/api/health") return json(res, 200, { ok: true, memory: memoryStatus, model: qm.model, runtime: "QM" });
+  if (path === "/api/health")
+    return json(res, 200, {
+      ok: true,
+      memory: memoryStatus,
+      model: qm.model,
+      runtime: "QM",
+      prediction: { provider: "clone-sdk", configured: loop.prediction.configured },
+    });
   if (path === "/api/state" && method === "GET") {
     const goals = await store.goals();
     const stats = await memory.search({ workspace: "personal", cloneId: "min", query: "", limit: 1 });
@@ -154,7 +176,7 @@ async function handle(req: IncomingMessage, res: ServerResponse): Promise<void> 
         revision: z.number().int().nonnegative().default(0),
       })
       .parse(await body(req));
-    return json(res, 200, await loop.predictDraft(input));
+    return predictionResponse(res, (signal) => loop.predictDraft(input, signal));
   }
   const match = path.match(/^\/api\/goals\/([a-f0-9-]{36})(?:\/(send|predict|loop|clone))?$/);
   if (match) {
@@ -164,15 +186,20 @@ async function handle(req: IncomingMessage, res: ServerResponse): Promise<void> 
     if (method !== "POST") return json(res, 405, { error: "Method not allowed." });
     const input = await body(req);
     if (action === "send") {
-      const { text } = z.object({ text: z.string().trim().min(1).max(20000) }).parse(input);
-      await loop.start(id, { loop: false, instruction: text, human: true });
+      const { text, origin } = z
+        .object({
+          text: z.string().trim().min(1).max(20000),
+          origin: z.enum(["human", "accepted_prediction", "edited_prediction", "unknown"]).default("unknown"),
+        })
+        .parse(input);
+      await loop.start(id, { loop: false, instruction: text, human: true, origin });
       return json(res, 202, { accepted: true });
     }
     if (action === "predict") {
       const { draft, revision } = z
         .object({ draft: z.string().max(10000).default(""), revision: z.number().int().nonnegative().default(0) })
         .parse(input);
-      return json(res, 200, await loop.predict(id, draft, revision));
+      return predictionResponse(res, (signal) => loop.predict(id, draft, revision, signal));
     }
     if (action === "loop") {
       const { enabled, instruction } = z
@@ -234,7 +261,7 @@ async function handle(req: IncomingMessage, res: ServerResponse): Promise<void> 
 
 const server = createServer((req, res) => {
   void handle(req, res).catch((error: unknown) => {
-    if (res.writableEnded) return;
+    if (res.writableEnded || res.destroyed) return;
     const failure = requestError(error);
     json(res, failure.status, failure.body);
   });
