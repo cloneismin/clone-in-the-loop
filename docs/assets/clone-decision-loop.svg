@@ -1,0 +1,72 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="550" viewBox="0 0 1200 550" role="img" aria-labelledby="title desc">
+  <title id="title">Your judgment, in the loop</title>
+  <desc id="desc">GBrain retrieves scoped history for your Clone. The Clone predicts an instruction, QM executes one step, and the Clone reviews the result with recalled evidence. The review sends the next correction back to QM. Tab accepts a prediction, a second Tab enables Clone mode, and Stop pauses it. Goals, messages, and runs are persisted in PostgreSQL.</desc>
+  <defs>
+    <marker id="arrow" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto" markerUnits="userSpaceOnUse"><path d="M1 1 L7 4 L1 7" fill="none" stroke="#64748b" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></marker>
+    <marker id="blue-arrow" markerWidth="9" markerHeight="9" refX="8" refY="4.5" orient="auto" markerUnits="userSpaceOnUse"><path d="M1 1 L8 4.5 L1 8" fill="none" stroke="#2563eb" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></marker>
+  </defs>
+  <rect x="1" y="1" width="1198" height="548" rx="22" fill="#f8fafc" stroke="#dbe3ed"/>
+  <g font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif">
+    <text x="44" y="48" fill="#2563eb" font-size="13" font-weight="700" letter-spacing="2">CLONE-IN-THE-LOOP</text>
+    <text x="1156" y="48" text-anchor="end" fill="#64748b" font-size="13" font-weight="600">BUILT ON QM + GBRAIN</text>
+    <text x="44" y="103" fill="#0f172a" font-size="38" font-weight="700" letter-spacing="-1">Your judgment, in the loop.</text>
+    <text x="44" y="136" fill="#475569" font-size="18">Past instructions and feedback inform the next decision.</text>
+
+    <rect x="44" y="183" width="248" height="143" rx="14" fill="#fff" stroke="#cbd5e1"/>
+    <rect x="328" y="183" width="248" height="143" rx="14" fill="#eff6ff" stroke="#93b4f5"/>
+    <rect x="612" y="183" width="248" height="143" rx="14" fill="#fff" stroke="#cbd5e1"/>
+    <rect x="896" y="183" width="260" height="143" rx="14" fill="#eff6ff" stroke="#93b4f5"/>
+
+    <g font-size="12" font-weight="700" letter-spacing="1.6">
+      <text x="64" y="213" fill="#64748b">01 / REMEMBER</text>
+      <text x="348" y="213" fill="#2563eb">02 / PREDICT</text>
+      <text x="632" y="213" fill="#64748b">03 / EXECUTE</text>
+      <text x="916" y="213" fill="#2563eb">04 / REVIEW</text>
+    </g>
+    <g fill="#0f172a" font-size="27" font-weight="650">
+      <text x="64" y="253">GBrain</text>
+      <text x="348" y="253">Your Clone</text>
+      <text x="632" y="253">QM</text>
+      <text x="916" y="253">Your Clone</text>
+    </g>
+    <g fill="#475569" font-size="16">
+      <text x="64" y="282">Recall relevant history</text>
+      <text x="64" y="305">within the selected scope.</text>
+      <text x="348" y="282">Propose the instruction</text>
+      <text x="348" y="305">you would give next.</text>
+      <text x="632" y="282">Run one bounded step.</text>
+      <text x="632" y="305">Return a concrete result.</text>
+      <text x="916" y="282">Check the response.</text>
+      <text x="916" y="305">Choose the next correction.</text>
+    </g>
+
+    <g fill="none" stroke="#64748b" stroke-width="1.8" marker-end="url(#arrow)">
+      <path d="M292 251 H321"/>
+      <path d="M576 251 H605"/>
+      <path d="M860 251 H889"/>
+    </g>
+    <path d="M168 183 V166 H1026 V177" fill="none" stroke="#94a3b8" stroke-width="1.5" stroke-dasharray="4 5" marker-end="url(#arrow)"/>
+    <rect x="575" y="152" width="326" height="25" rx="12" fill="#f8fafc"/>
+    <text x="738" y="169" text-anchor="middle" fill="#64748b" font-size="13">Scoped evidence also informs each review</text>
+    <path d="M1026 326 V374 Q1026 386 1014 386 H748 Q736 386 736 374 V335" fill="none" stroke="#2563eb" stroke-width="2" marker-end="url(#blue-arrow)"/>
+    <rect x="791" y="370" width="185" height="30" rx="15" fill="#eff6ff"/>
+    <text x="883" y="390" text-anchor="middle" fill="#1d4ed8" font-size="14" font-weight="600">Next instruction</text>
+
+    <text x="44" y="363" fill="#475569" font-size="15">Personal or explicitly shared team context.</text>
+    <text x="44" y="387" fill="#64748b" font-size="14">Evidence keeps its source and demo labels.</text>
+
+    <rect x="24" y="423" width="1152" height="103" rx="14" fill="#0f172a"/>
+    <g font-size="15">
+      <rect x="44" y="446" width="47" height="27" rx="6" fill="#334155" stroke="#64748b"/>
+      <text x="67.5" y="465" text-anchor="middle" fill="#fff" font-weight="600">Tab</text>
+      <text x="102" y="465" fill="#e2e8f0">Accept the suggestion</text>
+      <rect x="368" y="446" width="98" height="27" rx="6" fill="#1d4ed8" stroke="#60a5fa"/>
+      <text x="417" y="465" text-anchor="middle" fill="#fff" font-weight="600">Tab again</text>
+      <text x="480" y="465" fill="#e2e8f0">Enable Clone mode</text>
+      <rect x="784" y="452" width="12" height="12" rx="2" fill="#e2e8f0"/>
+      <text x="807" y="465" fill="#fff" font-weight="600">Stop</text>
+      <text x="851" y="465" fill="#e2e8f0">Pause the loop</text>
+    </g>
+    <text x="44" y="503" fill="#94a3b8" font-size="14">Goals, messages, and runs persist in PostgreSQL. Inspect the work; continue when you choose.</text>
+  </g>
+</svg>
