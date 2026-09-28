@@ -1,8 +1,8 @@
 # Clone-in-the-Loop architecture
 
-Clone-in-the-Loop adds a decision layer to QM. A Clone uses a Goal, its recent conversation, and retrieved human history to propose an instruction. QM executes it. The Clone reviews the result and selects the next correction or improvement.
+Clone-in-the-Loop extends QM with a cycle of prediction, execution, and review. A Clone uses the Goal, recent conversation, and relevant past instructions to propose what to do next. QM carries out that instruction, and the Clone reviews the result before choosing a correction or further improvement.
 
-The product is a local web application with one real owner and one synthetic teammate persona. The interface groups saved conversations under **Goals**, with proposed next work in **Inbox** and inspectable evidence in **Memories**. The existing `Goal` type, `/goals` API, and database identities remain stable. The browser interface and orchestration are the extension; the execution and memory engines are QM and official GBrain.
+The product runs as a local web app for one owner, with a fictional teammate available for the demo. **Goals** shows saved conversations, **Inbox** suggests what to work on next, and **Memories** lets the user inspect retrieved evidence. These views retain the existing `Goal` type, `/goals` API, and database identities. The extension adds the interface and orchestration, with QM handling execution and official GBrain handling memory.
 
 ## Components
 
@@ -36,7 +36,7 @@ sequenceDiagram
   Core-->>Loop: Proposed instruction + run identity
   Loop->>Store: Persist prediction and provenance
   Loop-->>UI: Suggestion with original revision
-  Owner->>UI: Tab once to accept; Tab twice to enable Clone mode
+  Owner->>UI: Tab to accept; Tab again to enable Clone mode
   UI->>Loop: Execute accepted instruction
   Loop->>Core: Bounded execution turn
   Core-->>Loop: Result + run identity
@@ -52,9 +52,9 @@ sequenceDiagram
   Loop->>Store: Persist paused state
 ```
 
-Prediction and review are model turns routed through QM, not handwritten demo responses. Execution also routes through QM. It gets a bounded instruction and returns a concrete result before another iteration begins.
+Prediction, execution, and review all run as model turns through QM. Predictions and reviews are generated during the session. Each execution turn receives a bounded instruction and returns a result before the next iteration begins.
 
-The review response records whether the current step is complete. In the selected hackathon interaction, completing a step does not automatically disable Clone mode: the Clone chooses the next useful improvement toward the same Goal. The operator ends Clone mode with the composer switch or Stop; both use the same cancellation path. A blue composer glow reflects enabled Clone mode, while a manual single execution keeps the neutral border.
+The review records whether the current step is complete. Clone mode can then choose another useful improvement toward the same Goal, so completing a step does not end the loop. The operator can turn off the composer switch or press Stop; both use the same cancellation path. The composer glows blue while Clone mode is enabled and keeps a neutral border during a single manual execution.
 
 ## Durable state and interruption
 
@@ -65,11 +65,11 @@ QM uses PostgreSQL for its configured session and run stores. The extension uses
 - `predictions`: draft, revision, proposed instruction, selected Clone, evidence, and model/run identity.
 - `inbox`: proposed next Goals for a workspace.
 
-In-memory controllers coordinate currently running operations. They are not the durable source of Goal or conversation state. Writes from execution paths carry the Goal's generation. Stop advances that generation, so a late result from the canceled generation cannot append stale work.
+In-memory controllers coordinate active operations, while the database stores Goal and conversation state. Each execution write carries the Goal's generation number. Stop advances that number, preventing a late result from a canceled generation from being appended to the conversation.
 
-Restart recovery reads persisted Goals, requests cancellation of any recorded active run, disables unfinished loops, and marks them paused. It preserves history and requires an explicit action to continue. It does not silently resume autonomous work after restart.
+After a restart, recovery reads the saved Goals, requests cancellation of any recorded active run, and marks unfinished loops as paused. History remains available, but the operator must explicitly choose to continue.
 
-Browser checks observed Stop persisting a paused state with no later continuation, and a service restart preserving personal Goal history. The [verification record](verification.md) distinguishes those observations from automated lifecycle coverage.
+Browser checks confirmed that Stop saved a paused state with no further continuation and that personal Goal history survived a service restart. The [verification record](verification.md) records those observations separately from automated lifecycle tests.
 
 ## Real GBrain integration
 
@@ -81,11 +81,11 @@ Revision:   1ec6a6e842a15f2bde2ebe8c3a686a6fa6b17aa5
 Version:    0.45.9.0
 ```
 
-`clone:setup` fetches that revision into ignored `.clone-loop/deps/gbrain` and installs its frozen upstream lockfile. The project does not depend on a developer's separate source checkout.
+`clone:setup` fetches this revision into the Git-ignored `.clone-loop/deps/gbrain` directory and installs its dependencies using the frozen upstream lockfile. No separate developer checkout is required.
 
-A Bun worker imports the official engine and source-management API. It opens the durable PGLite database, runs GBrain's schema and migrations, and creates three named sources. Imports and feedback become GBrain conversation pages through `putPage`, with chunks through `upsertChunks`. Search calls GBrain's `searchKeyword` with an explicit allowlist of source IDs. Returned pages are hydrated within the same source scope.
+A Bun worker imports the official engine and source-management API, opens the persistent PGLite database, applies GBrain's schema and migrations, and creates three named sources. It stores imported messages and feedback as conversation pages using `putPage`, with chunks written through `upsertChunks`. Retrieval calls GBrain's `searchKeyword` with an explicit allowlist of source IDs, then loads the matching pages within that same scope.
 
-The Node API communicates with the worker over JSON lines. One worker owns the PGLite lock and serializes operations. Closing the service releases the database. Raw history and upstream database diagnostics are not printed to application logs.
+The Node API communicates with the worker over JSON lines. A single worker holds the PGLite lock and processes operations in sequence, releasing the database when the service closes. Application logs exclude raw history and upstream database diagnostics.
 
 ### Scope rules
 
@@ -95,15 +95,15 @@ The Node API communicates with the worker over JSON lines. One worker owns the P
 | Shared team history          | Owner's explicit team-context messages; shared synthetic fixture | Min Kim / Team and Garry Tan / Team |
 | Garry synthetic demo history | Versioned synthetic Garry fixtures                               | Min Kim / Team and Garry Tan / Team |
 
-The scope allowlist is applied before retrieval. The result mapper checks every search hit's source again. Team results and counts exclude the private source, including its import count. Garry's personal scope is rejected, and synthetic teammate memory is read-only through the application API.
+The source allowlist restricts retrieval before a query runs, and the result mapper checks each returned source again. Team results and counts exclude private history, including its import count. Requests for Garry's personal scope are rejected, and the application API treats fictional teammate memory as read-only.
 
-Predictions, reviews, and Inbox suggestions request conversational recall: bounded non-CJK terms form an OR query, while CJK terms use separate literal queries supported by GBrain's engine. Reciprocal rank combines and deduplicates the scoped results. Quoted text in a draft is context rather than an exact-phrase constraint. Searches in Memories retain the underlying search semantics.
+For predictions, reviews, and Inbox suggestions, the adapter builds an OR query from a bounded set of non-CJK terms. CJK terms use separate literal queries supported by GBrain's engine. Results are combined using reciprocal rank and deduplicated within the permitted sources. Quoted text in a draft provides context rather than imposing an exact-phrase match. Direct searches in Memories retain GBrain's search semantics.
 
-The display persona is Clone Garry, a fictional Garry Tan demo with invented conversation history. Source labels, excerpts, and `demo` flags accompany the evidence. Model prompts treat that evidence as historical data, not authorization to perform actions. Memory evidence retains demo origin labels, while the main Clone controls use the clean display name. Stale evidence clears when the selected context changes.
+Clone Garry is a fictional demo persona inspired by Garry Tan, with invented conversation history. Evidence includes source labels, excerpts, and `demo` flags, and model prompts describe it as historical context rather than permission to act. The interface uses the name Clone Garry while retaining the fictional-origin labels on its evidence. Changing the selected context clears evidence from the previous selection.
 
 ### History import
 
-Import is an explicit command. Run it before starting the Clone API, which owns the PGLite database lock while active. It reads only the current OS user's standard Codex and Claude history directories:
+History import is an explicit command that should run before the Clone API takes ownership of the PGLite database lock. The importer reads only the current OS user's standard Codex and Claude history directories:
 
 ```text
 ~/.codex/sessions
@@ -111,21 +111,21 @@ Import is an explicit command. Run it before starting the Clone API, which owns 
 ~/.claude/projects
 ```
 
-The importer accepts human user-message text and rejects assistant messages, tool results, sidechain agents, injected environment records, and recognizable credential patterns. It bounds the number and size of files, limits message length, deduplicates content, and balances recent messages across providers. It stores records only in the owner's personal source. Original history files are never edited.
+The importer accepts user-written messages and rejects assistant messages, tool results, sidechain-agent records, injected environment records, and recognizable credential patterns. It limits file counts, file sizes, and message length, removes duplicates, and balances recent messages across providers. Records are stored only in the owner's personal source, and the original history files remain unchanged.
 
 ### Retrieval mode
 
-This build uses GBrain's local keyword retrieval, including its CJK handling and OR fallback. Empty queries use source-scoped `listPages` for recent context. It does not generate embeddings, call hosted GBrain, or claim semantic vector search. The architecture leaves those options open without making the demo depend on a second hosted account.
+This build uses GBrain's local keyword retrieval, including CJK handling and OR fallback. For an empty query, it calls `listPages` within the permitted sources to retrieve recent context. It does not generate embeddings, call hosted GBrain, or perform semantic vector search, so the demo needs no additional hosted account for memory retrieval.
 
 For implementation and tests, see the [memory adapter guide](../plugins/clone-ui/server/memory/README.md).
 
 ## Trusted-local runtime
 
-The startup script provisions or reuses a local PostgreSQL cluster, writes private runtime settings, and starts QM with the Codex harness. An explicit `QM_TRUSTED_HOST_SANDBOX_DIR` enables the host-backed workspace adapter for this demonstration. Working directories remain scope-specific, but commands run with the local OS user's permissions.
+The startup script creates or reuses a local PostgreSQL cluster, writes private runtime settings, and starts QM with the Codex harness. Setting `QM_TRUSTED_HOST_SANDBOX_DIR` explicitly enables the host-backed workspace adapter used by the demo. Each scope has its own working directory, but commands run with the local OS user's permissions.
 
-This is not OS sandbox isolation. The public web surface is bound to loopback and checks host/origin headers, but the application has no production login, per-user authorization, or genuine simultaneous teammates. The authenticated internal client protects the core-client boundary; it does not turn the browser app into a production multi-user system.
+The adapter does not provide OS sandbox isolation. The browser-facing app is bound to loopback and checks host and origin headers, but it has no production login, per-user authorization, or support for simultaneous teammates. Authentication on the internal QM client protects that API connection; it does not provide user-level access controls for the browser app.
 
-Expanding this build beyond one trusted local operator requires a real identity boundary, workspace authorization, an isolated execution backend, and operational controls for credentials and model spending.
+Supporting more than one trusted local operator would require user authentication, workspace authorization, isolated execution, and controls for credentials and model spending.
 
 ## Failure behavior
 
@@ -142,16 +142,18 @@ Expanding this build beyond one trusted local operator requires a real identity 
 
 ## Verification boundary
 
-The Clone CI workflow passed on `main` and the implementation branch with 93 tests at the recorded revision. The local checkpoint passed 153 focused tests across the extension, QM runtime configuration, filesystem confinement, documentation contracts, and Codex harness. Core and extension TypeScript checks, extension ESLint, scoped Clone Knip, and the production web build passed. GBrain coverage runs the official PGLite engine and checks source isolation, filtering, persistence after reopening, and migration of the synthetic teammate's display name without changing private or shared feedback.
+At the recorded revision, Clone CI passed 93 tests on both `main` and the implementation branch. A local checkpoint passed 153 focused tests covering the extension, QM runtime configuration, filesystem confinement, documentation contracts, and Codex harness. Core and extension TypeScript checks also passed, along with extension ESLint, scoped Clone Knip, and the production web build. GBrain tests run the official PGLite engine and check source isolation, filtering, and persistence after reopening. They also verify that changing the fictional teammate's display name preserves private and shared feedback.
 
-Actual QM execution produced a Research answer with primary-source links and a checklist, then a Product command-line tool whose three generated tests passed under an independent run. The browser showed six personal Clone mode iterations and seven synthetic-teammate iterations before the Garry persona update. Stop persisted a paused state, and saved personal work survived service restart.
+Real QM runs produced a Research answer with primary-source links and a checklist, followed by a Product command-line tool whose three tests passed when run independently. Before the Garry persona update, browser checks showed six personal Clone mode iterations and seven fictional-teammate iterations. Stop saved a paused state, and personal work survived a service restart.
 
-Independent review also exercised delayed workspace responses, draft preservation during navigation, keyboard arming, and project selection. Long multiline predictions were checked in an isolated browser fixture. A recorded Marketing run subsequently exercised second-Tab Clone mode through seven iterations and Stop. Earlier native Chrome checks exercised all four navigation destinations. The current labels and shortcut order are New, Inbox, Goals, and Memories on Cmd+Option+1/2/3/4; Windows and Linux use Ctrl+Alt with the same digits. Updated automated tests cover this final ordering. Final film playback, Loom delivery, and the submission receipt remain pending. See the [verification record](verification.md) for evidence boundaries.
+Independent review checked delayed workspace responses, draft preservation during navigation, keyboard activation, and project selection. Long multiline predictions were tested in an isolated browser fixture. A later recorded Marketing run used the second Tab to activate Clone mode, completed seven iterations, and was stopped by the operator.
+
+Native Chrome checks also exercised all four navigation destinations. Their current order is New, Inbox, Goals, and Memories, using Cmd+Option+1/2/3/4 on macOS or Ctrl+Alt with the same digits on Windows and Linux. Updated automated tests cover this order. See the [verification record](verification.md) for later execution evidence and the separate status of video playback, Loom delivery, and submission.
 
 ## Upstream and extension boundaries
 
-The repository preserves QM's source history, license, and [original README](../README.qm.md). The Clone interface, decision loop, memory adapter, and local startup scripts are authored as the extension. GBrain is installed as a pinned upstream dependency, not copied into the application as a substitute engine. Private account history, generated artifacts, runtime databases, and review media stay out of Git. The open [QM contribution proposal](https://github.com/yc-software/qm/pull/1671) contains only a text proposal, following upstream policy; the working implementation lives in this fork’s `main` branch.
+The repository preserves QM's source history, license, and [original README](../README.qm.md). The extension adds the Clone interface, decision loop, memory adapter, and local startup scripts, while GBrain is installed as a pinned upstream dependency. Private account history, generated work, runtime databases, and review media remain outside Git. Following upstream policy, the open [QM PR](https://github.com/yc-software/qm/pull/1671) contains a text proposal. The working implementation is on this fork's `main` branch.
 
 ## Hackathon demo provenance
 
-The submission film must show fresh captures of this checkout's QM-based extension, recorded during the hackathon. Preserve the legitimate upstream QM foundation and identify the new extension source through its Git revision and working-tree digest. Earlier product recordings inform the camera direction only; they are not evidence for this implementation. Every visible prompt, result, model label, memory source, and execution state must come from the actual new application. See the [production kit](../demo/README.md).
+Record the submission video from this QM-based extension during the hackathon, and identify the captured source with its Git revision and working-tree digest. Credit QM as the foundation. Earlier product recordings can guide camera choices, but every prompt, result, model label, memory source, and execution state shown in this demo must come from the new application. See the [production kit](../demo/README.md) for the recording workflow.
