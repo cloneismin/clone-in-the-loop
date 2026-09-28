@@ -40,12 +40,13 @@ sequenceDiagram
   UI->>Loop: Execute accepted instruction
   Loop->>Core: Bounded execution turn
   Core-->>Loop: Result + run identity
-  Loop->>Store: Persist result
+  Loop->>Store: Persist linked result and iteration count atomically
   Loop->>Brain: Recall evidence for review
   Loop->>Core: Read-only review turn
   Core-->>Loop: Review + next instruction
-  Loop->>Store: Persist review and criteria
-  Loop-->>UI: Show review and continuation
+  Loop->>Store: Persist one Clone reply, next instruction, and criteria
+  Loop-->>UI: Show coherent Clone reply
+  Loop->>Core: Execute its saved instruction without duplicating the reply
   Owner->>UI: Stop
   UI->>Loop: Disable loop and invalidate generation
   Loop->>Core: Abort active run
@@ -61,13 +62,15 @@ The review records whether the current step is complete. Clone mode can then cho
 QM uses PostgreSQL for its configured session and run stores. The extension uses a separate `clone_loop` schema in the same database:
 
 - `goals`: title, project, workspace, selected Clone, criteria, phase, iteration count, active QM run, and generation.
-- `messages`: ordered human, Clone, assistant, and review messages, including model/run identity and evidence when available.
+- `messages`: ordered human, Clone, and assistant messages, plus preserved legacy review records. Each new review and next instruction are stored together as one Clone reply. `executionInstruction` stores the exact instruction to execute; `replyTo` links a real QM result to its directive and a Clone reply to the result it reviews. Model/run identity and evidence are retained when available.
 - `predictions`: draft, revision, proposed instruction, selected Clone, evidence, and model/run identity.
 - `inbox`: proposed next Goals for a workspace.
 
 In-memory controllers coordinate active operations, while the database stores Goal and conversation state. Each execution write carries the Goal's generation number. Stop advances that number, preventing a late result from a canceled generation from being appended to the conversation.
 
-After a restart, recovery reads the saved Goals, requests cancellation of any recorded active run, and marks unfinished loops as paused. History remains available, but the operator must explicitly choose to continue.
+After a restart, recovery reads the saved Goals, requests cancellation of any recorded active run, and marks unfinished loops as paused. History remains available, but the operator must explicitly choose to continue. Continuing an unanswered instruction reuses its saved message; it does not append the directive again. If the last saved message is a QM result, Clone mode resumes its review. For an existing Goal, an empty composer resumes the saved instruction without substituting an unaccepted prediction. A typed or Tab-accepted draft is explicit direction; a different instruction is preserved as a new turn. Failed or canceled attempts do not create synthetic QM responses.
+
+Message insertion and its associated iteration or criteria update use one generation-guarded PostgreSQL statement. A failed insert cannot advance the iteration count, and a superseded generation cannot launch an execution without a saved directive. Legacy history is preserved; the interface may display an immediately adjacent legacy review and directive from the same Clone together without crossing a QM response.
 
 Browser checks confirmed that Stop saved a paused state with no further continuation and that personal Goal history survived a service restart. The [verification record](verification.md) records those observations separately from automated lifecycle tests.
 

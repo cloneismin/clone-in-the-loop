@@ -14,7 +14,7 @@ import type {
 } from "./api";
 import { brand, icon } from "./icons";
 import { renderMarkdown } from "./markdown";
-import { composerTabAction } from "./composer-shortcuts";
+import { composerLoopInstruction, composerTabAction } from "./composer-shortcuts";
 import { conversationTurns } from "./conversation-turns";
 import { navigationItems, navigationShortcut, navigationShortcutHint } from "./navigation-shortcuts";
 import "./styles.css";
@@ -480,7 +480,7 @@ class CloneApp extends LitElement {
     const operation = ++this.operationRevision;
     const workspace = this.workspace;
     const draft = this.draft;
-    const instruction = this.prediction?.text || draft.trim() || undefined;
+    const instruction = composerLoopInstruction(Boolean(this.active?.goal), draft, this.prediction?.text);
     let goal = this.active?.goal;
     const draftKey = goal?.id ?? `new:${workspace}`;
     const current = () =>

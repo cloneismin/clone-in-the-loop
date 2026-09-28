@@ -12,3 +12,14 @@ export function composerTabAction(
   if (prediction) return "accept";
   return "move-focus";
 }
+
+export function composerLoopInstruction(
+  hasExistingGoal: boolean,
+  draft: string,
+  prediction: string | undefined,
+): string | undefined {
+  const instruction = draft.trim();
+  if (instruction) return instruction;
+  if (hasExistingGoal) return undefined;
+  return prediction?.trim() || undefined;
+}
