@@ -1,8 +1,8 @@
 # Demo production kit
 
-[Demo on Loom](https://www.loom.com/share/f989c778d4f14d05acfe0a20d9bdfbc3). The existing link now serves the new 115-second master. The local master is 2560 × 1440; the adaptive Loom player completed uninterrupted playback at 1× without an error. It began at 1440p and ended at 720p. Independent picture and audio-continuity checks passed; subjective listening and user acceptance remain separate. Earlier playback evidence is preserved in the [verification record](../docs/verification.md).
+[Demo on Loom](https://www.loom.com/share/f989c778d4f14d05acfe0a20d9bdfbc3). The corrected 120-second master restores the ambition, Research, Product, Marketing, Clone loop, Goals, Inbox, team, and memory sequence. The central lesson is simple: **Press Tab once to accept the suggestion. Press Tab twice to start Clone mode.**
 
-The new cut follows one fresh launch-brief conversation. QM produces a draft, Clone identifies the overlooked product facts in one coherent reply, QM revises the brief, and the user presses Stop. Seven visual chapters preserve a continuous readthrough and natural team navigation. Every selected capture plays at 1×.
+The opening shows a genuinely empty composer, real typing, a gray prediction, acceptance, and Enter. The later two-Tab sequence shows the Clone toggle, blue border, actual alternating Clone and QM turns, and Stop. All selected footage and speech remain at their recorded speed. The verification record distinguishes local media checks, same-URL publication, and user acceptance.
 
 Read the [storyboard](storyboard.md), [fresh narration](narration.txt), [measured voice timeline](narration-timeline.json), and [audio direction](audio-direction.md). All visible demo content and narration are English. Product footage comes from this repository's QM extension. Raw captures, audio, renders, and receipts remain in ignored `demo/output/`.
 
@@ -15,10 +15,12 @@ mkdir -p demo/output/bin demo/output/raw
 swiftc -parse-as-library demo/capture.swift -o demo/output/bin/capture
 demo/output/bin/capture --list
 demo/output/bin/capture --window ACTUAL_CHROME_WINDOW_ID \
-  --output demo/output/raw/fresh-take.mp4 --seconds 600
+  --output demo/output/raw/fresh-take.mp4 --seconds 600 --hide-cursor
 ```
 
 Decode and open a frame from that exact recording before a long take. A browser screenshot can refer to a different native window. During filming, confirm that captured frames change after a real interaction. A valid MP4 or an advancing frame count does not prove that ScreenCaptureKit received fresh pixels: static holds retain the last observed frame.
+
+The cursor flag controls the native pointer only. Browser automation may inject a separate visual overlay. For this recording, a temporary local stylesheet suppressed only that overlay; it was removed after capture. Inspect the recorded pixels instead of assuming the flag removed it.
 
 Touch the adjacent `.mp4.stop` file to finalize a take. Preserve its `.capture.json` and `.audit.json` files. Reject the entire affected interval if the capture freezes, shows another surface, or contains private material. Do not replace application text or state in postproduction.
 
@@ -38,9 +40,9 @@ The last shot shows the actual open [QM pull request](https://github.com/yc-soft
 
 ## Speech and assembly
 
-Generate the complete [script](narration.txt) with the user's registered ElevenLabs voice. Preserve the fresh download, selected voice, settings, generation time, and hash. The current recording lasts 41.979 seconds. Its 13 phrase blocks retain every decoded source sample; only silence is added between complete phrases.
+Generate the complete [script](narration.txt) with the user's registered ElevenLabs voice. Preserve the fresh download, selected voice, settings, generation time, and hash. The current recording lasts 50.155 seconds. Its 23 phrase blocks retain every decoded source sample; only silence is added between complete phrases.
 
-The current 115-second source map, audio receipt, and assembly script are under ignored `demo/output/chronological-v5/`. The generic assembler remains available for new capture manifests:
+The current 120-second source map, audio receipt, and assembly script are under ignored `demo/output/reference-arc-v6/`. The generic assembler remains available for new capture manifests:
 
 ```sh
 python3 demo/assemble.py demo/output/manifest.json --check

@@ -153,7 +153,7 @@ struct Capture {
         }
         guard arguments.contains("--list") || (value("--window") != nil && value("--output") != nil) else {
             print("Requires explicit user authorization for Chrome-window-only ScreenCaptureKit capture.")
-            print("Usage after authorization: capture --list | --window WINDOW_ID --output PATH --seconds 600")
+            print("Usage after authorization: capture --list | --window WINDOW_ID --output PATH --seconds 600 [--hide-cursor]")
             return
         }
         guard CGPreflightScreenCaptureAccess() else {
@@ -182,7 +182,7 @@ struct Capture {
         config.height = Int(window.frame.height * Double(filter.pointPixelScale)) / 2 * 2
         config.minimumFrameInterval = CMTime(value: 1, timescale: 30)
         config.queueDepth = 6
-        config.showsCursor = true
+        config.showsCursor = !arguments.contains("--hide-cursor")
         config.scalesToFit = true
         config.preservesAspectRatio = true
         config.ignoreShadowsSingleWindow = true
@@ -208,7 +208,7 @@ struct Capture {
         guard mediaDuration >= max(1, wallDuration - 1) else {
             throw NSError(domain: "CloneCapture", code: 6, userInfo: [NSLocalizedDescriptionKey: "Recorded media is shorter than capture time; do not use the incomplete take."])
         }
-        let metadata: [String: Any] = ["method": "ScreenCaptureKit selected Chrome window only", "startedAt": ISO8601DateFormatter().string(from: startedAt), "windowId": id, "bundleIdentifier": "com.google.Chrome", "width": config.width, "height": config.height, "maximumFPS": 30, "frames": recorder.frames, "droppedFrames": recorder.dropped, "statusCounts": recorder.statusCounts.map { ["status": $0.key, "count": $0.value] }, "idleFrames": "last observed Chrome pixels retained at 30 fps while ScreenCaptureKit reports unchanged content", "durationWallSeconds": wallDuration, "mediaDuration": mediaDuration, "finalized": true]
+        let metadata: [String: Any] = ["method": "ScreenCaptureKit selected Chrome window only", "startedAt": ISO8601DateFormatter().string(from: startedAt), "windowId": id, "bundleIdentifier": "com.google.Chrome", "width": config.width, "height": config.height, "maximumFPS": 30, "showsCursor": config.showsCursor, "frames": recorder.frames, "droppedFrames": recorder.dropped, "statusCounts": recorder.statusCounts.map { ["status": $0.key, "count": $0.value] }, "idleFrames": "last observed Chrome pixels retained at 30 fps while ScreenCaptureKit reports unchanged content", "durationWallSeconds": wallDuration, "mediaDuration": mediaDuration, "finalized": true]
         try JSONSerialization.data(withJSONObject: metadata, options: [.prettyPrinted, .sortedKeys]).write(to: URL(fileURLWithPath: output.path + ".capture.json"))
         print("Capture finalized: \(output.path)")
     }
