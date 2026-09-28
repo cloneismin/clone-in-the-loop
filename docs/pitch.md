@@ -24,7 +24,7 @@ We built Clone-in-the-Loop for that person. GBrain retrieves your past instructi
 
 Press Tab to accept a suggestion, Tab again to let the loop continue, and Stop to take control back.
 
-In our launch-review workflow, the Clone caught a repeated call to action and asked QM to revise the post. We checked the saved result: 50 words, one call to action, and a publication checklist. Pressing Stop left the Goal paused.
+In our launch brief, QM initially marked every product claim unverified. The Clone pointed to recorded product facts and requested a corrected claim check. QM revised the brief, keeping Min's approval as the publication gate. Pressing Stop left the Goal paused.
 
 Shared team feedback can guide the same loop. Clone Garry demonstrates that idea using fictional history, kept separate from personal records.
 
@@ -32,14 +32,14 @@ QM executes. GBrain remembers. Your Clone keeps your judgment in the loop.
 
 ## Demo cues
 
-| Moment  | Show                                                        | Say                                                                  |
-| ------- | ----------------------------------------------------------- | -------------------------------------------------------------------- |
-| Context | A next-prompt suggestion and its memory evidence            | "This is the context behind the next instruction."                   |
-| Control | Tab once, then a second distinct Tab                        | "First I accept. Then I let my Clone continue."                      |
-| Review  | A missing item, a request to fix it, and the revised result | "The Clone spotted what was missing and asked QM to fix it."         |
-| Proof   | Open the generated template and its approval checklist      | "Here is what the agent actually changed."                           |
-| Stop    | Square Stop or the Clone switch; paused state               | "I can take control back."                                           |
-| Team    | Company workspace, Clone Garry, shared evidence             | "A fictional teammate shows how shared judgment changes the review." |
+| Moment  | Show                                                              | Say                                                                        |
+| ------- | ----------------------------------------------------------------- | -------------------------------------------------------------------------- |
+| Context | A next-prompt suggestion and its memory evidence                  | "This is the context behind the next instruction."                         |
+| Control | Tab once, then a second distinct Tab                              | "First I accept. Then I let my Clone continue."                            |
+| Review  | Overlooked recorded facts, one correction, and the revised result | "The Clone pointed to recorded facts and asked QM to fix the claim check." |
+| Proof   | Read the revised QM response and its approval gate                | "Here is the revision, with approval still required."                      |
+| Stop    | Square Stop or the Clone switch; paused state                     | "I can take control back."                                                 |
+| Team    | Company workspace, Clone Garry, shared evidence                   | "A fictional teammate shows how shared judgment changes the review."       |
 
 Keep the product story at the center of the demo, then briefly show the upstream PR after the closing logo. Use current app footage and mark only actions that actually occurred. Keep selected source footage at 1×, and leave enough time to read the review, requested correction, and revised result. These scripts are for live delivery; they do not require changes to the video's narration.
 
@@ -63,7 +63,7 @@ The official GBrain PGLite engine stores imported user messages and shared feedb
 
 **What proves the loop is real?**
 
-Recorded QM runs produced reviews, corrections, and files. In the launch task, the Clone caught a repeated call to action, requested tighter wording and specific sources, and asked for a stronger review checklist. We opened the saved template to check the changes, then separately confirmed that Stop left the session paused with no active run. A Product task also generated a command-line tool whose three tests passed when run independently.
+Recorded QM runs produced reviews, corrections, and files. In the fresh launch brief, Clone feedback caused QM to map five product claims to recorded facts while retaining the approval gate. The session reached ten iterations with 21 alternating Clone and QM messages, each linked to the preceding turn. Stop left it paused with no active run or further continuation. A Product task also generated a command-line tool whose three tests passed independently.
 
 **How private is the memory?**
 

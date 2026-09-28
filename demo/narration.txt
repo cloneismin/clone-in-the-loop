@@ -1,19 +1,25 @@
-Clone-in-the-Loop is a Q M fork that predicts what you would ask your agent next.
+Your agent can draft a launch. Who decides what comes next? Clone-in-the-Loop extends Q M with your judgment.
 
-G Brain retrieves relevant sessions from your Codex and Claude history, plus explicitly shared team history. That context personalizes the suggested prompt. Press Tab once to accept it, then Enter to send it.
+Tab once accepts a suggested prompt.
 
-Across Research, Product, and Marketing, this becomes a repeatable workflow.
+Tab again starts Clone mode.
 
-For ongoing work, press Tab twice to enable Clone mode. Your Clone gives the next instruction. Q M executes it. Your Clone reviews the result and asks for what is missing.
+While Q M works, G Brain recalls relevant Codex and Claude sessions.
 
-Here, it catches a weak call to action and asks for a concrete example. It requests a specific correction, then checks the revised result. This loop continues until you press Stop.
+Here, Q M drafts the brief.
 
-Goals show where the work stands. The Inbox suggests what to tackle next. Switch to Clone Garry for another perspective on your team's pitch.
+My Clone spots that it overlooked recorded product facts, and sends one clear correction.
 
-Personal and team memory stay separate, and you can inspect the sources behind each suggestion. Your agent executes. Your Clone carries your judgment.
+Q M revises the brief.
+
+They keep taking turns until I press Stop.
+
+In the team workspace, I can choose Clone Garry.
+
+Shared team context shapes its suggestions, while personal memory stays separate.
 
 Clone-in-the-Loop just killed Human-in-the-Loop.
 
 Own Your Clone.
 
-And we've opened a Q M pull request to bring this workflow upstream.
+We opened an upstream Q M pull request, too.
