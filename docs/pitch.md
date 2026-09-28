@@ -41,7 +41,7 @@ QM executes. GBrain remembers. Your Clone keeps your judgment in the loop.
 | Stop    | Square Stop or the Clone switch; paused state           | "I can take control back."                                           |
 | Team    | Company workspace, Clone Garry, shared evidence         | "A fictional teammate shows how shared judgment changes the review." |
 
-Keep the product story first and the upstream PR as a brief closing bonus after the product logo. Use current UI captures and genuine action cues. Label accelerated execution; keep the review, correction, and changed artifact legible. Do not replace the existing narration solely to match these live scripts.
+Keep the product story first and the upstream PR as a brief closing bonus after the product logo. Use current UI captures and genuine action cues. Keep selected source footage at 1×, with the review, correction, and changed artifact legible. Do not replace the existing narration solely to match these live scripts.
 
 ## Short Q&A
 
@@ -83,7 +83,7 @@ The working code is in the public QM fork. The open Upstream QM PR contains a sh
 
 ## Links for judges
 
-- [93-second demo on Loom](https://www.loom.com/share/f989c778d4f14d05acfe0a20d9bdfbc3)
+- [Demo on Loom](https://www.loom.com/share/f989c778d4f14d05acfe0a20d9bdfbc3)
 - [Working source and quickstart](https://github.com/cloneismin/clone-in-the-loop)
 - [Verification record](verification.md)
 - [Upstream QM PR](https://github.com/yc-software/qm/pull/1671)

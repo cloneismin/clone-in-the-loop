@@ -1,10 +1,10 @@
 # Demo production kit
 
-[Watch the 93-second demo on Loom](https://www.loom.com/share/f989c778d4f14d05acfe0a20d9bdfbc3). This is the revised cut with complete narration, the Goals board, and the QM PR as a closing add-on. Complete 1× Loom playback, public sharing, and the saved form draft are verified in the [verification record](../docs/verification.md). The user's acceptance and submission remain pending.
+[Watch the demo on Loom](https://www.loom.com/share/f989c778d4f14d05acfe0a20d9bdfbc3). The existing link now serves the sentence-aligned 2560 × 1440 replacement at 1×. It shows current controls, one coherent Clone reply, the revised QM result before Stop, scoped GBrain evidence, and the upstream PR as the final add-on. The visible Loom player reached the end at 1× without a playback error; the [verification record](../docs/verification.md) separates this check from subjective listening, user acceptance, and submission.
 
-This directory prepares a 93-second revised film of Clone-in-the-Loop, the QM extension with GBrain-backed next-prompt prediction. Read the [storyboard](storyboard.md), [narration](narration.txt), and [tool requirements](tooling.md) first.
+This directory prepares a 96-second sentence-aligned replacement film of Clone-in-the-Loop, the QM extension with GBrain-backed next-prompt prediction. Read the [storyboard](storyboard.md), [narration](narration.txt), and [tool requirements](tooling.md) first.
 
-All capture, editing, narration, captions, and submission content must be English. Product footage must come from this repository's implementation during the hackathon. Keep every recording, audio file, rendered cut, and source receipt under ignored `demo/output/` or `data/`.
+All capture, editing, narration, captions, and submission content must be English. Product footage must come from this repository's hackathon implementation. Keep every recording, audio file, rendered cut, and source receipt under ignored `demo/output/` or `data/`.
 
 ## 1. Record the selected Chrome window
 
@@ -59,7 +59,7 @@ Replace every pending value and every `start: null` with actual capture evidence
 
 The final narration uses the user's registered personal voice in their existing ElevenLabs account. Paste [narration.txt](narration.txt) into the speech-generation UI through `cua_repl`, with the settings in [audio direction](audio-direction.md). Preserve the exact selected voice label in the ignored audio receipt.
 
-Preserve the fresh download and its receipt under ignored `demo/output/audio/`. The revised [93-second timeline](narration-timeline.json) places ten complete passages at measured pauses. The [audio direction](audio-direction.md) documents source-sample continuity, reviewed alignment, and the final speech-first mix. Preserve all speech samples, use no voice time stretching, and adjust the picture rather than cutting words.
+Preserve the fresh download and its receipt under ignored `demo/output/audio/`. The revised [96-second timeline](narration-timeline.json) places ten complete passages at measured pauses. The [audio direction](audio-direction.md) documents source-sample continuity, reviewed alignment, and the final speech-first mix. Preserve all speech samples, use no voice time stretching, and adjust the picture rather than cutting words.
 
 Earlier line-level alignment and system-voice timing drafts are superseded and must not be submitted. Optional music requires an original or licensed source and a manifest `music.path`; set `music.duckUnderNarration` to `true` to lower it automatically while the voice speaks.
 
@@ -71,7 +71,7 @@ python3 demo/assemble.py demo/output/manifest.json --output demo/output/final
 python3 -m http.server 4320 --bind 127.0.0.1 --directory demo/output/final
 ```
 
-Open `http://127.0.0.1:4320` and watch the entire film. The renderer preserves source pixels apart from trimming, playback speed, crop/scale, and editorial speed or key indicators. It adds a black closing title card. It never reconstructs application UI or inserts fake results.
+Open `http://127.0.0.1:4320` and watch the entire film. The renderer preserves source pixels apart from trimming, crop/scale, restrained editorial emphasis, and short dissolves using actual captured frames. The final cut uses no playback acceleration. It adds a black closing title card. It never reconstructs application UI or inserts fake results.
 
 A real-time segment may include `keyCue` with `keys` (`["Tab"]`, `["Tab", "Tab"]`, or `["Enter"]`), scene-relative `at`, `duration`, and `evidence` for the actual recorded action. Keep these cues small and consistent at the lower left; never add a key action that did not occur.
 
@@ -82,7 +82,7 @@ Before accepting the cut, check:
 - The final add-on shows the actual upstream QM PR and its current status, without implying a merge.
 - Prediction appears before Tab; Tab accepts it; Send is visibly real.
 - The hero loop shows an actual instruction, execution, review, specific correction, and improved result from the same real session.
-- Execution acceleration is consistently 20× and labeled. Review text remains readable.
+- All selected source footage plays at 1×. The real revised result appears before the real Stop action, and review text remains readable.
 - The saved sessions in Goals come before Inbox; team switching uses a visible action; Garry's identity is clear; the README and memory evidence disclose its fictional history.
 - GBrain evidence is English, truthful, and appropriate for sharing. Private records are not exposed accidentally.
 - The final model label, cursor, interaction cues, crop, timing, and narration agree with the recorded app.

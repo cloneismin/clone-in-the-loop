@@ -8,7 +8,7 @@ Clone-in-the-Loop gives that job to a **Clone of your judgment**, grounded in yo
 
 **QM executes. GBrain remembers. Your Clone keeps your judgment in the loop.**
 
-**[Watch the 93-second demo](https://www.loom.com/share/f989c778d4f14d05acfe0a20d9bdfbc3)** · [Run locally](#quickstart) · [Inspect the implementation](#what-we-added-to-qm) · [QM proposal](https://github.com/yc-software/qm/pull/1671)
+**[Watch the demo](https://www.loom.com/share/f989c778d4f14d05acfe0a20d9bdfbc3)** · [Run locally](#quickstart) · [Inspect the implementation](#what-we-added-to-qm) · [Upstream QM PR](https://github.com/yc-software/qm/pull/1671)
 
 ![Clone-in-the-Loop: GBrain recalls scoped history; your Clone proposes an instruction; QM executes; your Clone reviews the result and sends the next correction to QM. Tab accepts a suggestion, a second Tab enables the loop, and Stop pauses it.](docs/assets/clone-decision-loop.svg)
 
@@ -71,7 +71,7 @@ This repository is a **QM source fork**, preserving its upstream history and MIT
 | **QM**     | Authenticated internal API, model turns, tools, run lifecycle, and execution persistence. | [`qm.ts`](plugins/clone-ui/server/qm.ts), [`src/`](src)                                                                          |
 | **GBrain** | Local history storage, source-scoped recall, and inspectable evidence.                    | [`memory/`](plugins/clone-ui/server/memory)                                                                                      |
 
-The [upstream QM PR](https://github.com/yc-software/qm/pull/1671) is a short feature proposal under [QM's contribution policy](https://github.com/yc-software/qm/blob/main/CONTRIBUTING.md). **The runnable implementation is this fork's `main` branch.** An open proposal does not imply upstream acceptance.
+The [Upstream QM PR](https://github.com/yc-software/qm/pull/1671) is a short feature proposal under [QM's contribution policy](https://github.com/yc-software/qm/blob/main/CONTRIBUTING.md). **The runnable implementation is this fork's `main` branch.** An open proposal does not imply upstream acceptance.
 
 ## How it works
 
@@ -221,14 +221,14 @@ npm run clone:core:smoke
 
 Recorded verification snapshot for the September 27 prototype:
 
-| Layer                             | Evidence                                                                                                                                                                                                                                                                            |
-| --------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Automated checks                  | 93 tests passed in [Clone CI](https://github.com/cloneismin/clone-in-the-loop/actions/runs/36360115469) at `6c7623f`. Additional local checks cover Codex cancellation, documentation contracts, and navigation shortcuts.                                                          |
-| TypeScript, lint, and build       | Core and extension typechecks, extension ESLint, and the production web build passed.                                                                                                                                                                                               |
-| Real execution                    | QM produced a sourced Research response and a Product command-line tool. The generated tool's three unit tests passed independently, and its CSV input produced real output.                                                                                                        |
-| Clone mode and Stop               | Observed six personal iterations and seven synthetic-teammate iterations before the Garry persona update. Stop persisted the paused state without further continuation; saved personal work survived restart.                                                                       |
-| Prediction and workspace behavior | Real GBrain-backed predictions and Tab acceptance were observed. Independent delayed-response checks cover workspace navigation and draft preservation; long-text layout was checked with a synthetic browser fixture.                                                              |
-| Demo                              | A recorded Goal reached twelve iterations, corrected a 50-word draft and its approval checklist, and remained paused after Stop. The 93-second film includes the Goals board and upstream proposal. The verification record documents complete public Loom playback at 2560 × 1440. |
+| Layer                             | Evidence                                                                                                                                                                                                                                                                                                                                                             |
+| --------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Automated checks                  | 93 tests passed in [Clone CI](https://github.com/cloneismin/clone-in-the-loop/actions/runs/36360115469) at `6c7623f`. Additional local checks cover Codex cancellation, documentation contracts, and navigation shortcuts.                                                                                                                                           |
+| TypeScript, lint, and build       | Core and extension typechecks, extension ESLint, and the production web build passed.                                                                                                                                                                                                                                                                                |
+| Real execution                    | QM produced a sourced Research response and a Product command-line tool. The generated tool's three unit tests passed independently, and its CSV input produced real output.                                                                                                                                                                                         |
+| Clone mode and Stop               | Observed six personal iterations and seven synthetic-teammate iterations before the Garry persona update. Stop persisted the paused state without further continuation; saved personal work survived restart.                                                                                                                                                        |
+| Prediction and workspace behavior | Real GBrain-backed predictions and Tab acceptance were observed. Independent delayed-response checks cover workspace navigation and draft preservation; long-text layout was checked with a synthetic browser fixture.                                                                                                                                               |
+| Demo                              | The main capture reached thirteen iterations before Stop; a later control pickup reached fourteen and was stopped. Earlier iterations corrected a 50-word draft and its approval checklist. The updated 96-second, 1440p demo passed 31 frame-anchor checks and replaced the video at the same Loom URL. Complete uninterrupted 1× playback passed at that same URL. |
 
 The [verification record](docs/verification.md) separates CI, focused regression checks, observed browser behavior, and remaining acceptance. The model reviews recorded responses; it does not independently verify every artifact or guarantee correctness. Inspect consequential results yourself.
 
@@ -243,7 +243,7 @@ The [verification record](docs/verification.md) separates CI, focused regression
 | [`src`](src)                                                       | Upstream QM core, with narrowly scoped runtime extensions.                               |
 | [`docs/architecture-clone.md`](docs/architecture-clone.md)         | Design decisions, data flow, persistence, and known limitations.                         |
 | [`docs/pitch.md`](docs/pitch.md)                                   | 30-second and 60-second presentation scripts.                                            |
-| [`demo/README.md`](demo/README.md)                                 | Storyboard, recording provenance, and production kit for the 93-second demo.             |
+| [`demo/README.md`](demo/README.md)                                 | Storyboard, recording provenance, and production kit for the demo.                       |
 | [`docs/feedback-audit.md`](docs/feedback-audit.md)                 | Product feedback and its implementation or verification status.                          |
 | [`README.qm.md`](README.qm.md)                                     | Preserved upstream QM documentation.                                                     |
 

@@ -2,24 +2,27 @@
 
 This storyboard defines the intended cut. Capture manifests and production reports record the footage and checks actually completed.
 
-Target: a 93-second, 1920 × 1080, 30 fps film of the new QM-based application at `http://127.0.0.1:4317`. Use the built app at `4318` only if the capture manifest records that origin. All speech, visible demo content, overlays, captions, and submission text must be English.
+Target: a 96-second, 2560 × 1440, 30 fps film of the new QM-based application at `http://127.0.0.1:4317`. All product footage plays at its recorded speed. Speech, visible demo content, captions, and submission text are English.
 
-## Locked sequence
+## Sentence-aligned sequence
 
-The latest approved order starts with the product and closes with the actual upstream PR as a closing add-on.
+| Output            | Picture and narration alignment                                                                                                                            |
+| ----------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 00:00–00:04.30    | Actual personalized prediction and visible QM branding introduce the fork.                                                                                 |
+| 00:04.30–00:10.30 | Personal GBrain history appears for the Codex/Claude clause, followed by Shared history for the explicitly shared team clause.                             |
+| 00:10.30–00:17    | The gray suggestion, actual Tab acceptance, and actual Enter submission match the spoken actions.                                                          |
+| 00:17–00:26.30    | The real Projects list shows Research, Product, and Marketing beside a reusable Marketing workflow.                                                        |
+| 00:26.30–00:39    | Recorded double-Tab controls lead into a concrete Clone direction, an actual QM result, and the coherent Clone review.                                     |
+| 00:39–00:51.30    | A continuous real scroll moves from the weak-CTA review and concrete request into the revised QM response. A quiet pause gives the result time to be read. |
+| 00:51.30–00:57    | The actual square Stop click, Stopping state, and paused loop follow the revised result.                                                                   |
+| 00:57–01:10.10    | Goals, Inbox, the team Clone selector, and Garry's shared-history pitch suggestion appear with their respective clauses.                                   |
+| 01:10.10–01:15.20 | Personal and Shared scopes appear separately, followed by an inspectable English team source.                                                              |
+| 01:15.20–01:19.20 | A QM response and a coherent Clone reply match the agent-execution and Clone-judgment lines.                                                               |
+| 01:19.20–01:22.20 | A genuine accepted prompt and Enter submission close the product sequence.                                                                                 |
+| 01:22.20–01:30.20 | The black Clone-in-the-Loop title accompanies the complete closing tagline and Own Your Clone.                                                             |
+| 01:30.20–01:36    | The actual open [upstream QM PR](https://github.com/yc-software/qm/pull/1671) appears as a final add-on.                                                   |
 
-| Output      | Seconds | Action and evidence                                                                                                   | Framing                                                          | Narration                                                                                                      |
-| ----------- | ------: | --------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------- |
-| 00:00–00:17 |      17 | Show the actual QM extension, a sourced next-prompt suggestion, Tab acceptance, and Enter to send.                    | Full app with restrained composer emphasis.                      | QM fork; GBrain personal and explicitly shared history; the suggested prompt; Tab once and Enter.              |
-| 00:17–00:26 |       9 | Navigate through real Research, Product, and Marketing work.                                                          | Full app; visible navigation.                                    | Repeatable workflows across the three departments.                                                             |
-| 00:26–00:39 |      13 | Enable Clone mode with the recorded double-Tab interaction; show a Clone instruction followed by actual QM execution. | Full app; truthful key cue and labeled 20x execution where used. | Clone directs, QM executes, Clone reviews.                                                                     |
-| 00:39–00:54 |      15 | Show the specific review, correction request, changed QM result, and Stop from the same real session.                 | Keep review and corrected result readable at normal speed.       | A weak call to action leads to a concrete-example request and a revised result; the loop continues until Stop. |
-| 00:54–01:07 |      13 | Show the actual Goals status board, Inbox, and Company workspace with Clone Garry.                                    | Full app; visible clicks and clear actor identity.               | Goals show progress, Inbox suggests next work, and a teammate provides another perspective.                    |
-| 01:07–01:19 |      12 | Open memory evidence and show personal/team scope without exposing private records.                                   | Full app and one inspectable source.                             | Personal and team memory remain separate; the user can inspect sources.                                        |
-| 01:19–01:27 |       8 | Black product title card.                                                                                             | Centered Clone-in-the-Loop typography.                           | Clone-in-the-Loop just killed Human-in-the-Loop. Own Your Clone.                                               |
-| 01:27–01:33 |       6 | Show the actual open [Upstream QM PR](https://github.com/yc-software/qm/pull/1671) as a closing add-on.               | Real browser page; title, repository, and Open state readable.   | We opened a QM pull request to bring this workflow upstream.                                                   |
-
-The revised assembly targets exactly 93 seconds. If a genuine operation is shorter than a planned accelerated span, shorten that span and give the remaining time to a readable result or pause. Never stretch an idle state to imply a longer execution. The assembly script reports the true final duration; 85–95 seconds is acceptable if it protects clarity.
+The source map distinguishes live actions from inspection of earlier results in the same real session. The review, revised result, and real Stop appear in causal order. The film does not claim that the inspected historical results were newly completed during the capture. Short five-frame dissolves use real outgoing source handles and incoming frames without moving narration timing. No speech is accelerated, faded, or removed.
 
 ## Capture order and continuity
 
@@ -32,11 +35,11 @@ The revised assembly targets exactly 93 seconds. If a genuine operation is short
 
 ## Source truth
 
-All product footage comes from this repository's QM extension during the hackathon. The user-approved visual direction uses full-app framing, selective composer emphasis, restrained music, and a traceable instruction, execution, review, and correction sequence.
+All product footage comes from this repository's QM extension built for the hackathon. Later pickup recordings retain their actual capture timestamps. The user-approved visual direction uses full-app framing, selective composer emphasis, restrained music, and a traceable instruction, execution, review, and correction sequence.
 
 The manifest records source path, SHA-256, capture time, app origin, Git revision, working-tree digest, scene in/out points, playback speed, and evidence notes. `assemble.py` only accepts product captures under ignored `demo/output/` or `data/`; it rejects missing capture metadata, hash mismatches, and timestamps before the event start.
 
-A cut may omit waiting, and a 20× segment may accelerate waiting and execution. Every 20× segment receives the same visible speed label. Reviews and results return to normal speed. Do not claim parallel execution, autonomous completion, semantic retrieval, or real multiplayer participation without corresponding recorded evidence.
+A cut may omit waiting. The final film uses only normal-speed source footage, including execution, review, and results. Do not claim parallel execution, autonomous completion, semantic retrieval, or real multiplayer participation without corresponding recorded evidence.
 
 ## Time gates
 

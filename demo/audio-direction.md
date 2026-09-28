@@ -8,7 +8,7 @@ Use [narration.txt](narration.txt) as the fresh English script. The user-approve
 
 The revised script has ten complete passages. It explains the QM fork, GBrain-backed personal next-prompt prediction, Tab once and twice, execution and review, Stop, team perspective, separate memory scopes, the product logo, and the upstream PR as the final bonus. Fictional teammate provenance remains in the README and memory evidence rather than a spoken disclaimer.
 
-Preserve the full fresh download and its hash under ignored `demo/output/audio/`. The [93-second timeline](narration-timeline.json) records measured paragraph boundaries for that exact recording. The original narration was partitioned at measured pauses, and rejoining those partitions reproduced its PCM hash. The final cut uses a freshly recorded correction passage and tagline; each replacement is kept complete. Do not apply these source offsets to a different recording.
+Preserve the full fresh download and its hash under ignored `demo/output/audio/`. The [96-second timeline](narration-timeline.json) records measured paragraph boundaries for that exact recording. The original narration was partitioned at measured pauses, and rejoining those partitions reproduced its PCM hash. The final cut uses a freshly recorded correction passage and tagline; each replacement is kept complete. Do not apply these source offsets to a different recording.
 
 Earlier word-level alignment clipped sentence endings. Final paragraph boundaries must fall inside verified pauses and preserve every source sample. Do not fade, accelerate, or delete speech to fit the picture. Add silence between paragraphs and adjust picture timing instead. Automatic transcription is a candidate alignment only and never substitutes for listening.
 
@@ -23,7 +23,9 @@ python3 demo/align_narration.py demo/output/audio/ACTUAL_SOURCE.mp3 \
 
 ## Pacing and music
 
-Paragraph starts are 00:00.20, 00:04.30, 00:17.40, 00:26.30, 00:39.20, 00:54.10, and 01:07.10. The fresh tagline starts at 01:19.20. "Own Your Clone" starts at 01:24.30; the closing PR line starts at 01:27.20 and finishes at approximately 01:31.00. The picture ends at 01:33.00.
+Paragraph starts are 00:00.20, 00:04.30, 00:17.40, 00:26.30, 00:39.20, 00:57.10, and 01:10.10. The fresh tagline starts at 01:22.20. "Own Your Clone" starts at 01:27.30; the closing PR line starts at 01:30.20 and finishes at approximately 01:34.00. The picture ends at 01:36.00.
+
+A three-second silent pause begins at 00:46.56, after the revised-result sentence and before the Stop sentence. Removing that pause reproduces the prior narration PCM exactly. The revised result stays visible before the recorded Stop action.
 
 The instrumental bed stays continuous and restrained. Set `music.duckUnderNarration` to `true` so speech lowers the music automatically. The assembler normalizes voice before mixing and targets -16 LUFS with a -1.5 dBTP ceiling for the final mix. Preserve music provenance and hashes in ignored receipts.
 
