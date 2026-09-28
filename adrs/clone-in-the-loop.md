@@ -4,4 +4,4 @@ I'd like to extend QM with a Clone that uses GBrain to draw on my chat histories
 
 I also want a team workspace where I can use a teammate's Clone, grounded in that person's shared context. QM supplies execution and persistence; GBrain retrieves relevant history for prediction and review.
 
-I'm exploring this in [a hackathon prototype](https://github.com/cloneismin/clone-in-the-loop). It's a local web app, and the teammate history is synthetic and labeled. I'd love to know where this would fit best in QM.
+I'm exploring this in [a hackathon prototype](https://github.com/cloneismin/clone-in-the-loop), with a [93-second demo](https://www.loom.com/share/f989c778d4f14d05acfe0a20d9bdfbc3) and [local setup instructions](https://github.com/cloneismin/clone-in-the-loop#quickstart). The runnable implementation lives in the fork's `main` branch; this PR is just the proposal. It's a local web app for one trusted operator, and the teammate history is synthetic and labeled. I'd love to know where this would fit best in QM.
