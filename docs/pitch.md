@@ -8,23 +8,25 @@ Use one complete review-and-correction sequence as the central demonstration. Th
 
 Your agent does the work. You still supply every next decision.
 
-Clone-in-the-Loop extends QM with a Clone grounded in your chat history. GBrain retrieves the relevant context. Your Clone predicts the next instruction and reviews the result.
+Clone-in-the-Loop puts your past judgment to work. GBrain recalls your instructions and feedback. Your Clone predicts what you would ask next. QM executes, and your Clone reviews the result and requests the next correction.
 
-Press Tab once to accept the suggested prompt. Press Tab again to hand over the loop. QM executes; your Clone requests corrections. Stop returns control to you.
+Tab accepts the suggestion. Tab again delegates the loop. Stop returns control to you.
 
-Your judgment keeps working.
+QM executes. GBrain remembers. Your Clone keeps your judgment in the loop.
 
 ## 60 seconds
 
-Agents can execute. Founders still write the follow-up, catch the missing detail, and start the next round.
+What would it mean to own the judgment behind your work?
 
-We built Clone-in-the-Loop inside a QM source fork. Official GBrain retrieves relevant personal or shared chat history, with visible sources. Your Clone uses that context to propose your next instruction.
+Founders direct agents across research, product, and marketing. They still write the follow-up, catch the missing detail, and start the next round.
 
-Press Tab once to accept it. Press Tab again and QM executes while your Clone reviews and directs the next step.
+We extended QM and GBrain around that person. GBrain retrieves your past instructions and feedback. Your Clone predicts the next instruction you would give. QM executes it; your Clone reviews the result and directs the correction.
 
-Watch this launch-review task. The Clone caught a repeated call to action, then requested tighter wording and specific sources. QM corrected the 50-word post and its review checklist. We inspected the template, stopped the loop, and checked that it stayed paused.
+Tab once accepts the suggestion. Tab again delegates the loop. Stop returns control to you.
 
-Switch to a team workspace to use shared judgment. Clone Garry is a fictional teammate with invented history; personal records stay outside team retrieval.
+In our launch-review workflow, the Clone caught a repeated call to action. QM revised the post. We inspected the artifact: 50 words, one call to action, and a publication checklist. Stop left the Goal paused.
+
+Team context extends the same idea to shared judgment. Clone Garry demonstrates it with fictional history, separate from personal records.
 
 QM executes. GBrain remembers. Your Clone keeps your judgment in the loop.
 
@@ -42,6 +44,14 @@ QM executes. GBrain remembers. Your Clone keeps your judgment in the loop.
 Keep the product story first and the upstream PR as a brief closing bonus after the product logo. Use current UI captures and genuine action cues. Label accelerated execution; keep the review, correction, and changed artifact legible. Do not replace the existing narration solely to match these live scripts.
 
 ## Short Q&A
+
+**Why does this fit the hackathon?**
+
+It connects the event's themes in one working workflow: a source extension of QM, official GBrain retrieval that informs instructions and reviews, a Tab-driven delegation interface, and an experiment in shared team judgment. Research, Product, and Marketing use the same loop, with saved work and progress visible in Goals.
+
+**What is distinctive about Clone?**
+
+We focus on the person directing the agents. Their past instructions and feedback inform the next prompt, the review, and the correction. The contribution is that personal decision loop: memory informs what to ask, execution produces a result, and review directs the next action. One Tab accepts a suggestion; a second Tab delegates the loop. The prototype uses retrieved history rather than training new model weights.
 
 **What did you build?**
 

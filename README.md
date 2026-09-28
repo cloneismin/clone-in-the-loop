@@ -6,6 +6,8 @@ Agents can write the code, draft the launch, and research the market. You still 
 
 Clone-in-the-Loop gives that job to a **Clone of your judgment**, grounded in your past instructions and feedback. It extends [QM](https://github.com/yc-software/qm) with next-prompt prediction and a continuous execution-and-review loop, using [GBrain](https://github.com/garrytan/gbrain) to recall relevant personal or shared team history.
 
+**QM executes. GBrain remembers. Your Clone keeps your judgment in the loop.**
+
 **[Watch the 93-second demo](https://www.loom.com/share/f989c778d4f14d05acfe0a20d9bdfbc3)** · [Run locally](#quickstart) · [Inspect the implementation](#what-we-added-to-qm) · [QM proposal](https://github.com/yc-software/qm/pull/1671)
 
 ![Clone-in-the-Loop: GBrain recalls scoped history; your Clone proposes an instruction; QM executes; your Clone reviews the result and sends the next correction to QM. Tab accepts a suggestion, a second Tab enables the loop, and Stop pauses it.](docs/assets/clone-decision-loop.svg)
@@ -14,18 +16,29 @@ Clone-in-the-Loop gives that job to a **Clone of your judgment**, grounded in yo
 
 Built for AI-native founders who work across **Research, Product, and Marketing** and delegate to both agents and people. The ambition is a company whose repeated work carries its people's judgment forward.
 
-## Own your intelligence
+## Why this fits Own Your Intelligence
 
-Built for the [Own Your Intelligence Hackathon](https://events.ycombinator.com/gstack-qm-river-memorable-hackathon). The event invites builders to extend QM and GBrain, explore new agent interfaces, and experiment with multiplayer and software-factory ideas. Here is our experiment:
+Our interpretation of **owning your intelligence** is making your past judgment useful in the next piece of work: the instructions you give, the details you catch, and the standards you bring to a review.
 
-| Event theme                | What this project contributes                                                                                                                                              |
-| -------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| **Extend QM and GBrain**   | QM runs real model turns and tools. Official GBrain stores and retrieves the history that informs the next instruction and review.                                         |
-| **A new agent interface**  | One Tab accepts a predicted prompt. A second Tab delegates the instruction → execution → review cycle, with a visible Stop control.                                        |
-| **Multiplayer ideas**      | Personal and team memory scopes, plus a teammate Clone grounded in shared feedback. The local prototype demonstrates this with one owner and a labeled synthetic teammate. |
-| **Software-factory ideas** | The same loop supports repeatable Research, Product, and Marketing work. Goals exposes saved work and progress; Inbox proposes what to do next.                            |
+The [hackathon](https://events.ycombinator.com/gstack-qm-river-memorable-hackathon) invites builders to extend QM and GBrain, create new agent workflows and interfaces, and explore multiplayer and software-factory ideas. We connect those themes in one working loop:
 
-**The contribution is the next decision.** The Clone uses retrieved history to propose what you would ask for, examines the agent's response, and requests a specific correction or improvement. Predictions and reviews are separate model turns; QM executes the work. This is retrieval-based personalization, not a newly trained personal model or a measured claim of human-level judgment.
+| Event theme                            | How we put it to work                                                                                                                                                                                                                                                              |
+| -------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Extend QM and GBrain**               | QM's real model turns, tools, and persistence power execution. Official GBrain supplies scoped history to prediction and review. The contribution is the decision loop connecting them. [Inspect the integration.](#what-we-added-to-qm)                                           |
+| **A new agent workflow and interface** | A predicted instruction becomes a concrete result, a review, and the next correction. **Tab → Tab → Stop** lets the user move from accepting a suggestion to delegating the loop and taking control back. [Try it.](#try-the-complete-loop)                                        |
+| **Multiplayer ideas**                  | A teammate's shared review context can guide the next step. Personal and team sources stay separate. One local owner and a labeled fictional teammate make this interaction inspectable in the prototype. [See the boundaries.](#memory-and-team-boundaries)                       |
+| **Software-factory ideas**             | The same loop supports repeated work across **Research, Product, and Marketing**. Goals shows saved work and progress; Inbox proposes next work. The launch-review template demonstrates a reusable output. [See the correction.](#a-launch-review-from-instruction-to-correction) |
+
+## What makes Clone different
+
+**We focus on the person directing the agents.** The question behind each prediction is: _What would this person ask the agent to do next?_
+
+- **Personal judgment shapes the instruction.** GBrain retrieves your past human instructions and feedback. Your Clone uses that evidence to propose the next prompt in context, with the sources available to inspect.
+- **Review becomes the next action.** Your Clone examines the response against the Goal and remembered preferences, identifies a gap, and sends a concrete correction back to QM. The workflow carries judgment through successive iterations.
+- **Delegation is one gesture away.** The first Tab accepts a suggestion for inspection. A second Tab enables Clone mode. Stop pauses the loop, and the saved conversation keeps the instructions, results, and reviews visible.
+- **Shared judgment has a place in the workflow.** Selecting a teammate Clone brings shared history into prediction and review. The ambition is for a founder's team to carry its standards across recurring work; the current demonstration uses clearly labeled synthetic teammate history.
+
+**The outcome we are building toward: your judgment carries across more work without requiring you to type every follow-up.** The prototype personalizes through retrieved history and separate prediction/review model turns. The [verification record](docs/verification.md) documents what ran and what changed; prediction quality and time savings remain to be measured.
 
 ## A launch review, from instruction to correction
 
