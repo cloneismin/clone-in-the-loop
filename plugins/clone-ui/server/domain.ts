@@ -28,6 +28,8 @@ export type Message = {
   sources?: Source[];
   model?: string;
   runId?: string;
+  executionInstruction?: string;
+  replyTo?: string;
 };
 
 export const CLONES = [

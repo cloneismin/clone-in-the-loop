@@ -74,11 +74,19 @@ export class Store {
     const result = await this.pool.query("SELECT data FROM clone_loop.messages WHERE goal_id=$1 ORDER BY seq", [id]);
     return result.rows.map((r) => r.data);
   }
-  async append(input: Omit<Message, "id" | "createdAt">, generation?: number): Promise<Message | null> {
+  async append(
+    input: Omit<Message, "id" | "createdAt">,
+    generation?: number,
+    patch: Partial<Goal> = {},
+  ): Promise<Message | null> {
     const message: Message = { ...input, id: randomUUID(), createdAt: new Date().toISOString() };
     const result = await this.pool.query(
-      "INSERT INTO clone_loop.messages(id,goal_id,data) SELECT $1,$2,$3 FROM clone_loop.goals WHERE id=$2 AND ($4::int IS NULL OR (data->>'generation')::int=$4) RETURNING id",
-      [message.id, message.goalId, message, generation ?? null],
+      `WITH updated_goal AS (
+        UPDATE clone_loop.goals SET data=data || $5::jsonb
+        WHERE id=$2 AND ($4::int IS NULL OR (data->>'generation')::int=$4) RETURNING id
+      )
+      INSERT INTO clone_loop.messages(id,goal_id,data) SELECT $1,$2,$3 FROM updated_goal RETURNING id`,
+      [message.id, message.goalId, message, generation ?? null, { ...patch, updatedAt: message.createdAt }],
     );
     return result.rowCount ? message : null;
   }

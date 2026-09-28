@@ -10,10 +10,12 @@ import { PredictionCanceledError, requestError } from "../server/errors.ts";
 
 function deferred<T>() {
   let resolve!: (value: T) => void;
-  const promise = new Promise<T>((accept) => {
+  let reject!: (error: Error) => void;
+  const promise = new Promise<T>((accept, decline) => {
     resolve = accept;
+    reject = decline;
   });
-  return { promise, resolve };
+  return { promise, resolve, reject };
 }
 
 async function until(predicate: () => boolean): Promise<void> {
@@ -51,10 +53,12 @@ function fixture() {
       goal = { ...goal, ...JSON.parse(JSON.stringify(patch)) };
       return { ...goal };
     },
-    append: async (message: Partial<Message>, generation?: number) => {
+    append: async (message: Partial<Message>, generation?: number, patch: Partial<Goal> = {}) => {
       if (generation !== undefined && generation !== goal.generation) return null;
-      messages.push(message);
-      return message;
+      const saved = { ...message, id: `message-${messages.length + 1}`, createdAt: new Date().toISOString() };
+      messages.push(saved);
+      goal = { ...goal, ...patch };
+      return saved;
     },
     messages: async () => [...messages],
     pendingRuns: async () => [...pendingRuns],
@@ -79,7 +83,10 @@ function fixture() {
       abortedRuns.push(runId);
     },
   } as unknown as QM;
-  const loop = new CloneLoop(store, qm, {} as MemoryService);
+  const loop = new CloneLoop(store, qm, {
+    search: async () => ({ results: [] }),
+    remember: async () => undefined,
+  } as unknown as MemoryService);
   return { loop, store, turns, messages, abortedRuns, goal: () => goal };
 }
 
@@ -262,4 +269,138 @@ test("restart recovery cancels tracked runs and clears persisted execution ident
   assert.equal(f.goal().status, "paused");
   assert.equal(f.goal().loopEnabled, false);
   assert.equal(f.goal().generation, 6);
+});
+
+test("continuous execution stores one Clone reply per agent result and executes its exact instruction", async () => {
+  const f = fixture();
+  await f.loop.start("lifecycle-goal", { loop: true, instruction: "Create the draft" });
+  await until(() => f.turns.length === 1);
+  f.turns[0]!.result.resolve({ text: "First draft", runId: "execution-one", model: "test" });
+  await until(() => f.turns.length === 2);
+  assert.equal(f.turns[1]!.options.readOnly, true);
+  f.turns[1]!.result.resolve({
+    text: JSON.stringify({
+      review: "The call to action is vague.",
+      nextInstruction: "Use one concrete action.",
+      criteria: ["One CTA"],
+    }),
+    runId: "review-one",
+    model: "test",
+  });
+  await until(() => f.messages.length === 3);
+  assert.deepEqual(
+    f.messages.map((message) => message.role),
+    ["clone", "assistant", "clone"],
+  );
+  assert.equal(f.messages[2]!.content, "The call to action is vague. Use one concrete action.");
+  assert.equal(f.messages[2]!.replyTo, f.messages[1]!.id);
+  assert.equal(f.messages[1]!.replyTo, f.messages[0]!.id);
+  await new Promise((resolve) => setTimeout(resolve, 1850));
+  await until(() => f.turns.length === 3);
+  assert.equal(f.messages.length, 3, "Executing the visible feedback must not append it again");
+  assert.ok(f.turns[2]!.options.text.endsWith("Instruction: Use one concrete action."));
+  await f.store.patch("lifecycle-goal", { loopEnabled: false });
+  f.turns[2]!.result.resolve({ text: "Revised draft", runId: "execution-two", model: "test" });
+  await until(() => f.loop.active.size === 0);
+  assert.deepEqual(
+    f.messages.map((message) => message.role),
+    ["clone", "assistant", "clone", "assistant"],
+  );
+  assert.equal(f.messages[3]!.replyTo, f.messages[2]!.id);
+  assert.equal(f.goal().iterations, 2);
+});
+
+test("Stop after review preserves the exact next instruction across process recovery", async () => {
+  const f = fixture();
+  await f.loop.start("lifecycle-goal", { loop: true, instruction: "Create the draft" });
+  await until(() => f.turns.length === 1);
+  f.turns[0]!.result.resolve({ text: "Draft", runId: "execution-one", model: "test" });
+  await until(() => f.turns.length === 2);
+  f.turns[1]!.result.resolve({
+    text: JSON.stringify({
+      review: "The headline is generic.",
+      nextInstruction: "Name the concrete benefit.",
+      criteria: ["Specific benefit"],
+    }),
+    runId: "review-one",
+    model: "test",
+  });
+  await until(() => f.messages.length === 3);
+  await f.loop.stop("lifecycle-goal");
+  await until(() => f.loop.active.size === 0);
+  const restarted = new CloneLoop(f.store, f.loop.qm, f.loop.memory);
+  await restarted.recover();
+  await restarted.start("lifecycle-goal", { loop: false });
+  await until(() => f.turns.length === 3);
+  assert.equal(f.messages.length, 3);
+  assert.ok(f.turns[2]!.options.text.endsWith("Instruction: Name the concrete benefit."));
+  f.turns[2]!.result.resolve({ text: "A concrete headline", runId: "execution-two", model: "test" });
+  await until(() => restarted.active.size === 0);
+  assert.equal(f.messages[3]!.replyTo, f.messages[2]!.id);
+  assert.equal(f.goal().iterations, 2);
+});
+
+test("failed execution and stopped retries reuse the unanswered directive without fabricating a result", async () => {
+  const f = fixture();
+  await f.loop.start("lifecycle-goal", { loop: false, instruction: "Make a useful artifact" });
+  await until(() => f.turns.length === 1);
+  f.turns[0]!.result.reject(new Error("Provider unavailable"));
+  await until(() => f.loop.active.size === 0);
+  assert.equal(f.goal().status, "error");
+  assert.equal(f.messages.length, 1);
+  await f.loop.start("lifecycle-goal", { loop: false });
+  await until(() => f.turns.length === 2);
+  assert.equal(f.messages.length, 1);
+  await f.loop.stop("lifecycle-goal");
+  await f.loop.start("lifecycle-goal", { loop: false, instruction: "Make a useful artifact" });
+  await until(() => f.turns.length === 3);
+  assert.equal(f.messages.length, 1);
+  f.turns[1]!.result.resolve({ text: "Canceled output", runId: "canceled", model: "test" });
+  f.turns[2]!.result.resolve({ text: "Actual result", runId: "actual", model: "test" });
+  await until(() => f.loop.active.size === 0);
+  assert.deepEqual(
+    f.messages.map((message) => message.content),
+    ["Make a useful artifact", "Actual result"],
+  );
+  assert.equal(f.messages[1]!.replyTo, f.messages[0]!.id);
+});
+
+test("restart after an agent result resumes its review instead of executing the old directive again", async () => {
+  const f = fixture();
+  await f.loop.start("lifecycle-goal", { loop: true, instruction: "Create the draft" });
+  await until(() => f.turns.length === 1);
+  f.turns[0]!.result.resolve({ text: "Durable draft", runId: "actual", model: "test" });
+  await until(() => f.turns.length === 2);
+  await f.loop.stop("lifecycle-goal");
+  const restarted = new CloneLoop(f.store, f.loop.qm, f.loop.memory);
+  await restarted.recover();
+  await restarted.start("lifecycle-goal", { loop: true });
+  await until(() => f.turns.length === 3);
+  assert.equal(f.turns[2]!.options.readOnly, true);
+  assert.equal(f.messages.length, 2);
+  assert.equal(f.goal().iterations, 1);
+  f.turns[1]!.result.resolve({
+    text: '{"review":"Old","nextInstruction":"Ignore"}',
+    runId: "canceled-review",
+    model: "test",
+  });
+  f.turns[2]!.result.resolve({
+    text: '{"review":"Needs proof.","nextInstruction":"Add a source."}',
+    runId: "fresh-review",
+    model: "test",
+  });
+  await until(() => f.messages.length === 3);
+  await restarted.stop("lifecycle-goal");
+  await until(() => restarted.active.size === 0);
+  assert.equal(f.messages[2]!.content, "Needs proof. Add a source.");
+  assert.equal(f.messages[2]!.replyTo, f.messages[1]!.id);
+});
+
+test("a superseded message write cannot launch an unrecorded execution", async () => {
+  const f = fixture();
+  f.store.append = async () => null;
+  await f.loop.start("lifecycle-goal", { loop: false, instruction: "Do the work" });
+  await until(() => f.loop.active.size === 0);
+  assert.equal(f.turns.length, 0);
+  assert.equal(f.messages.length, 0);
 });

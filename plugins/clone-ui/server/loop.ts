@@ -1,6 +1,14 @@
 import { randomUUID } from "node:crypto";
 import { setTimeout as delay } from "node:timers/promises";
-import { assertCloneScope, parsePrediction, type Goal, type Source, type Workspace, type CloneId } from "./domain.ts";
+import {
+  assertCloneScope,
+  parsePrediction,
+  type Goal,
+  type Source,
+  type Workspace,
+  type CloneId,
+  type Message,
+} from "./domain.ts";
 import { Store } from "./store.ts";
 import { QM } from "./qm.ts";
 import { executionPrompt, predictionPrompt, reviewPrompt, parseReview } from "./prompts.ts";
@@ -220,45 +228,110 @@ export class CloneLoop {
     if (goal.activeRunId) await this.qm.abort(goal.activeRunId).catch(() => undefined);
     await this.store.patch(id, { phase: "idle", activeRunId: "" });
   }
+  private async saveMessage(
+    goal: Goal,
+    input: Omit<Message, "id" | "createdAt" | "goalId">,
+    patch: Partial<Goal> = {},
+  ): Promise<Message> {
+    const message = await this.store.append({ ...input, goalId: goal.id }, goal.generation, patch);
+    if (!message) throw new DOMException("Execution was superseded.", "AbortError");
+    return message;
+  }
+  private async review(goal: Goal, result: Message, signal: AbortSignal): Promise<Message> {
+    signal.throwIfAborted();
+    await this.store.patch(goal.id, { phase: "reviewing" }, goal.generation);
+    const memory = await this.memory.search({
+      workspace: goal.workspace,
+      cloneId: goal.cloneId,
+      query: `${goal.title} ${goal.project} ${result.content.slice(0, 600)}`,
+      mode: "recall",
+      limit: 5,
+    });
+    signal.throwIfAborted();
+    const reviewResult = await this.qm.turn({
+      threadId: `clone-review:${randomUUID()}`,
+      text: reviewPrompt(goal, await this.store.messages(goal.id), memory.results),
+      workspace: goal.workspace,
+      readOnly: true,
+      signal,
+      onRun: async (activeRunId) => {
+        await this.store.patch(goal.id, { activeRunId }, goal.generation);
+      },
+    });
+    signal.throwIfAborted();
+    const review = parseReview(reviewResult.text);
+    const message = await this.saveMessage(
+      goal,
+      {
+        role: "clone",
+        content: [review.review.trim(), review.nextInstruction.trim()].filter(Boolean).join(" "),
+        executionInstruction: review.nextInstruction,
+        replyTo: result.id,
+        cloneId: goal.cloneId,
+        sources: memory.results,
+        model: reviewResult.model,
+        runId: reviewResult.runId,
+      },
+      { criteria: review.criteria, phase: "improving", activeRunId: "" },
+    );
+    goal.criteria = review.criteria;
+    return message;
+  }
   private async run(
     goal: Goal,
     controller: AbortController,
     options: { loop: boolean; instruction?: string; human?: boolean },
   ): Promise<void> {
     const signal = controller.signal;
-    let instruction = options.instruction?.trim();
-    let sources: Source[] = [];
-    if (!instruction) {
-      const prediction = await this.predict(goal.id, "", 0);
-      instruction = prediction.text;
-      sources = prediction.sources;
-    }
-    signal.throwIfAborted();
-    if (options.human)
-      await this.memory.remember({
-        ownerId: "min",
-        workspace: goal.workspace,
-        text: instruction,
-        source: `Clone conversation ${goal.id}`,
-        kind: "user-message",
+    const messages = await this.store.messages(goal.id);
+    const last = messages.at(-1);
+    const requested = options.instruction?.trim();
+    const pending =
+      last &&
+      (last.role === "clone" || last.role === "user") &&
+      last.cloneId === goal.cloneId &&
+      (!requested || requested === (last.executionInstruction ?? last.content))
+        ? last
+        : undefined;
+    let directive: Message;
+    if (pending) {
+      directive = pending;
+    } else if (!requested && options.loop && last?.role === "assistant") {
+      directive = await this.review(goal, last, signal);
+      await delay(1800, undefined, { signal });
+    } else {
+      let instruction = requested;
+      let sources: Source[] = [];
+      if (!instruction) {
+        const prediction = await this.predict(goal.id, "", 0);
+        instruction = prediction.text;
+        sources = prediction.sources;
+      }
+      signal.throwIfAborted();
+      if (options.human)
+        await this.memory.remember({
+          ownerId: "min",
+          workspace: goal.workspace,
+          text: instruction,
+          source: `Clone conversation ${goal.id}`,
+          kind: "user-message",
+        });
+      signal.throwIfAborted();
+      directive = await this.saveMessage(goal, {
+        role: options.human ? "user" : "clone",
+        content: instruction,
+        executionInstruction: instruction,
+        cloneId: goal.cloneId,
+        sources,
       });
-    let first = true;
+    }
     for (;;) {
       signal.throwIfAborted();
-      await this.store.append(
-        {
-          goalId: goal.id,
-          role: first && options.human ? "user" : "clone",
-          content: instruction,
-          cloneId: goal.cloneId,
-          sources,
-        },
-        goal.generation,
-      );
       await this.store.patch(goal.id, { phase: "executing", error: "" }, goal.generation);
+      signal.throwIfAborted();
       const result = await this.qm.turn({
         threadId: `clone-goal:${goal.id}`,
-        text: executionPrompt(goal, instruction),
+        text: executionPrompt(goal, directive.executionInstruction ?? directive.content),
         workspace: goal.workspace,
         signal,
         onRun: async (activeRunId) => {
@@ -266,58 +339,25 @@ export class CloneLoop {
         },
       });
       signal.throwIfAborted();
-      await this.store.append(
-        { goalId: goal.id, role: "assistant", content: result.text, model: result.model, runId: result.runId },
-        goal.generation,
+      const response = await this.saveMessage(
+        goal,
+        {
+          role: "assistant",
+          content: result.text,
+          model: result.model,
+          runId: result.runId,
+          replyTo: directive.id,
+        },
+        { iterations: goal.iterations + 1, activeRunId: "" },
       );
       goal.iterations++;
-      await this.store.patch(goal.id, { iterations: goal.iterations, activeRunId: "" }, goal.generation);
+      signal.throwIfAborted();
       const current = await this.store.goal(goal.id);
       if (!current.loopEnabled) {
         await this.store.patch(goal.id, { phase: "idle" }, goal.generation);
         return;
       }
-      await this.store.patch(goal.id, { phase: "reviewing" }, goal.generation);
-      const memory = await this.memory.search({
-        workspace: goal.workspace,
-        cloneId: goal.cloneId,
-        query: `${goal.title} ${goal.project} ${result.text.slice(0, 600)}`,
-        mode: "recall",
-        limit: 5,
-      });
-      const reviewResult = await this.qm.turn({
-        threadId: `clone-review:${randomUUID()}`,
-        text: reviewPrompt(goal, await this.store.messages(goal.id), memory.results),
-        workspace: goal.workspace,
-        readOnly: true,
-        signal,
-        onRun: async (activeRunId) => {
-          await this.store.patch(goal.id, { activeRunId }, goal.generation);
-        },
-      });
-      signal.throwIfAborted();
-      const review = parseReview(reviewResult.text);
-      await this.store.append(
-        {
-          goalId: goal.id,
-          role: "review",
-          content: review.review,
-          cloneId: goal.cloneId,
-          sources: memory.results,
-          model: reviewResult.model,
-          runId: reviewResult.runId,
-        },
-        goal.generation,
-      );
-      goal.criteria = review.criteria;
-      await this.store.patch(
-        goal.id,
-        { criteria: review.criteria, phase: "improving", activeRunId: "" },
-        goal.generation,
-      );
-      instruction = review.nextInstruction;
-      sources = memory.results;
-      first = false;
+      directive = await this.review(goal, response, signal);
       await delay(1800, undefined, { signal });
     }
   }

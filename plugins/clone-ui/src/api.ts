@@ -36,6 +36,8 @@ export interface Message {
   createdAt: string;
   cloneId?: string;
   sources?: MemorySource[];
+  executionInstruction?: string;
+  replyTo?: string;
 }
 
 export interface AppState {

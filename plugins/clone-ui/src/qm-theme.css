@@ -714,17 +714,6 @@ kbd {
   border-radius: var(--radius-md);
 }
 
-.message-role {
-  background: #f1f0ff;
-  color: var(--brand-accent);
-  font-size: 10px;
-}
-
-.message-review .message-role {
-  color: #1a7f37;
-  background: #eef6f0;
-}
-
 .message-sources > span,
 .message-sources button,
 .message-model,
@@ -745,7 +734,6 @@ kbd {
   font-size: 12px;
 }
 
-.message-role,
 .message-sources > span,
 .message-sources button,
 .source-label {
@@ -761,7 +749,6 @@ kbd {
     .model-label,
     .loop-toggle,
     .send-button,
-    .message-role,
     .source-label,
     .message-sources > span,
     .message-sources button,

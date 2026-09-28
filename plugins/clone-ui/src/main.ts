@@ -15,6 +15,7 @@ import type {
 import { brand, icon } from "./icons";
 import { renderMarkdown } from "./markdown";
 import { composerTabAction } from "./composer-shortcuts";
+import { conversationTurns } from "./conversation-turns";
 import { navigationItems, navigationShortcut, navigationShortcutHint } from "./navigation-shortcuts";
 import "./styles.css";
 import "./qm-theme.css";
@@ -66,25 +67,6 @@ function goalColumn(goal: Goal): string {
     return "In progress";
   if (goal.status === "paused") return "Paused";
   return "Ready";
-}
-
-function conversationTurns(messages: Message[]): Message[][] {
-  const turns: Message[][] = [];
-  for (const message of messages) {
-    const previousTurn = turns.at(-1);
-    const previous = previousTurn?.at(-1);
-    const elapsed = Date.parse(message.createdAt) - Date.parse(previous?.createdAt ?? "");
-    const isReviewDirectionPair =
-      previousTurn?.length === 1 &&
-      previous?.role === "review" &&
-      message.role === "clone" &&
-      previous.cloneId === message.cloneId &&
-      elapsed >= 0 &&
-      elapsed <= 5000;
-    if (isReviewDirectionPair) previousTurn!.push(message);
-    else turns.push([message]);
-  }
-  return turns;
 }
 
 class CloneApp extends LitElement {
@@ -952,23 +934,19 @@ class CloneApp extends LitElement {
     let label = "QM agent";
     if (message.role === "user") label = "You";
     else if (isClone) label = cloneName(clone);
-    let badge = html``;
-    if (isClone)
-      badge = html`<span class="message-role"
-        >${icon(message.role === "review" ? "check" : "sparkle", 11)}${message.role === "review" ? "Review" : "Next instruction"}</span
-      >`;
-    else if (message.role === "assistant") badge = html`<span class="message-model">${this.modelLabel}</span>`;
     return html`<article class="message message-${message.role}">
       <div class="message-avatar">
         ${message.role === "assistant" ? html`<span class="agent-avatar">${icon("code", 18)}</span>` : this.avatar(message.role === "user" ? this.clones[0] : clone, true)}
       </div>
       <div class="message-main">
         <div class="message-header">
-          <strong>${label}</strong>${badge}<time datetime=${message.createdAt}
+          <strong>${label}</strong
+          >${message.role === "assistant" ? html`<span class="message-model">${this.modelLabel}</span>` : nothing}<time
+            datetime=${message.createdAt}
             >${Number.isNaN(Date.parse(message.createdAt)) ? "" : new Date(message.createdAt).toLocaleTimeString([], { hour: "numeric", minute: "2-digit" })}</time
           >
         </div>
-        <div class="message-content">${renderMarkdown(messages.map((entry) => entry.content).join("\n\n"))}</div>
+        <div class="message-content">${renderMarkdown(messages.map((entry) => entry.content).join(" "))}</div>
         ${
           sources.length
             ? html`<div class="message-sources" aria-label="Sources used in this turn">
