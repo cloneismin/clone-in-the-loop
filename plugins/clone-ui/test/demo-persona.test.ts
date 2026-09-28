@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 import { CLONES, type Goal } from "../server/domain.ts";
-import { executionPrompt, predictionPrompt, reviewPrompt } from "../server/prompts.ts";
+import { executionPrompt, reviewPrompt } from "../server/prompts.ts";
 import { QM } from "../server/qm.ts";
 
 test("the renamed teammate preserves its durable identity and declares its invented provenance", () => {
@@ -15,11 +15,7 @@ test("the renamed teammate preserves its durable identity and declares its inven
     cloneId: "jun",
     criteria: [],
   } as unknown as Goal;
-  for (const prompt of [
-    predictionPrompt(goal, [], [], ""),
-    executionPrompt(goal, "Review it"),
-    reviewPrompt(goal, [], []),
-  ]) {
+  for (const prompt of [executionPrompt(goal, "Review it"), reviewPrompt(goal, [], [])]) {
     assert.match(prompt, /Clone Garry/);
     assert.match(prompt, /fictional demo teammate|fictional Garry Tan demo teammate/);
     assert.match(prompt, /invented history/);

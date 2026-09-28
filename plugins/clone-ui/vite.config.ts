@@ -6,7 +6,7 @@ export default defineConfig({
     port: 4317,
     strictPort: true,
     proxy: {
-      "/api": process.env.CLONE_API_URL ?? "http://127.0.0.1:4318",
+      "/api": process.env.CLONE_WEB_API_URL ?? "http://127.0.0.1:4318",
     },
   },
   build: {

@@ -1,36 +1,32 @@
 import { randomUUID } from "node:crypto";
 import { setTimeout as delay } from "node:timers/promises";
-import {
-  assertCloneScope,
-  parsePrediction,
-  type Goal,
-  type Source,
-  type Workspace,
-  type CloneId,
-  type Message,
-} from "./domain.ts";
+import { assertCloneScope, type Goal, type Source, type Workspace, type CloneId, type Message } from "./domain.ts";
 import { Store } from "./store.ts";
 import { QM } from "./qm.ts";
-import { executionPrompt, predictionPrompt, reviewPrompt, parseReview } from "./prompts.ts";
+import { executionPrompt, reviewPrompt, parseReview } from "./prompts.ts";
 import type { MemoryService } from "./memory/types.ts";
 import { PredictionCanceledError } from "./errors.ts";
+import { ClonePrediction, type PredictionResult } from "./prediction.ts";
 
 export class CloneLoop {
   store: Store;
   qm: QM;
   memory: MemoryService;
+  prediction: ClonePrediction;
   active = new Map<string, AbortController>();
   predictions = new Map<string, AbortController>();
   mutations = new Map<string, Promise<void>>();
 
-  constructor(store: Store, qm: QM, memory: MemoryService) {
+  constructor(store: Store, qm: QM, memory: MemoryService, prediction = new ClonePrediction()) {
     this.store = store;
     this.qm = qm;
     this.memory = memory;
+    this.prediction = prediction;
   }
   async recover(): Promise<void> {
     for (const id of await this.store.pendingRuns()) {
-      await this.qm.abort(id).catch(() => undefined);
+      if (id.startsWith("clone-sdk:")) await this.prediction.cancel(id.slice(10)).catch(() => undefined);
+      else await this.qm.abort(id).catch(() => undefined);
       await this.store.untrackRun(id);
     }
     for (const goal of await this.store.goals()) {
@@ -50,17 +46,21 @@ export class CloneLoop {
     id: string,
     draft: string,
     revision: number,
-  ): Promise<{ text: string; revision: number; sources: Source[] }> {
+    signal?: AbortSignal,
+  ): Promise<PredictionResult & { revision: number; sources: Source[] }> {
     const goal = await this.store.goal(id);
-    return this.predictGoal(goal, draft, revision, true);
+    return this.predictGoal(goal, draft, revision, true, signal);
   }
-  async predictDraft(input: {
-    workspace: Workspace;
-    cloneId: CloneId;
-    project: string;
-    draft: string;
-    revision: number;
-  }): Promise<{ text: string; revision: number; sources: Source[] }> {
+  async predictDraft(
+    input: {
+      workspace: Workspace;
+      cloneId: CloneId;
+      project: string;
+      draft: string;
+      revision: number;
+    },
+    signal?: AbortSignal,
+  ): Promise<PredictionResult & { revision: number; sources: Source[] }> {
     const now = new Date().toISOString();
     const goal: Goal = {
       id: `draft:${input.workspace}:${input.cloneId}:${input.project}`,
@@ -77,21 +77,26 @@ export class CloneLoop {
       updatedAt: now,
       criteria: [],
     };
-    return this.predictGoal(goal, input.draft, input.revision, false);
+    return this.predictGoal(goal, input.draft, input.revision, false, signal);
   }
   private async predictGoal(
     goal: Goal,
     draft: string,
     revision: number,
     persist: boolean,
-  ): Promise<{ text: string; revision: number; sources: Source[] }> {
+    signal?: AbortSignal,
+  ): Promise<PredictionResult & { revision: number; sources: Source[] }> {
     const id = goal.id;
     assertCloneScope(goal.workspace, goal.cloneId);
     this.predictions.get(id)?.abort();
     const controller = new AbortController();
     this.predictions.set(id, controller);
     let runId = "";
+    const abort = () => controller.abort();
+    signal?.addEventListener("abort", abort, { once: true });
+    if (signal?.aborted) abort();
     try {
+      controller.signal.throwIfAborted();
       const messages = persist ? await this.store.messages(id) : [];
       const memory = await this.memory.search({
         workspace: goal.workspace,
@@ -101,34 +106,30 @@ export class CloneLoop {
         limit: 5,
       });
       controller.signal.throwIfAborted();
-      const result = await this.qm.turn({
-        threadId: `clone-prediction:${randomUUID()}`,
-        text: predictionPrompt(goal, messages, memory.results, draft),
-        workspace: goal.workspace,
-        readOnly: true,
-        signal: controller.signal,
-        onRun: async (id) => {
-          runId = id;
-          await this.store.trackRun(id, "prediction");
+      const result = await this.prediction.predict(
+        { goal, messages, sources: memory.results, draft, revision },
+        controller.signal,
+        async (requestId) => {
+          runId = `clone-sdk:${requestId}`;
+          await this.store.trackRun(runId, "clone-sdk");
         },
-      });
+      );
       controller.signal.throwIfAborted();
-      const text = parsePrediction(result.text, draft);
       if (persist)
         await this.store.prediction(id, {
+          ...result,
           draft,
           revision,
-          text,
           cloneId: goal.cloneId,
           sources: memory.results,
-          model: result.model,
-          runId: result.runId,
+          provider: "clone-sdk",
         });
-      return { text, revision, sources: memory.results };
+      return { ...result, revision, sources: memory.results };
     } catch (error) {
       if (controller.signal.aborted) throw new PredictionCanceledError();
       throw error;
     } finally {
+      signal?.removeEventListener("abort", abort);
       if (runId) await this.store.untrackRun(runId);
       if (this.predictions.get(id) === controller) this.predictions.delete(id);
     }
@@ -148,12 +149,15 @@ export class CloneLoop {
       if (this.mutations.get(id) === current) this.mutations.delete(id);
     }
   }
-  async start(id: string, options: { loop: boolean; instruction?: string; human?: boolean }): Promise<void> {
+  async start(
+    id: string,
+    options: { loop: boolean; instruction?: string; human?: boolean; origin?: Message["origin"] },
+  ): Promise<void> {
     await this.mutate(id, () => this.startExclusive(id, options));
   }
   private async startExclusive(
     id: string,
-    options: { loop: boolean; instruction?: string; human?: boolean },
+    options: { loop: boolean; instruction?: string; human?: boolean; origin?: Message["origin"] },
   ): Promise<void> {
     if (this.active.get(id)?.signal.aborted) this.active.delete(id);
     if (this.active.has(id)) {
@@ -280,7 +284,7 @@ export class CloneLoop {
   private async run(
     goal: Goal,
     controller: AbortController,
-    options: { loop: boolean; instruction?: string; human?: boolean },
+    options: { loop: boolean; instruction?: string; human?: boolean; origin?: Message["origin"] },
   ): Promise<void> {
     const signal = controller.signal;
     const messages = await this.store.messages(goal.id);
@@ -303,12 +307,13 @@ export class CloneLoop {
       let instruction = requested;
       let sources: Source[] = [];
       if (!instruction) {
-        const prediction = await this.predict(goal.id, "", 0);
+        const prediction = await this.predict(goal.id, "", 0, signal);
+        if (!prediction.text) throw new Error("Clone did not suggest an instruction. Type a direction to continue.");
         instruction = prediction.text;
         sources = prediction.sources;
       }
       signal.throwIfAborted();
-      if (options.human)
+      if (options.human && options.origin === "human")
         await this.memory.remember({
           ownerId: "min",
           workspace: goal.workspace,
@@ -319,6 +324,7 @@ export class CloneLoop {
       signal.throwIfAborted();
       directive = await this.saveMessage(goal, {
         role: options.human ? "user" : "clone",
+        origin: options.human ? (options.origin ?? "unknown") : "agent",
         content: instruction,
         executionInstruction: instruction,
         cloneId: goal.cloneId,

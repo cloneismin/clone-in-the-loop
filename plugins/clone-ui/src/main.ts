@@ -119,9 +119,14 @@ class CloneApp extends LitElement {
   private showKeyboardHelp = false;
   private filterProject = "";
   private drafts = new Map<string, string>();
+  private draftOrigins = new Map<string, { original: string; accepted: string }>();
   private pollTimer?: ReturnType<typeof setInterval>;
   private stateTimer?: ReturnType<typeof setInterval>;
   private predictionTimer?: ReturnType<typeof setTimeout>;
+  private predictionExpiry?: ReturnType<typeof setTimeout>;
+  private predictionAbort?: AbortController;
+  private composing = false;
+  private predictionOrigin?: { original: string; accepted: string };
   private memoryTimer?: ReturnType<typeof setTimeout>;
   private revision = 0;
   private acceptedPrediction = "";
@@ -151,7 +156,7 @@ class CloneApp extends LitElement {
     super.disconnectedCallback();
     clearInterval(this.pollTimer);
     clearInterval(this.stateTimer);
-    clearTimeout(this.predictionTimer);
+    this.clearPrediction();
     clearTimeout(this.memoryTimer);
     window.removeEventListener("keydown", this.globalKeydown);
   }
@@ -225,11 +230,16 @@ class CloneApp extends LitElement {
   }
 
   private saveDraft() {
-    this.drafts.set(this.active?.goal.id ?? `new:${this.workspace}`, this.draft);
+    const key = this.active?.goal.id ?? `new:${this.workspace}`;
+    this.drafts.set(key, this.draft);
+    if (this.predictionOrigin) this.draftOrigins.set(key, this.predictionOrigin);
+    else this.draftOrigins.delete(key);
   }
 
   private clearPrediction() {
     clearTimeout(this.predictionTimer);
+    clearTimeout(this.predictionExpiry);
+    this.predictionAbort?.abort();
     this.revision += 1;
     this.prediction = null;
     this.predicting = false;
@@ -244,6 +254,7 @@ class CloneApp extends LitElement {
     this.inboxLoading = false;
     this.selectedSource = null;
     this.saveDraft();
+    this.predictionOrigin = undefined;
     this.clearPrediction();
     this.view = view;
     this.filterProject = project;
@@ -254,6 +265,7 @@ class CloneApp extends LitElement {
     if (view === "new") {
       this.active = null;
       this.draft = this.drafts.get(`new:${this.workspace}`) ?? "";
+      this.predictionOrigin = this.draftOrigins.get(`new:${this.workspace}`);
       localStorage.removeItem("clone.activeGoal");
       await this.updateComplete;
       this.querySelector<HTMLTextAreaElement>(".composer-input")?.focus();
@@ -268,6 +280,7 @@ class CloneApp extends LitElement {
     this.saveDraft();
     this.active = null;
     this.draft = "";
+    this.predictionOrigin = undefined;
     return this.navigate("new", project);
   }
 
@@ -280,6 +293,7 @@ class CloneApp extends LitElement {
     this.inbox = [];
     this.selectedSource = null;
     this.draft = this.drafts.get(`new:${workspace}`) ?? "";
+    this.predictionOrigin = this.draftOrigins.get(`new:${workspace}`);
     clearTimeout(this.memoryTimer);
     this.selectedCloneId = this.clones[0]?.id ?? "";
     localStorage.setItem("clone.workspace", workspace);
@@ -291,6 +305,7 @@ class CloneApp extends LitElement {
     const operationRevision = ++this.operationRevision;
     this.selectedSource = null;
     this.saveDraft();
+    this.predictionOrigin = undefined;
     this.clearPrediction();
     this.pending = true;
     this.error = "";
@@ -303,6 +318,7 @@ class CloneApp extends LitElement {
       this.selectedCloneId = detail.goal.cloneId;
       this.selectedProject = detail.goal.project;
       this.draft = this.drafts.get(id) ?? "";
+      this.predictionOrigin = this.draftOrigins.get(id);
       localStorage.setItem("clone.activeGoal", id);
       localStorage.setItem("clone.workspace", this.workspace);
       await this.updateComplete;
@@ -327,6 +343,7 @@ class CloneApp extends LitElement {
       if (this.active?.goal.id !== id) return;
       this.active = detail;
       const changed = detail.messages.length !== previousCount;
+      if (changed) this.clearPrediction();
       if (changed && follow) {
         await this.updateComplete;
         this.scrollToLatest();
@@ -349,13 +366,15 @@ class CloneApp extends LitElement {
 
   private onDraft(event: Event) {
     this.draft = (event.target as HTMLTextAreaElement).value;
+    if (!this.draft || this.draft === this.predictionOrigin?.original) this.predictionOrigin = undefined;
     this.clearPrediction();
     this.schedulePrediction();
   }
 
   private schedulePrediction() {
     clearTimeout(this.predictionTimer);
-    if (!this.state || (this.view !== "new" && this.view !== "goal") || this.loopOn || this.working) return;
+    if (!this.state || this.composing || (this.view !== "new" && this.view !== "goal") || this.loopOn || this.working)
+      return;
     this.predictionTimer = setTimeout(() => {
       void this.predict();
     }, 650);
@@ -364,19 +383,43 @@ class CloneApp extends LitElement {
   private async predict() {
     const id = this.active?.goal.id;
     const home = this.view === "new";
-    if ((!id && !home) || this.loopOn || !this.selectedCloneId) return;
+    const input = this.querySelector<HTMLTextAreaElement>(".composer-input");
+    if (
+      (!id && !home) ||
+      this.loopOn ||
+      this.composing ||
+      !this.selectedCloneId ||
+      document.activeElement !== input ||
+      input?.selectionStart !== this.draft.length ||
+      input?.selectionEnd !== this.draft.length
+    )
+      return;
+    this.predictionAbort?.abort();
+    const controller = new AbortController();
+    this.predictionAbort = controller;
     const revision = ++this.revision;
     const draft = this.draft;
     this.predicting = true;
     this.lastPredictionContext = `${id}:${this.active?.messages.at(-1)?.id ?? ""}:${draft}`;
     try {
-      const prediction = await api<Prediction>(home ? "/predict" : `/goals/${encodeURIComponent(id!)}/predict`, {
-        draft,
-        revision,
-        ...(home ? { workspace: this.workspace, cloneId: this.selectedCloneId, project: this.selectedProject } : {}),
-      });
+      const prediction = await api<Prediction>(
+        home ? "/predict" : `/goals/${encodeURIComponent(id!)}/predict`,
+        {
+          draft,
+          revision,
+          ...(home ? { workspace: this.workspace, cloneId: this.selectedCloneId, project: this.selectedProject } : {}),
+        },
+        controller.signal,
+      );
       if (revision === this.revision && this.active?.goal.id === id && this.draft === draft) {
-        this.prediction = prediction;
+        if (prediction.status === "suggested" && prediction.expiresAt * 1000 > Date.now()) {
+          this.prediction = prediction;
+          clearTimeout(this.predictionExpiry);
+          this.predictionExpiry = setTimeout(
+            () => this.clearPrediction(),
+            Math.min(60_000, prediction.expiresAt * 1000 - Date.now()),
+          );
+        } else this.prediction = null;
         if (this.error.startsWith("Prediction unavailable:")) this.error = "";
       }
     } catch (error) {
@@ -388,8 +431,17 @@ class CloneApp extends LitElement {
   }
 
   private acceptPrediction(fromKeyboard = false) {
-    if (!this.prediction?.text) return;
-    this.draft = this.prediction.text;
+    if (!this.prediction?.text || this.prediction.expiresAt * 1000 <= Date.now()) return;
+    const original = this.draft;
+    const text = this.prediction.text;
+    const input = this.querySelector<HTMLTextAreaElement>(".composer-input");
+    input?.focus();
+    input?.setSelectionRange(this.draft.length, this.draft.length);
+    if (input && !document.execCommand("insertText", false, text.slice(original.length))) input.value = text;
+    this.draft = text;
+    this.predictionOrigin = { original, accepted: text };
+    clearTimeout(this.predictionExpiry);
+    clearTimeout(this.predictionTimer);
     this.prediction = null;
     this.acceptedPrediction = fromKeyboard ? this.draft : "";
     this.revision += 1;
@@ -402,7 +454,10 @@ class CloneApp extends LitElement {
   }
 
   private onComposerKey(event: KeyboardEvent) {
-    if (event.isComposing) return;
+    if (event.isComposing || this.composing) return;
+    const input = event.target as HTMLTextAreaElement;
+    if (input.selectionStart !== this.draft.length || input.selectionEnd !== this.draft.length) this.clearPrediction();
+    if (this.prediction && this.prediction.expiresAt * 1000 <= Date.now()) this.clearPrediction();
     if (event.key === "Escape") {
       this.clearPrediction();
       return;
@@ -429,6 +484,9 @@ class CloneApp extends LitElement {
 
   private async send(): Promise<boolean> {
     const text = this.draft.trim();
+    let origin = "human";
+    if (this.predictionOrigin)
+      origin = this.draft === this.predictionOrigin.accepted ? "accepted_prediction" : "edited_prediction";
     if (!text || this.pending || this.working) return false;
     const navigation = this.navigationRevision;
     const operation = ++this.operationRevision;
@@ -451,8 +509,12 @@ class CloneApp extends LitElement {
         });
         goal = created.goal;
       }
-      await api(`/goals/${encodeURIComponent(goal.id)}/send`, { text });
-      if (this.drafts.get(draftKey) === draft) this.drafts.delete(draftKey);
+      await api(`/goals/${encodeURIComponent(goal.id)}/send`, { text, origin });
+      if (current()) this.predictionOrigin = undefined;
+      if (this.drafts.get(draftKey) === draft) {
+        this.drafts.delete(draftKey);
+        this.draftOrigins.delete(draftKey);
+      }
       if (!current()) return true;
       if (this.active?.goal.id !== goal.id) this.active = { goal, messages: [] };
       this.view = "goal";
@@ -475,6 +537,7 @@ class CloneApp extends LitElement {
 
   private async toggleLoop(enabled = !this.loopOn) {
     if (this.pending) return;
+    if (this.prediction && this.prediction.expiresAt * 1000 <= Date.now()) this.clearPrediction();
     if (!this.active && !this.draft.trim() && !this.prediction?.text) return;
     const navigation = this.navigationRevision;
     const operation = ++this.operationRevision;
@@ -501,12 +564,18 @@ class CloneApp extends LitElement {
         enabled,
         ...(enabled && instruction ? { instruction } : {}),
       });
-      if (enabled && instruction && this.drafts.get(draftKey) === draft) this.drafts.delete(draftKey);
+      if (enabled && instruction && this.drafts.get(draftKey) === draft) {
+        this.drafts.delete(draftKey);
+        this.draftOrigins.delete(draftKey);
+      }
       if (!current()) return;
       if (this.active?.goal.id !== goal.id) this.active = { goal, messages: [] };
       this.view = "goal";
       localStorage.setItem("clone.activeGoal", goal.id);
-      if (enabled && instruction && this.draft === draft) this.draft = "";
+      if (enabled && instruction && this.draft === draft) {
+        this.draft = "";
+        this.predictionOrigin = undefined;
+      }
       await this.refreshGoal();
       await this.refreshState();
     } catch (error) {
@@ -804,8 +873,22 @@ class CloneApp extends LitElement {
               rows="1"
               @input=${this.onDraft}
               @keydown=${this.onComposerKey}
+              @focus=${this.schedulePrediction}
+              @select=${(event: Event) => {
+                const input = event.target as HTMLTextAreaElement;
+                if (input.selectionStart !== this.draft.length || input.selectionEnd !== this.draft.length)
+                  this.clearPrediction();
+              }}
+              @compositionstart=${() => {
+                this.composing = true;
+                this.clearPrediction();
+              }}
+              @compositionend=${() => {
+                this.composing = false;
+                this.schedulePrediction();
+              }}
               @blur=${() => {
-                this.acceptedPrediction = "";
+                this.clearPrediction();
               }}
             ></textarea>
           </div>

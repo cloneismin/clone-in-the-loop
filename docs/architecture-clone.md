@@ -6,16 +6,17 @@ The product runs as a local web app for one owner, with a fictional teammate ava
 
 ## Components
 
-| Component        | Implementation                                | Responsibility                                                                              |
-| ---------------- | --------------------------------------------- | ------------------------------------------------------------------------------------------- |
-| Browser          | Lit + Vite in `plugins/clone-ui/src`          | Goals, workspace selection, prediction acceptance, visible execution/review messages, Stop. |
-| Clone API        | Node.js in `plugins/clone-ui/server/index.ts` | Validates requests, scopes Goals, serves state and memory, starts or stops work.            |
-| Decision loop    | `server/loop.ts` and `server/prompts.ts`      | Predicts, executes, reviews, and selects the next instruction.                              |
-| Goal store       | `server/store.ts` + PostgreSQL                | Persists Goals, messages, predictions, and loop generations.                                |
-| QM adapter       | `server/qm.ts` + QM's shared chassis client   | Signs internal requests, starts real core turns, polls runs, and requests cancellation.     |
-| Execution engine | QM core + Codex harness                       | Runs model turns and bounded execution steps.                                               |
-| Memory adapter   | `server/memory`                               | Imports approved local human history, applies source scope, returns evidence.               |
-| Memory engine    | Official GBrain `PGLiteEngine`                | Owns schema, migrations, pages, chunks, indexes, and keyword retrieval.                     |
+| Component         | Implementation                                | Responsibility                                                                                                  |
+| ----------------- | --------------------------------------------- | --------------------------------------------------------------------------------------------------------------- |
+| Browser           | Lit + Vite in `plugins/clone-ui/src`          | Goals, workspace selection, prediction acceptance, visible execution/review messages, Stop.                     |
+| Clone API         | Node.js in `plugins/clone-ui/server/index.ts` | Validates requests, scopes Goals, serves state and memory, starts or stops work.                                |
+| Decision loop     | `server/loop.ts` and `server/prompts.ts`      | Predicts, executes, reviews, and selects the next instruction.                                                  |
+| Goal store        | `server/store.ts` + PostgreSQL                | Persists Goals, messages, predictions, and loop generations.                                                    |
+| Prediction client | `server/prediction.ts` + Clone SDK 0.3.1      | Builds bounded product context, calls the hosted API, validates response identity and expiry, cancels requests. |
+| QM adapter        | `server/qm.ts` + QM's shared chassis client   | Signs internal requests, starts real core turns, polls runs, and requests cancellation.                         |
+| Execution engine  | QM core + Codex harness                       | Runs model turns and bounded execution steps.                                                                   |
+| Memory adapter    | `server/memory`                               | Imports approved local human history, applies source scope, returns evidence.                                   |
+| Memory engine     | Official GBrain `PGLiteEngine`                | Owns schema, migrations, pages, chunks, indexes, and keyword retrieval.                                         |
 
 ## One loop iteration
 
@@ -25,6 +26,7 @@ sequenceDiagram
   participant UI as Clone UI
   participant Loop as Clone loop
   participant Brain as GBrain
+  participant SDK as Clone SDK / hosted API
   participant Core as QM core
   participant Store as PostgreSQL
 
@@ -32,8 +34,8 @@ sequenceDiagram
   UI->>Loop: Request prediction with draft revision
   Loop->>Brain: Recall within workspace and Clone scope
   Brain-->>Loop: Evidence, source labels, demo flags
-  Loop->>Core: Read-only prediction turn
-  Core-->>Loop: Proposed instruction + run identity
+  Loop->>SDK: Draft + scoped evidence + context revision
+  SDK-->>Loop: Completion + prediction/request identity
   Loop->>Store: Persist prediction and provenance
   Loop-->>UI: Suggestion with original revision
   Owner->>UI: Tab to accept; Tab again to enable Clone mode
@@ -53,7 +55,7 @@ sequenceDiagram
   Loop->>Store: Persist paused state
 ```
 
-Prediction, execution, and review all run as model turns through QM. Predictions and reviews are generated during the session. Each execution turn receives a bounded instruction and returns a result before the next iteration begins.
+Next-prompt predictions and draft completions use the official Clone SDK server client. QM continues to handle structured reviews, Inbox proposals and execution. The SDK does not execute agents or expose the structured review contract. Each execution turn receives a bounded instruction and returns a result before the next iteration begins.
 
 The review records whether the current step is complete. Clone mode can then choose another useful improvement toward the same Goal, so completing a step does not end the loop. The operator can turn off the composer switch or press Stop; both use the same cancellation path. The composer glows blue while Clone mode is enabled and keeps a neutral border during a single manual execution.
 
@@ -63,8 +65,11 @@ QM uses PostgreSQL for its configured session and run stores. The extension uses
 
 - `goals`: title, project, workspace, selected Clone, criteria, phase, iteration count, active QM run, and generation.
 - `messages`: ordered human, Clone, and assistant messages, plus preserved legacy review records. Each new review and next instruction are stored together as one Clone reply. `executionInstruction` stores the exact instruction to execute; `replyTo` links a real QM result to its directive and a Clone reply to the result it reviews. Model/run identity and evidence are retained when available.
-- `predictions`: draft, revision, proposed instruction, selected Clone, evidence, and model/run identity.
+- `predictions`: draft, revision, proposed instruction or abstention, selected Clone, evidence, provider, SDK request/prediction IDs, context revision, expiry and prediction units. The SDK does not return a QM model or run ID.
+- `pending_runs`: namespaced SDK request IDs and legacy QM runs, routed to their respective cancellation APIs during recovery.
 - `inbox`: proposed next Goals for a workspace.
+
+The SDK uses a server-fixed local operator ID and no `connection_id`. Only the selected GBrain scope enters the request. The browser never receives the app key. Recent generated messages retain agent or accepted/edited prediction provenance. Missing credentials, quota limits, service failures and abstention preserve manual input and explicit QM send; an autonomous start with no instruction stops on abstention. No automatic retry or paid-plan activation occurs.
 
 In-memory controllers coordinate active operations, while the database stores Goal and conversation state. Each execution write carries the Goal's generation number. Stop advances that number, preventing a late result from a canceled generation from being appended to the conversation.
 
@@ -142,6 +147,10 @@ Supporting more than one trusted local operator would require user authenticatio
 | The application restarts mid-loop      | Saved work remains; unfinished loops recover as paused.                                     |
 | A teammate requests personal memory    | The request is rejected before retrieval.                                                   |
 | A prediction belongs to an older draft | Its revision is available for the composer to reject it.                                    |
+
+## SDK migration validation
+
+The checks below predate the SDK migration. See [Clone SDK integration](clone-sdk-integration.md) for the current local checks and hosted-service verification boundary. The existing Loom recording demonstrates the earlier QM prediction path, not a live SDK-backed prediction.
 
 ## Verification boundary
 

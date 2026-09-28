@@ -2,6 +2,7 @@ import { test } from "node:test";
 import assert from "node:assert/strict";
 import { setImmediate as tick } from "node:timers/promises";
 import { CloneLoop } from "../server/loop.ts";
+import { ClonePrediction, type PredictionContext, type PredictionResult } from "../server/prediction.ts";
 import { QM, type TurnOptions } from "../server/qm.ts";
 import type { Goal, Message } from "../server/domain.ts";
 import type { Store } from "../server/store.ts";
@@ -83,11 +84,44 @@ function fixture() {
       abortedRuns.push(runId);
     },
   } as unknown as QM;
-  const loop = new CloneLoop(store, qm, {
-    search: async () => ({ results: [] }),
-    remember: async () => undefined,
-  } as unknown as MemoryService);
-  return { loop, store, turns, messages, abortedRuns, goal: () => goal };
+  const predictions: Array<{
+    options: { signal: AbortSignal };
+    result: ReturnType<typeof deferred<PredictionResult>>;
+  }> = [];
+  const predictor = {
+    predict: async (_input: PredictionContext, signal: AbortSignal, onRequest: (id: string) => Promise<void>) => {
+      const result = deferred<PredictionResult>();
+      predictions.push({ options: { signal }, result });
+      await onRequest(`prediction-${predictions.length}`);
+      return result.promise;
+    },
+    cancel: async (id: string) => {
+      abortedRuns.push(`sdk:${id}`);
+    },
+  } as ClonePrediction;
+  const loop = new CloneLoop(
+    store,
+    qm,
+    {
+      search: async () => ({ results: [] }),
+      remember: async () => undefined,
+    } as unknown as MemoryService,
+    predictor,
+  );
+  return { loop, store, turns, predictions, messages, abortedRuns, goal: () => goal };
+}
+
+function predictionResult(text: string): PredictionResult {
+  return {
+    text,
+    status: text ? "suggested" : "abstained",
+    requestId: "sdk-request",
+    predictionId: "sdk-prediction",
+    expiresAt: Date.now() / 1000 + 60,
+    contextRevision: "test",
+    contextTruncated: false,
+    predictionUnits: 1,
+  };
 }
 
 test("a superseded prediction cannot persist a late provider result or clear the replacement", async () => {
@@ -98,11 +132,11 @@ test("a superseded prediction cannot persist a late provider result or clear the
     saved.push(value);
   };
   const first = f.loop.predict("lifecycle-goal", "", 1).catch((error: unknown) => error);
-  await until(() => f.turns.length === 1);
+  await until(() => f.predictions.length === 1);
   const second = f.loop.predict("lifecycle-goal", "", 2);
-  await until(() => f.turns.length === 2);
-  assert.equal(f.turns[0]!.options.signal.aborted, true);
-  f.turns[0]!.result.resolve({ text: '{"instruction":"Stale instruction"}', runId: "old", model: "test" });
+  await until(() => f.predictions.length === 2);
+  assert.equal(f.predictions[0]!.options.signal.aborted, true);
+  f.predictions[0]!.result.resolve(predictionResult("Stale instruction"));
   const canceled = await first;
   assert.ok(canceled instanceof PredictionCanceledError);
   assert.deepEqual(requestError(canceled), {
@@ -110,8 +144,8 @@ test("a superseded prediction cannot persist a late provider result or clear the
     body: { error: "Prediction canceled.", code: "PREDICTION_CANCELED" },
   });
   assert.equal(saved.length, 0);
-  assert.equal(f.loop.predictions.get("lifecycle-goal")?.signal, f.turns[1]!.options.signal);
-  f.turns[1]!.result.resolve({ text: '{"instruction":"Current instruction"}', runId: "new", model: "test" });
+  assert.equal(f.loop.predictions.get("lifecycle-goal")?.signal, f.predictions[1]!.options.signal);
+  f.predictions[1]!.result.resolve(predictionResult("Current instruction"));
   assert.equal((await second).text, "Current instruction");
   assert.equal(saved.length, 1);
   assert.equal(f.loop.predictions.size, 0);
@@ -121,7 +155,7 @@ test("provider timeouts and unrecognized abort errors remain visible request fai
   const f = fixture();
   f.loop.memory = { search: async () => ({ results: [] }) } as unknown as MemoryService;
   const timeout = new DOMException("Prediction timed out.", "TimeoutError");
-  f.loop.qm.turn = async () => {
+  f.loop.prediction.predict = async () => {
     throw timeout;
   };
   await assert.rejects(f.loop.predict("lifecycle-goal", "", 1), (error) => error === timeout);
@@ -403,4 +437,59 @@ test("a superseded message write cannot launch an unrecorded execution", async (
   await until(() => f.loop.active.size === 0);
   assert.equal(f.turns.length, 0);
   assert.equal(f.messages.length, 0);
+});
+
+test("restart recovery routes SDK cancellations to Clone instead of QM", async () => {
+  const f = fixture();
+  await f.store.trackRun("clone-sdk:pending-sdk-request", "clone-sdk");
+  await f.loop.recover();
+  assert.deepEqual(f.abortedRuns, ["sdk:pending-sdk-request"]);
+  assert.deepEqual(await f.store.pendingRuns(), []);
+});
+
+test("SDK abstention never launches a QM execution", async () => {
+  const f = fixture();
+  f.store.prediction = async () => undefined;
+  await f.loop.start("lifecycle-goal", { loop: true });
+  await until(() => f.predictions.length === 1);
+  f.predictions[0].result.resolve(predictionResult(""));
+  await until(() => f.loop.active.size === 0);
+  assert.equal(f.turns.length, 0);
+  assert.equal(f.messages.length, 0);
+  assert.equal(f.goal().loopEnabled, false);
+  assert.match(f.goal().error ?? "", /Type a direction/);
+});
+
+test("client disconnect cancels the SDK prediction and discards its late response", async () => {
+  const f = fixture();
+  const controller = new AbortController();
+  const pending = f.loop.predict("lifecycle-goal", "", 1, controller.signal);
+  const rejected = assert.rejects(pending, PredictionCanceledError);
+  await until(() => f.predictions.length === 1);
+  controller.abort();
+  assert.equal(f.predictions[0].options.signal.aborted, true);
+  f.predictions[0].result.resolve(predictionResult("Late response"));
+  await rejected;
+  assert.equal(f.loop.predictions.size, 0);
+  assert.deepEqual(await f.store.pendingRuns(), []);
+});
+
+test("accepted suggestions are stored with provenance and never learned as human feedback", async () => {
+  const f = fixture();
+  let remembered = 0;
+  f.loop.memory.remember = async () => {
+    remembered++;
+    throw new Error("Generated text must not be remembered as human feedback");
+  };
+  await f.loop.start("lifecycle-goal", {
+    loop: false,
+    instruction: "Generated direction",
+    human: true,
+    origin: "accepted_prediction",
+  });
+  await until(() => f.turns.length === 1);
+  assert.equal(remembered, 0);
+  assert.equal(f.messages[0].origin, "accepted_prediction");
+  f.turns[0].result.resolve({ text: "Result", runId: "one", model: "test" });
+  await until(() => f.loop.active.size === 0);
 });

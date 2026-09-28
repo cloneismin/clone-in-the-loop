@@ -24,7 +24,7 @@ The [hackathon](https://events.ycombinator.com/gstack-qm-river-memorable-hackath
 
 | Event theme                            | How we put it to work                                                                                                                                                                                                                                                                           |
 | -------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| **Extend QM and GBrain**               | QM runs the model turns and tools, while the official GBrain engine retrieves history for prediction and review. Clone connects them so that past feedback can guide the next instruction. [Explore the integration.](#what-we-added-to-qm)                                                     |
+| **Extend QM and GBrain**               | Clone SDK predicts the next prompt, QM runs execution and review turns, and the official GBrain engine retrieves scoped history. Clone connects them so that past feedback can guide the next instruction. [Explore the integration.](#what-we-added-to-qm)                                     |
 | **A new agent workflow and interface** | A suggestion leads to execution, review, and a follow-up instruction. With **Tab → Tab → Stop**, you can accept a suggestion, delegate the cycle, and take control back. [Try the loop.](#try-the-complete-loop)                                                                                |
 | **Multiplayer ideas**                  | A teammate's shared feedback can guide a review without exposing personal history to team retrieval. The prototype demonstrates this with one local operator and a clearly labeled fictional teammate. [Read about the boundaries.](#memory-and-team-boundaries)                                |
 | **Software-factory ideas**             | The same loop supports recurring **Research, Product, and Marketing** work. Goals keeps saved work and progress visible, while Inbox suggests what to work on next. The launch-review workflow produces a reusable template. [See an example.](#a-launch-review-from-instruction-to-correction) |
@@ -65,11 +65,12 @@ The [verification record](docs/verification.md) explains how we checked the save
 
 This repository is a **QM source fork** that preserves the upstream history and MIT license. Most of the extension lives in `plugins/clone-ui`, alongside a small runtime addition for trusted local execution. QM runs the work, and the official GBrain engine retrieves the history used by Clone.
 
-| Layer      | Responsibility                                                                            | Start reading                                                                                                                    |
-| ---------- | ----------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------- |
-| **Clone**  | Interaction, prompt prediction, review, next instruction, and loop control.               | [`loop.ts`](plugins/clone-ui/server/loop.ts), [`prompts.ts`](plugins/clone-ui/server/prompts.ts), [`src/`](plugins/clone-ui/src) |
-| **QM**     | Authenticated internal API, model turns, tools, run lifecycle, and execution persistence. | [`qm.ts`](plugins/clone-ui/server/qm.ts), [`src/`](src)                                                                          |
-| **GBrain** | Local history storage, source-scoped recall, and inspectable evidence.                    | [`memory/`](plugins/clone-ui/server/memory)                                                                                      |
+| Layer         | Responsibility                                                                            | Start reading                                                                                                                    |
+| ------------- | ----------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------- |
+| **Clone**     | Interaction, prompt prediction, review, next instruction, and loop control.               | [`loop.ts`](plugins/clone-ui/server/loop.ts), [`prompts.ts`](plugins/clone-ui/server/prompts.ts), [`src/`](plugins/clone-ui/src) |
+| **Clone SDK** | Hosted next-prompt prediction and draft completion through its server client.             | [`prediction.ts`](plugins/clone-ui/server/prediction.ts), [SDK source](https://github.com/cloneisyou/clone-sdk)                  |
+| **QM**        | Authenticated internal API, model turns, tools, run lifecycle, and execution persistence. | [`qm.ts`](plugins/clone-ui/server/qm.ts), [`src/`](src)                                                                          |
+| **GBrain**    | Local history storage, source-scoped recall, and inspectable evidence.                    | [`memory/`](plugins/clone-ui/server/memory)                                                                                      |
 
 Following [QM's contribution policy](https://github.com/yc-software/qm/blob/main/CONTRIBUTING.md), the [upstream QM PR](https://github.com/yc-software/qm/pull/1671) contains a short feature proposal. **The runnable implementation is on this fork's `main` branch.** The proposal is open and has not been accepted upstream.
 
@@ -83,14 +84,18 @@ flowchart LR
   Histories["Authorized human chat history"] --> Brain
   Shared["Shared feedback + labeled demo history"] --> Brain
   Brain -->|"evidence + provenance"| Loop
-  Loop -->|"prediction, execution, review"| QM["QM core + Codex harness"]
+  Loop -->|"draft + scoped context"| SDK["Clone SDK + hosted prediction API"]
+  SDK -->|"completion + request identity"| Loop
+  Loop -->|"execution + review"| QM["QM core + Codex harness"]
   QM -->|"result + run identity"| Loop
   QM <--> PG[("PostgreSQL")]
   Loop <--> PG
   QM --> Workspace["Trusted local working directory"]
 ```
 
-**QM** handles model turns, tools, cancellation, and PostgreSQL persistence through its authenticated internal API and Codex harness. Prediction and review each run as a separate read-only model turn. An execution turn performs one bounded step, then returns its result to the Clone for review.
+**Clone SDK 0.3.1** supplies `CloneClient` for next-prompt prediction and draft completion. The backend sends the current draft, recent conversation, Goal and scoped GBrain excerpts to the hosted Clone API. The existing Lit composer owns Tab acceptance, explicit send and the second-Tab Clone mode shortcut.
+
+**QM** handles execution, structured reviews, Inbox proposals, tools, cancellation, and PostgreSQL persistence through its authenticated internal API and Codex harness. Reviews remain separate read-only QM turns because the SDK does not provide a structured review or agent-execution API. An execution turn performs one bounded step, then returns its result to the Clone for review.
 
 **GBrain** stores and indexes imported history using its official PGLite engine. You can import your own messages from local Codex and Claude histories. Retrieval uses keyword search within the selected sources, including GBrain's CJK handling and OR fallback, so no embedding API key is required. This build does not use hosted GBrain federation or semantic vector search.
 
@@ -103,7 +108,8 @@ The [architecture guide](docs/architecture-clone.md) explains how the components
 - Node.js **24.15+** and npm **11.10+**.
 - Bun **1.3.10+** on `PATH`, or `CLONE_BUN` set to its executable.
 - PostgreSQL **16+** with its contrib extensions. `initdb` and `pg_ctl` must be on `PATH`, or set `CLONE_PG_BIN` to the PostgreSQL bin directory.
-- A working Codex login and access to the configured model. Model calls use your account.
+- A working Codex login and access to the configured model for execution and reviews.
+- A server-side Clone app key for hosted predictions. The SDK package is MIT licensed; hosted service access is separate. Missing prediction credentials leave ordinary typing and QM send available.
 
 ### Install
 
@@ -115,9 +121,22 @@ npm run clone:setup
 npx codex login
 ```
 
-Setup installs the web plugin and the pinned revision of official GBrain. Importing personal history is a separate, optional step.
+Setup verifies the vendored SDK archive checksum, installs the web plugin and the pinned revision of official GBrain. Importing personal history is a separate, optional step.
 
 This prototype runs locally with **your permissions and model account**. Keep it bound to loopback, and read [Memory and team boundaries](#memory-and-team-boundaries) before importing history or running a Goal.
+
+### Configure Clone predictions
+
+Register an app in the [Clone developer console](https://clone.is/developer/apps), then save its server-side key in the Git-ignored root `.env.local`:
+
+```dotenv
+CLONE_API_URL=https://api.clone.is
+CLONE_APP_KEY=clnp_your_app_key
+```
+
+The Clone API loads `.env.local`; explicit process environment variables take precedence. Never use `VITE_*` variables for this key. Basic predictions need no end-user Clone account or callback. GBrain supplies the selected product context directly; no account connection or local Clone profile sync is implied.
+
+The checksum-verified [SDK archive](vendor/clone-sdk) is installed from a relative file dependency and locked in the plugin lockfile, so fresh installs do not require SDK repository credentials. See the [SDK integration notes](docs/clone-sdk-integration.md) for the contract and local validation boundaries.
 
 ### Add personal memory, optionally
 
@@ -127,7 +146,7 @@ To use your recent instructions and feedback as context, import your history bef
 npm run clone:import
 ```
 
-The importer reads a limited set of recent user messages from your local Codex and Claude histories. It excludes assistant messages, tool results, injected environment records, and recognizable credentials. Imported history is stored locally in a Git-ignored directory. Relevant excerpts are sent to your configured model when it predicts an instruction or reviews a result. You can also use Clone without importing history, although it will have less context for personalization.
+The importer reads a limited set of recent user messages from your local Codex and Claude histories. It excludes assistant messages, tool results, injected environment records, and recognizable credentials. Imported history is stored locally in a Git-ignored directory. Relevant excerpts are sent to the hosted Clone API for predictions and to your configured QM model for reviews. You can also use Clone without importing history, although it will have less context for personalization.
 
 Only one process can own the GBrain database at a time. Stop `clone:dev` or `clone:start` before running another import, then restart the application afterward.
 
@@ -181,14 +200,17 @@ Press **Enter** to send a message, **Shift+Enter** to add a line, or **Esc** to 
 
 ### Configuration
 
-| Variable          | Purpose                                                                              |
-| ----------------- | ------------------------------------------------------------------------------------ |
-| `CODEX_MODEL`     | QM's Codex model; defaults to `gpt-6-sol`. Choose a model available to your account. |
-| `CLONE_BUN`       | Bun executable when it is outside `PATH`.                                            |
-| `CLONE_PG_BIN`    | Directory containing PostgreSQL executables.                                         |
-| `CLONE_CORE_PORT` | QM port; defaults to `8088`.                                                         |
-| `CLONE_PG_PORT`   | Managed PostgreSQL port; defaults to `55432`.                                        |
-| `DATABASE_URL`    | Use an existing PostgreSQL database instead of creating the local cluster.           |
+| Variable            | Purpose                                                                                          |
+| ------------------- | ------------------------------------------------------------------------------------------------ |
+| `CLONE_APP_KEY`     | Server-only Clone app key for predictions; loaded from root `.env.local` or process environment. |
+| `CLONE_API_URL`     | Hosted prediction service base, default `https://api.clone.is`; do not append `/v1`.             |
+| `CLONE_WEB_API_URL` | Vite proxy target for the local Clone web API, default `http://127.0.0.1:4318`.                  |
+| `CODEX_MODEL`       | QM's Codex model; defaults to `gpt-6-sol`. Choose a model available to your account.             |
+| `CLONE_BUN`         | Bun executable when it is outside `PATH`.                                                        |
+| `CLONE_PG_BIN`      | Directory containing PostgreSQL executables.                                                     |
+| `CLONE_CORE_PORT`   | QM port; defaults to `8088`.                                                                     |
+| `CLONE_PG_PORT`     | Managed PostgreSQL port; defaults to `55432`.                                                    |
+| `DATABASE_URL`      | Use an existing PostgreSQL database instead of creating the local cluster.                       |
 
 Runtime settings, signing material, PostgreSQL data, and local working directories are stored under `data/clone-runtime/`. GBrain and its private memory database are stored under `.clone-loop/`. Both directories are ignored by Git and should remain untracked.
 
@@ -201,7 +223,7 @@ Runtime settings, signing material, PostgreSQL data, and local working directori
 | **Garry Tan / Team**     | The same team-shared scope, including Garry's synthetic demo history. |
 | **Garry Tan / Personal** | Rejected. Garry cannot select Min's private source.                   |
 
-Switching to Team does not share your imported personal history. Messages you send in a team session become shared feedback for that workspace. Clone Garry is a fictional demo teammate with invented history, and the evidence shown in the app retains those demo labels.
+Switching to Team does not share your imported personal history. Independently typed messages sent in a team session become shared feedback for that workspace. Accepted or edited generated suggestions retain their origin and are not imported as independently written human preferences. Clone Garry is a fictional demo teammate with invented history, and the evidence shown in the app retains those demo labels.
 
 This build is designed for **one trusted local operator**. It does not provide production user authentication, authorization between users, or OS sandbox isolation. Commands run with the operator's local permissions. Memory source filtering is implemented and tested, but a production team deployment would need additional access controls. Keep this demo bound to loopback.
 
@@ -239,7 +261,7 @@ The [verification record](docs/verification.md) distinguishes automated checks f
 | Path                                                               | Responsibility                                                                           |
 | ------------------------------------------------------------------ | ---------------------------------------------------------------------------------------- |
 | [`plugins/clone-ui/src`](plugins/clone-ui/src)                     | Lit interface, composer, Goals, Inbox, workspaces, and memory views.                     |
-| [`plugins/clone-ui/server`](plugins/clone-ui/server)               | Goal API, PostgreSQL store, QM client, prediction prompts, and loop control.             |
+| [`plugins/clone-ui/server`](plugins/clone-ui/server)               | Goal API, PostgreSQL store, QM client, Clone SDK adapter, and loop control.              |
 | [`plugins/clone-ui/server/memory`](plugins/clone-ui/server/memory) | Official GBrain setup, bounded history import, scoped retrieval, and synthetic fixtures. |
 | [`scripts/clone-runtime`](scripts/clone-runtime)                   | Reproducible trusted-local QM startup and smoke check.                                   |
 | [`src`](src)                                                       | Upstream QM core, with narrowly scoped runtime extensions.                               |
