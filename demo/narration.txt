@@ -1,22 +1,30 @@
-Your agent can draft a launch. Who decides what comes next? Clone-in-the-Loop extends Q M with your judgment.
+Everyone should own their Personal AGI.
 
-Tab once accepts a suggested prompt.
+Clone-in-the-Loop. A Q M fork that predicts your next prompt from your history.
 
-Tab again starts Clone mode.
+Press Tab once to accept the suggestion. Enter to send.
 
-While Q M works, G Brain recalls relevant Codex and Claude sessions.
+Developing research. Building products. Running marketing.
 
-Here, Q M drafts the brief.
+But let's go further. What if your Clone kept prompting for you?
 
-My Clone spots that it overlooked recorded product facts, and sends one clear correction.
+Press Tab twice to start the Clone mode.
 
-Q M revises the brief.
+Your Clone gives context. Q M does the work.
 
-They keep taking turns until I press Stop.
+Your Clone reviews the result and sends one clear correction.
 
-In the team workspace, I can choose Clone Garry.
+Q M revises it. They keep taking turns until you press Stop.
 
-Shared team context shapes its suggestions, while personal memory stays separate.
+Check the result against your goal.
+
+Goals keep your work in view. The Inbox suggests what to tackle next.
+
+Bring your team's perspective into the loop. Choose Clone Garry to suggest the next prompt.
+
+G Brain retrieves relevant Codex and Claude sessions, plus explicitly shared team history. Personal and team memory stay separate.
+
+Back to your ambition. And your next prompt.
 
 Clone-in-the-Loop just killed Human-in-the-Loop.
 

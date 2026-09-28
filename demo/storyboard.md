@@ -1,33 +1,31 @@
 # Demonstration storyboard
 
-The current master is 115 seconds at 2560 × 1440 and 30 fps. It uses one fresh launch-brief conversation and seven visual chapters. All recorded actions play at 1×. Earlier department montages and repeated historical cycles are superseded.
+The corrected cut is 120 seconds at 2560 × 1440 and 30 fps. Its structure follows the reference demo while every product shot comes from this QM extension. The main lesson is the difference between accepting a suggestion and delegating the next steps.
 
-| Output         | Actual picture                                                                                                                                                                  |
-| -------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| 00:00–00:17    | The organic launch-brief prediction, first Tab acceptance, second Tab activation, and initial Clone instruction.                                                                |
-| 00:17–00:25    | Personal GBrain history showing Codex and Claude scope and English records.                                                                                                     |
-| 00:25–00:27.50 | The first actual QM draft response, matching the complete draft sentence.                                                                                                       |
-| 00:27.50–01:07 | One continuous captured readthrough: Clone's specific correction, the operator revisiting the first QM response, the revised QM response, another Clone reply, and actual Stop. |
-| 01:07–01:41    | Continuous pointer-led navigation into the Company workspace, Garry selection, grounded pitch prediction, and Shared memory.                                                    |
-| 01:41–01:47    | Black Clone-in-the-Loop title with the complete requested tagline and Own Your Clone.                                                                                           |
-| 01:47–01:55    | The actual open upstream QM PR as a final add-on.                                                                                                                               |
-
-The first QM result initially receives 2.5 seconds, then remains visible for longer when the operator scrolls back during the continuous readthrough. The voice is silent during that revisit. It does not call the revisited original response a revision. The revised QM response is visible when its sentence starts at 00:44.80, and the real Stop follows at approximately 01:02.20.
-
-The correction is specific to this fresh conversation: QM marked the product claims unverified even though recorded product facts covered the core behavior. Clone asks QM to use those facts, tighten unsupported wording, and preserve the publication approval gate. QM revises the brief. The film does not claim that publication was approved or all verification finished.
+| Output            | Actual picture                                                                                                                                                               |
+| ----------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 00:00–00:25       | Empty composer, typed ambition, gray prediction, first Tab accepting it, and Enter to send. Preserve continuous typing and acceptance; omit only a flat accepted-input wait. |
+| 00:25–00:31       | Real Research, Product, and Marketing work. Keep the actual GPT-6 Sol model label.                                                                                           |
+| 00:31–00:47       | Suggested launch prompt, first Tab accepting it, second Tab activating the Clone toggle and blue composer border. Keep both key actions continuous.                          |
+| 00:47–01:13.50    | QM result, one coherent Clone correction, revised QM response, and the actual Stop action.                                                                                   |
+| 01:13.50–01:17.50 | Inspect the paused result. Do not imply independent build verification or publication approval.                                                                              |
+| 01:17.50–01:22.50 | Goals, then Inbox.                                                                                                                                                           |
+| 01:22.50–01:30    | Company workspace, Clone Garry selection, and its actual suggested next prompt.                                                                                              |
+| 01:30–01:40       | Relevant personal history and explicitly shared team history, with distinct GBrain scopes.                                                                                   |
+| 01:40–01:47       | Return to the ambition and the next prompt.                                                                                                                                  |
+| 01:47–01:54       | Black product title, complete HITL tagline, then Own Your Clone.                                                                                                             |
+| 01:54–02:00       | Actual open upstream QM PR as a brief final addition.                                                                                                                        |
 
 ## Capture truth
 
-Use `cua_repl` for every product and browser interaction. The user authorized the selected-Chrome-window-only ScreenCaptureKit fallback. Open decoded frames from the actual recording to confirm both the surface and captured interaction; an advancing MP4 timestamp alone is insufficient.
+Use `cua_repl` for product interactions. The user authorized selected-Chrome-window-only ScreenCaptureKit recording. Decode and open frames from the actual recording: DOM state, an advancing frame count, and a browser screenshot cannot establish that the recorded window is fresh.
 
-The selected source is `coherent-v5-take1.mp4`, captured on September 27, 2026, Pacific time. Its timestamp, hash, crop, and scene ranges remain in the ignored production report. Later attempted pickups that captured the wrong window or retained frozen pixels are excluded.
-
-Do not reconstruct prompts, results, model names, counters, or evidence. Exclude private-source popups entirely. The selected memory views contain English text appropriate for sharing. Garry is a fictional demo teammate with invented shared history.
+Source ranges, exact action anchors, hashes, and rejected intervals are retained in ignored `demo/output/reference-arc-v6/`. Blank, frozen, wrong-window, and cursor-contaminated ranges are excluded. The Personal memory shot uses a detail crop of the intact real panel; the PR shot excludes the browser header where the pointer was parked. No prompts, results, actors, model labels, or verification outcomes are reconstructed.
 
 ## Editorial rules
 
-Keep real scrolls and pointer navigation intact. Omit waiting only at chapter boundaries or clearly flat intervals. Do not rearrange turns to imply a newly completed result. Preserve the same session and distinguish inspection of saved results from fresh execution.
+Keep both Tab demonstrations at 1× and retain the actual transitions. Cuts that omit waiting must fall on a stable view or a meaningful change of subject. Do not reorder Clone and QM turns or describe an old response as a new revision. Preserve one coherent Clone feedback message, followed by the real agent response.
 
-Place complete narration phrases against their actual evidence. Add quiet reading time rather than forcing words into a short shot. Speech and source footage stay at original speed. The black title precedes the final [upstream QM PR](https://github.com/yc-software/qm/pull/1671).
+Every complete narration phrase must describe its current picture. Keep the user's fresh own-voice source intact at original speed, with reading time between phrases and quiet music. Garry is a fictional demo teammate with invented history; the film does not claim real teammate participation or unimplemented model switching.
 
-Final acceptance requires a full viewer review of the story and complete listening at 1×. Technical checks, external playback, and user acceptance remain separate. The user personally submits the Google Form.
+Full decode, frame inspection, complete speech samples, viewer playback, and user acceptance are distinct checks. The user submits the Google Form personally.
