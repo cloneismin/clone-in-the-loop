@@ -89,11 +89,16 @@ function fixture() {
     result: ReturnType<typeof deferred<PredictionResult>>;
   }> = [];
   const predictor = {
-    predict: async (_input: PredictionContext, signal: AbortSignal, onRequest: (id: string) => Promise<void>) => {
+    predict: async (
+      _input: PredictionContext,
+      signal: AbortSignal,
+      onRequest: (id: string) => Promise<void>,
+      onSettled: () => Promise<void>,
+    ) => {
       const result = deferred<PredictionResult>();
       predictions.push({ options: { signal }, result });
       await onRequest(`prediction-${predictions.length}`);
-      return result.promise;
+      return result.promise.finally(onSettled);
     },
     cancel: async (id: string) => {
       abortedRuns.push(`sdk:${id}`);
@@ -444,6 +449,45 @@ test("restart recovery routes SDK cancellations to Clone instead of QM", async (
   await f.store.trackRun("clone-sdk:pending-sdk-request", "clone-sdk");
   await f.loop.recover();
   assert.deepEqual(f.abortedRuns, ["sdk:pending-sdk-request"]);
+  assert.deepEqual(await f.store.pendingRuns(), []);
+});
+
+test("restart retains unconfirmed SDK cancellations and retries when credentials or service recover", async () => {
+  const f = fixture();
+  await f.store.trackRun("clone-sdk:pending-sdk-request", "clone-sdk");
+  f.loop.prediction = new ClonePrediction({ apiKey: "" });
+  await f.loop.recover();
+  assert.deepEqual(await f.store.pendingRuns(), ["clone-sdk:pending-sdk-request"]);
+  let status = 503;
+  f.loop.prediction = new ClonePrediction({
+    apiKey: "clnp_fixture",
+    fetch: async () => Response.json({ status: "cancelled", prediction_units: 0 }, { status }),
+  });
+  await f.loop.recover();
+  assert.deepEqual(await f.store.pendingRuns(), ["clone-sdk:pending-sdk-request"]);
+  status = 200;
+  await f.loop.recover();
+  assert.deepEqual(await f.store.pendingRuns(), []);
+});
+
+test("a failed cancellation after client disconnect remains durable until restart confirms it", async () => {
+  const f = fixture();
+  const controller = new AbortController();
+  let cancelStatus = 503;
+  f.loop.prediction = new ClonePrediction({
+    apiKey: "clnp_fixture",
+    fetch: async (url, init) => {
+      if (String(url).endsWith("/cancel"))
+        return Response.json({ status: "cancelled", prediction_units: 0 }, { status: cancelStatus });
+      controller.abort();
+      throw init?.signal?.reason;
+    },
+  });
+  await assert.rejects(f.loop.predict("lifecycle-goal", "", 1, controller.signal), PredictionCanceledError);
+  assert.equal((await f.store.pendingRuns()).length, 1);
+  assert.equal(f.loop.predictions.size, 0);
+  cancelStatus = 200;
+  await f.loop.recover();
   assert.deepEqual(await f.store.pendingRuns(), []);
 });
 

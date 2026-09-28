@@ -254,7 +254,6 @@ class CloneApp extends LitElement {
     this.inboxLoading = false;
     this.selectedSource = null;
     this.saveDraft();
-    this.predictionOrigin = undefined;
     this.clearPrediction();
     this.view = view;
     this.filterProject = project;
@@ -305,7 +304,6 @@ class CloneApp extends LitElement {
     const operationRevision = ++this.operationRevision;
     this.selectedSource = null;
     this.saveDraft();
-    this.predictionOrigin = undefined;
     this.clearPrediction();
     this.pending = true;
     this.error = "";
@@ -366,7 +364,6 @@ class CloneApp extends LitElement {
 
   private onDraft(event: Event) {
     this.draft = (event.target as HTMLTextAreaElement).value;
-    if (!this.draft || this.draft === this.predictionOrigin?.original) this.predictionOrigin = undefined;
     this.clearPrediction();
     this.schedulePrediction();
   }
@@ -439,7 +436,7 @@ class CloneApp extends LitElement {
     input?.setSelectionRange(this.draft.length, this.draft.length);
     if (input && !document.execCommand("insertText", false, text.slice(original.length))) input.value = text;
     this.draft = text;
-    this.predictionOrigin = { original, accepted: text };
+    this.predictionOrigin = { original: this.predictionOrigin?.original ?? original, accepted: text };
     clearTimeout(this.predictionExpiry);
     clearTimeout(this.predictionTimer);
     this.prediction = null;
@@ -485,7 +482,7 @@ class CloneApp extends LitElement {
   private async send(): Promise<boolean> {
     const text = this.draft.trim();
     let origin = "human";
-    if (this.predictionOrigin)
+    if (this.predictionOrigin && this.draft !== this.predictionOrigin.original)
       origin = this.draft === this.predictionOrigin.accepted ? "accepted_prediction" : "edited_prediction";
     if (!text || this.pending || this.working) return false;
     const navigation = this.navigationRevision;
@@ -510,7 +507,6 @@ class CloneApp extends LitElement {
         goal = created.goal;
       }
       await api(`/goals/${encodeURIComponent(goal.id)}/send`, { text, origin });
-      if (current()) this.predictionOrigin = undefined;
       if (this.drafts.get(draftKey) === draft) {
         this.drafts.delete(draftKey);
         this.draftOrigins.delete(draftKey);
@@ -519,7 +515,10 @@ class CloneApp extends LitElement {
       if (this.active?.goal.id !== goal.id) this.active = { goal, messages: [] };
       this.view = "goal";
       localStorage.setItem("clone.activeGoal", goal.id);
-      if (this.draft === draft) this.draft = "";
+      if (this.draft === draft) {
+        this.draft = "";
+        this.predictionOrigin = undefined;
+      }
       await this.refreshGoal();
       await this.refreshState();
       if (current()) {
@@ -902,6 +901,7 @@ class CloneApp extends LitElement {
                 aria-label="Clone"
                 aria-checked=${String(this.loopOn)}
                 title=${toggleTitle}
+                @pointerdown=${(event: PointerEvent) => event.preventDefault()}
                 @click=${() => this.toggleLoop(!this.loopOn)}
                 ?disabled=${toggleDisabled}
               >

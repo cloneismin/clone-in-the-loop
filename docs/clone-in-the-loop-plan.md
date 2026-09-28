@@ -77,4 +77,4 @@ Interview and implementation are complete. The fork preserves QM upstream `a5a36
 
 ## Clone SDK integration revision
 
-Next-prompt prediction and draft completion now use the official Clone SDK 0.3.1 server client with scoped GBrain context. QM still owns execution, structured reviews and Inbox proposals. This local migration is separate from the earlier demo and hosted validation above. See [integration notes](clone-sdk-integration.md).
+Next-prompt prediction and draft completion now use the official Clone SDK 0.3.1 server client with scoped GBrain context. QM still owns execution, structured reviews and Inbox proposals. This migration is separate from the earlier demo and hosted validation above. See [integration notes](clone-sdk-integration.md).

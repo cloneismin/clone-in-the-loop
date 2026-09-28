@@ -29,7 +29,7 @@ export function predictionRequest(input: PredictionContext): CompletionRequest {
   const { goal, messages, sources, draft, revision } = input;
   assertCloneScope(goal.workspace, goal.cloneId);
   if (draft.length > 8000) throw new ClonePredictionError("draft_too_large", 413);
-  const latestHuman = messages.findLastIndex((message) => message.role === "user");
+  const latestHuman = messages.findLastIndex((message) => message.role === "user" && message.origin === "human");
   if (latestHuman >= 0 && messages[latestHuman].content.length > 8000)
     throw new ClonePredictionError("latest_message_too_large", 413);
   const selected = messages.slice(-10);
@@ -91,27 +91,34 @@ export class ClonePrediction {
   }
 
   async cancel(requestId: string): Promise<void> {
-    await this.client?.cancel(userId, requestId);
+    if (!this.client) throw new ClonePredictionError("clone_app_key_missing", 503);
+    const result = await this.client.cancel(userId, requestId);
+    if (!["cancelled", "suggested", "abstained", "failed"].includes(result.status))
+      throw new ClonePredictionError("invalid_cancellation_response", 502);
   }
 
   async predict(
     input: PredictionContext,
     signal: AbortSignal,
     onRequest: (requestId: string) => Promise<void>,
+    onSettled: () => Promise<void> = async () => undefined,
   ): Promise<PredictionResult> {
     if (!this.client) throw new ClonePredictionError("clone_app_key_missing", 503);
     signal.throwIfAborted();
     const request = predictionRequest(input);
     await onRequest(request.request_id);
-    signal.throwIfAborted();
-    let cancellation: Promise<void> | undefined;
+    let settled = signal.aborted;
+    let cancellation: Promise<boolean> | undefined;
     const cancel = () => {
-      cancellation ??= this.cancel(request.request_id).catch(() => undefined);
+      cancellation ??= this.cancel(request.request_id).then(
+        () => true,
+        () => false,
+      );
     };
     signal.addEventListener("abort", cancel, { once: true });
     try {
-      const result = await this.client.predict(userId, request, { signal });
       signal.throwIfAborted();
+      const result = await this.client.predict(userId, request, { signal });
       if (
         result.request_id !== request.request_id ||
         result.session_id !== request.session_id ||
@@ -128,6 +135,8 @@ export class ClonePrediction {
         (result.status === "suggested" && !result.completion.trim())
       )
         throw new ClonePredictionError("invalid_prediction_response", 502);
+      settled = true;
+      signal.throwIfAborted();
       return {
         text: result.status === "suggested" ? input.draft + result.completion : "",
         status: result.status,
@@ -139,11 +148,14 @@ export class ClonePrediction {
         predictionUnits: result.usage.prediction_units,
       };
     } catch (error) {
-      if (!(error instanceof ClonePredictionError)) cancel();
+      if (error instanceof ClonePredictionError && error.status >= 400 && error.status < 500 && error.status !== 408)
+        settled = true;
+      if (!settled) cancel();
       throw error;
     } finally {
       signal.removeEventListener("abort", cancel);
-      await cancellation;
+      const canceled = await cancellation;
+      if (settled || canceled) await onSettled();
     }
   }
 }

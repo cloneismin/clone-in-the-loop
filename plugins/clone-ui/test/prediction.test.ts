@@ -107,6 +107,38 @@ test("context mapping retains the latest human correction, marks generated turns
   assert.throws(() => predictionRequest(input), /latest_message_too_large/);
 });
 
+test("later accepted suggestions cannot truncate or evict the latest human correction", () => {
+  for (const count of [1, 11]) {
+    const input = context();
+    const correction = "Keep the verified numbers and label assumptions. ".repeat(75);
+    input.messages = [
+      { id: "human", goalId: input.goal.id, role: "user", origin: "human", content: correction, createdAt: "now" },
+      ...Array.from({ length: count }, (_, index) => ({
+        id: String(index),
+        goalId: input.goal.id,
+        role: "user" as const,
+        origin: "accepted_prediction" as const,
+        content: "Generated direction",
+        createdAt: "now",
+      })),
+    ];
+    const request = predictionRequest(input);
+    assert.equal(request.messages?.[0].content, correction);
+    assert.equal(request.messages?.[0].origin, "human");
+    assert.ok(request.messages?.slice(1).every((message) => message.origin === "accepted_prediction"));
+    input.messages[0].content = "x".repeat(8001);
+    assert.throws(() => predictionRequest(input), /latest_message_too_large/);
+  }
+});
+
+test("legacy user messages retain unknown origin instead of being inferred as human", () => {
+  const input = context();
+  input.messages = [
+    { id: "legacy", goalId: input.goal.id, role: "user", content: "Old instruction", createdAt: "now" },
+  ];
+  assert.equal(predictionRequest(input).messages?.[0].origin, "unknown");
+});
+
 test("SDK abstention returns no executable instruction, even with a nonempty draft", async () => {
   const predictor = new ClonePrediction({
     apiKey: "clnp_fixture",
@@ -148,7 +180,8 @@ test("quota and service errors retain safe status codes without retrying or leak
     let calls = 0;
     const predictor = new ClonePrediction({
       apiKey: "clnp_fixture",
-      fetch: async () => {
+      fetch: async (url) => {
+        if (String(url).endsWith("/cancel")) return Response.json({ status: "cancelled", prediction_units: 0 });
         calls++;
         return Response.json({ detail: { code, secret: "must not leak" } }, { status });
       },
@@ -162,6 +195,38 @@ test("quota and service errors retain safe status codes without retrying or leak
       },
     );
     assert.equal(calls, 1);
+  }
+});
+
+test("unknown settlement from gateway errors or malformed responses retains the recovery handle", async () => {
+  for (const status of [200, 408, 502, 503, 504]) {
+    for (const canceled of [false, true]) {
+      let settled = false;
+      let cancellations = 0;
+      const predictor = new ClonePrediction({
+        apiKey: "clnp_fixture",
+        fetch: async (url) => {
+          if (String(url).endsWith("/cancel")) {
+            cancellations++;
+            return Response.json({ status: "cancelled", prediction_units: 0 }, { status: canceled ? 200 : 503 });
+          }
+          return Response.json({}, { status });
+        },
+      });
+      await assert.rejects(
+        predictor.predict(
+          context(),
+          new AbortController().signal,
+          async () => undefined,
+          async () => {
+            settled = true;
+          },
+        ),
+        ClonePredictionError,
+      );
+      assert.equal(cancellations, 1);
+      assert.equal(settled, canceled);
+    }
   }
 });
 
@@ -191,8 +256,32 @@ test("cancellation reaches both the in-flight SDK fetch and its service cancella
 test("missing app key is an explicit prediction failure without disabling QM", async () => {
   const predictor = new ClonePrediction({ apiKey: "" });
   assert.equal(predictor.configured, false);
+  await assert.rejects(predictor.cancel("pending"), /clone_app_key_missing/);
   await assert.rejects(
     predictor.predict(context(), new AbortController().signal, async () => undefined),
     /clone_app_key_missing/,
   );
+});
+
+test("aborting after durable tracking but before dispatch settles without contacting the provider", async () => {
+  const controller = new AbortController();
+  let settled = false;
+  const predictor = new ClonePrediction({
+    apiKey: "clnp_fixture",
+    fetch: async () => {
+      throw new Error("Request should not be dispatched");
+    },
+  });
+  await assert.rejects(
+    predictor.predict(
+      context(),
+      controller.signal,
+      async () => controller.abort(),
+      async () => {
+        settled = true;
+      },
+    ),
+    { name: "AbortError" },
+  );
+  assert.equal(settled, true);
 });

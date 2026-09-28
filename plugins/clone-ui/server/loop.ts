@@ -25,8 +25,13 @@ export class CloneLoop {
   }
   async recover(): Promise<void> {
     for (const id of await this.store.pendingRuns()) {
-      if (id.startsWith("clone-sdk:")) await this.prediction.cancel(id.slice(10)).catch(() => undefined);
-      else await this.qm.abort(id).catch(() => undefined);
+      if (id.startsWith("clone-sdk:")) {
+        try {
+          await this.prediction.cancel(id.slice(10));
+        } catch {
+          continue;
+        }
+      } else await this.qm.abort(id).catch(() => undefined);
       await this.store.untrackRun(id);
     }
     for (const goal of await this.store.goals()) {
@@ -113,6 +118,9 @@ export class CloneLoop {
           runId = `clone-sdk:${requestId}`;
           await this.store.trackRun(runId, "clone-sdk");
         },
+        async () => {
+          if (runId) await this.store.untrackRun(runId);
+        },
       );
       controller.signal.throwIfAborted();
       if (persist)
@@ -130,7 +138,6 @@ export class CloneLoop {
       throw error;
     } finally {
       signal?.removeEventListener("abort", abort);
-      if (runId) await this.store.untrackRun(runId);
       if (this.predictions.get(id) === controller) this.predictions.delete(id);
     }
   }
