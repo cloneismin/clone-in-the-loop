@@ -1,5 +1,20 @@
 # Presentation strategy
 
+## The message to carry through every surface
+
+**QM executes. GBrain remembers. Your Clone keeps your judgment in the loop.**
+
+The distinctive idea is to focus on the person directing the agents. Their past instructions and feedback inform what to ask next, what to correct, and how to continue. The demo should make that judgment visible in a changed result.
+
+| Point to emphasize                              | Concrete support                                                                                                                                                                              |
+| ----------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Extend the hackathon's foundations**          | Real QM turns and tools execute the work; official GBrain retrieval supplies scoped context for prediction and review.                                                                        |
+| **Put personal judgment to work**               | A Clone proposes the next human-side instruction, reviews the response against the Goal and remembered preferences, and sends a correction back to QM.                                        |
+| **Make delegation a simple interaction**        | **Tab → Tab → Stop** moves from accepting a suggestion to delegating the loop and taking control back. Persisted messages make the sequence inspectable.                                      |
+| **Explore shared judgment and repeatable work** | Personal/team scopes and a fictional teammate demonstrate the team interaction. Research, Product, and Marketing use the same loop; the launch-review template is a concrete reusable output. |
+
+Use the [README](../README.md#what-makes-clone-different) for the contribution and implementation, the [loop diagram](assets/clone-decision-loop.svg) for the mechanism, and the [30-second and 60-second scripts](pitch.md) for delivery. The upstream proposal should stay short and point readers to the runnable fork and demo.
+
 ## What the official pages establish
 
 The [official event page](https://events.ycombinator.com/gstack-qm-river-memorable-hackathon), checked September 27, 2026, emphasizes extensions to QM and GBrain, new agent workflows and interfaces, multiplayer and software-factory ideas, and work that is ambitious, useful, or unexpected. Projects are due at 5:00 PM Pacific; judging follows from 5:00 to 5:45 PM.
